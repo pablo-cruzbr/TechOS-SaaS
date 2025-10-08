@@ -1,0 +1,7 @@
+Alterar a API pelo IP da maquina dando ipconfig no cmd
+
+npx expo start
+
+
+Ajustes:
+
