@@ -26,7 +26,8 @@ Principais funcionalidades:
 - Integração com **Google Maps** e **Waze**  
 - Assinatura digital de ordens concluídas  
 - Gestão de clientes, unidades e endereços  
-- Cadastro de máquinas e controle de status  
+- Cadastro de máquinas e controle de status
+- Cadastrado de Técnicos 
 - Painel administrativo moderno em **Next.js**  
 - Backend seguro com **Node.js**, **Express**, **PostgreSQL** e **Prisma**  
 - Autenticação JWT e criptografia com bcrypt  
@@ -42,13 +43,13 @@ Principais funcionalidades:
 - Cadastro de máquinas e controle de manutenção  
 - Documentação técnica com assinatura digital  
 - Cadastro de técnicos e controle de acessos  
-- Login seguro com JWT  
+- Login seguro com JWT Json Web Token  (salva o tokens nos cookies do navegador)
 
 ### 📱 Mobile App
 - Visualização de ordens atribuídas ao técnico  
 - Geolocalização para rotas  
 - Formulário de atendimento  
-- Upload de fotos e documentos  
+- Upload de fotos (biblioteca expo-image-picker)  
 - Conclusão de ordens com assinatura digital  
 
 ---
