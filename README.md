@@ -28,7 +28,7 @@ Principais funcionalidades:
 - Gestão de clientes, unidades e endereços  
 - Cadastro de máquinas e controle de status
 - Cadastrado de Técnicos 
-- Painel administrativo moderno em **Next.js**  
+- Painel administrativo moderno em **Next.js e Saas**  
 - Backend seguro com **Node.js**, **Express**, **PostgreSQL** e **Prisma**  
 - Autenticação JWT e criptografia com bcrypt  
 
