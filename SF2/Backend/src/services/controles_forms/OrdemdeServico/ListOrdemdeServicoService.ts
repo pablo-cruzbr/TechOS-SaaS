@@ -18,6 +18,13 @@ class ListOrdemdeServicoService {
         nameTecnico: true,
         diagnostico: true,
         solucao: true,
+        equipamento:{
+          select:{
+            id: true,
+            name: true,
+            patrimonio: true,
+          }
+        },
         statusOrdemdeServico: {
           select: {
             id: true,

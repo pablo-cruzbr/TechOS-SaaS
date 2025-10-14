@@ -176,9 +176,14 @@ model OrdemdeServico {
 
   fotos                             FotoOrdemServico[]
 
+
   
   informacoesSetorId                String?
   informacoesSetor                  InformacoesSetor?     @relation(fields: [informacoesSetorId], references: [id])
+
+
+ equipamento_id String?  
+ equipamento    Equipamento? @relation(fields: [equipamento_id], references: [id])
 
 
   cliente                           Cliente?              @relation(fields: [cliente_id], references: [id])
@@ -220,6 +225,7 @@ model Equipamento {
   controlesdeLaudoTecnico                 controleDeLaudoTecnico[]
   controlesDeMaquinasPendentesLaboratorio controleDeMaquinasPendentesLaboratorio[]
   controlesDeMaquinasPendentesOro         controledeMaquinasPendentesOro[]
+  ordens                OrdemdeServico[]
 
   @@map("equipamento")
 }

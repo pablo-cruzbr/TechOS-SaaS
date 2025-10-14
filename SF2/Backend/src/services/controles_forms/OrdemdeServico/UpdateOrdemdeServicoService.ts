@@ -12,6 +12,7 @@ cloudinary.config({
 
 // Tipagem do corpo da requisição
 type UpdateOrdemdeServicoRequest = {
+  equipamento_id: string;
   tecnico_id?: string;
   statusOrdemdeServico_id?: string;
   tipodeChamado_id?: string;
@@ -40,6 +41,7 @@ class UpdateOrdemdeServicoService {
       const {
         tecnico_id,
         statusOrdemdeServico_id,
+        equipamento_id,
         tipodeChamado_id,
         informacoesSetor_id,
         instituicaoUnidade_id,
@@ -81,8 +83,10 @@ class UpdateOrdemdeServicoService {
           ...(startedAt && { startedAt: new Date(startedAt) }),
           ...(endedAt && { endedAt: new Date(endedAt) }),
           ...(duracao && { duracao }),
+         
 
           // Relacionamentos opcionais
+           ...(equipamento_id && {equipamento: {connect: {id: equipamento_id}}}),
           ...(tecnico_id && { tecnico: { connect: { id: tecnico_id } } }),
           ...(statusOrdemdeServico_id && { statusOrdemdeServico: { connect: { id: statusOrdemdeServico_id } } }),
           ...(tipodeChamado_id && { tipodeChamado: { connect: { id: tipodeChamado_id } } }),
@@ -111,6 +115,7 @@ class UpdateOrdemdeServicoService {
               setor: { select: { id: true, name: true } },
             },
           },
+          equipamento: {select: {id: true, name: true, patrimonio: true}},
           instituicaoUnidade: { select: { id: true, name: true } },
           cliente: { select: { id: true, name: true } },
           nameTecnico: true,

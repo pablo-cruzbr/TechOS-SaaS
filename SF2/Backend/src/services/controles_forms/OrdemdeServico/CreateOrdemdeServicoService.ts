@@ -1,3 +1,4 @@
+import { connect } from "http2";
 import prismaClient from "../../../prisma";
 
 interface FormOrdemdeServicoRequest {
@@ -10,6 +11,7 @@ interface FormOrdemdeServicoRequest {
   tipodeChamado_id: string;
   instituicaoUnidade_id?: string;
   user_id: string;
+  equipamento_id: string;
 
   nameTecnico?: string;
   diagnostico?: string;
@@ -29,6 +31,7 @@ class CreateOrdemdeServicoService {
     tipodeChamado_id,
     instituicaoUnidade_id,
     user_id,
+    equipamento_id,
 
     nameTecnico,
     diagnostico,
@@ -74,6 +77,10 @@ class CreateOrdemdeServicoService {
 
           ...(instituicaoUnidade_id && {
             instituicaoUnidade: { connect: { id: instituicaoUnidade_id } }
+          }),
+
+          ...(equipamento_id && {
+            equipamento: {connect: {id: equipamento_id }}
           }),
 
           nameTecnico,
