@@ -26,7 +26,7 @@ Principais funcionalidades:
 - Integração com **Google Maps** e **Waze**  
 - Assinatura digital de ordens concluídas  
 - Gestão de clientes, unidades e endereços  
-- Cadastro de máquinas e controle de status
+- Cadastro e controle de máquinas cadastradas por patrimônio, Assistencia Técnica, Laudo Técnico, Máquinas em Laboratório, Maquinas Pendentes e Estabilizadores e controle de status
 - Cadastrado de Técnicos 
 - Painel administrativo moderno em **Next.js e Saas**  
 - Backend seguro com **Node.js**, **Express**, **PostgreSQL** e **Prisma**  
