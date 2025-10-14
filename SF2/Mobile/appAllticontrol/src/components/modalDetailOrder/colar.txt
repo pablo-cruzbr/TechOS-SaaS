@@ -1,0 +1,679 @@
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  ScrollView,
+  Linking,
+  Image,
+  Alert,
+} from "react-native";
+import { OrdensDeServico } from "../../pages/Dashboard";
+import { MaterialIcons } from "@expo/vector-icons";
+import { ModalDetailOrderFormTecnico } from "../modalDetailOrderFormTecnico";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api } from "../../services/api";
+import * as ImagePicker from "expo-image-picker";
+
+interface ModalDetailOsProps {
+  ordem: OrdensDeServico | null;
+  handleCloseModal: () => void;
+}
+
+interface Setor {
+  id: string;
+  usuario: string;
+  ramal: string;
+  andar: string;
+  setor: {
+    id: string;
+    name: string;
+  };
+}
+
+const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+const IMAGE_SIZE = (WIDTH - 90) / 3;
+
+export function ModalDetailOrder({ ordem, handleCloseModal }: ModalDetailOsProps) {
+  const [modalTecnicoOpen, setModalTecnicoOpen] = useState(false);
+  const [ordemAtual, setOrdemAtual] = useState<OrdensDeServico | null>(ordem);
+  const [selectedImages, setSelectedImages] = useState<{ uri: string; base64: string }[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [time, setTime] = useState(0);
+  const [assinatura, setAssinatura] = useState<string | null>(null);
+
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${h}:${m}:${s}`;
+  };
+
+useEffect(() => {
+  if (ordemAtual?.duracao) {
+    setTime(ordemAtual.duracao);
+  } else if (ordemAtual?.startedAt && !ordemAtual?.endedAt) {
+    const diff = Math.floor((new Date().getTime() - new Date(ordemAtual.startedAt).getTime()) / 1000);
+    setTime(diff);
+    setIsRunning(true);
+  }
+  if (ordemAtual?.id) fetchAssinatura(ordemAtual.id);
+}, [ordemAtual]);
+
+useEffect(() => {
+  if (ordemAtual?.endedAt) {
+    setIsRunning(false); // para o timer
+    const duracao = Math.floor(
+      (new Date(ordemAtual.endedAt).getTime() - new Date(ordemAtual.startedAt!).getTime()) / 1000
+    );
+    setTime(duracao);
+  }
+}, [ordemAtual]);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isRunning) interval = setInterval(() => setTime(prev => prev + 1), 1000);
+    return () => clearInterval(interval);
+  }, [isRunning]);
+
+  if (!ordemAtual) return null;
+
+  const endereco = ordemAtual.user?.cliente?.endereco ?? ordemAtual.instituicaoUnidade?.endereco ?? "";
+
+  const abrirWaze = (endereco: string) => {
+    const url = `https://waze.com/ul?q=${encodeURIComponent(endereco)}`;
+    Linking.canOpenURL(url).then(supported => supported ? Linking.openURL(url) : Alert.alert("Erro", "Não foi possível abrir o Waze."));
+  };
+
+  const abrirGoogleMaps = (endereco: string) => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+    Linking.openURL(url);
+  };
+
+  const atualizarOrdem = () => setOrdemAtual({ ...ordemAtual });
+
+  // ===== ASSINATURA =====
+  const fetchAssinatura = async (ordemId: string) => {
+    try {
+      const storageToken = await AsyncStorage.getItem("@AlltiService");
+      if (!storageToken) return;
+      const { token } = JSON.parse(storageToken);
+
+      const response = await api.get(`/assinatura/${ordemId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAssinatura(response.data?.assinatura ?? null);
+    } catch (err) {
+      console.error("Erro ao buscar assinatura:", err);
+    }
+  };
+
+ const fetchTempo = async (ordemId: string) => {
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    const response = await api.get(`/ordemdeservico/tempo/${ordemId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const { duracao, startedAt, endedAt } = response.data;
+
+    // Atualiza ordemAtual com os valores retornados
+    setOrdemAtual((prev) => {
+    if (!prev) return prev; // se for null, não altera
+    return {
+    ...prev,
+    startedAt,
+    endedAt,
+  };
+});
+
+
+    if (duracao) {
+      setTime(duracao);
+    } else if (startedAt && !endedAt) {
+      const diff = Math.floor((new Date().getTime() - new Date(startedAt).getTime()) / 1000);
+      setTime(diff);
+      setIsRunning(true);
+    }
+  } catch (err) {
+    console.error("Erro ao buscar tempo da OS:", err);
+  }
+};
+
+
+    useEffect(() => {
+    if (ordemAtual?.id) {
+      fetchAssinatura(ordemAtual.id);
+      fetchTempo(ordemAtual.id); // chama a requisição GET do tempo
+    }
+  }, [ordemAtual]);
+
+  const enviarAssinatura = async (base64: string) => {
+    try {
+      const storageToken = await AsyncStorage.getItem("@AlltiService");
+      if (!storageToken) return;
+      const { token } = JSON.parse(storageToken);
+
+      await api.patch(`/assinatura/${ordemAtual!.id}`, { assinatura: base64 }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Alert.alert("Sucesso", "Assinatura salva!");
+      setAssinatura(base64);
+    } catch (err) {
+      console.error("Erro ao salvar assinatura:", err);
+      Alert.alert("Erro", "Não foi possível salvar a assinatura.");
+    }
+  };
+
+  const pickImages = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") return Alert.alert("Permissão negada", "Habilite o acesso às fotos.");
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 1,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      const imagesWithBase64 = result.assets.map(asset => ({
+        uri: asset.uri,
+        base64: `data:${asset.type};base64,${asset.base64}`,
+      }));
+      setSelectedImages([...selectedImages, ...imagesWithBase64]);
+    }
+  };
+
+  const openCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") return Alert.alert("Permissão negada", "Habilite o acesso à câmera.");
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      const imagesWithBase64 = result.assets.map(asset => ({
+        uri: asset.uri,
+        base64: `data:${asset.type};base64,${asset.base64}`,
+      }));
+      setSelectedImages([...selectedImages, ...imagesWithBase64]);
+    }
+  };
+
+  const removeImage = (index: number) => setSelectedImages(selectedImages.filter((_, i) => i !== index));
+
+  const uploadImages = async () => {
+    if (selectedImages.length === 0) return Alert.alert("Atenção", "Selecione pelo menos uma imagem.");
+
+    const formData = new FormData();
+    formData.append("ordemdeServico_id", ordemAtual.id);
+
+    selectedImages.forEach((img, index) => {
+      formData.append("file", {
+        uri: img.uri,
+        name: `ordem_${ordemAtual.id}_${index}.jpg`,
+        type: "image/jpeg",
+      } as any);
+    });
+
+    try {
+      await api.post(`/foto`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30000,
+      });
+      Alert.alert("Sucesso", "Imagens enviadas com sucesso!");
+      setSelectedImages([]);
+    } catch (err: unknown) {
+      const error = err as any;
+      console.error("Erro no upload de imagens:", error.response?.data || error.message);
+      Alert.alert("Erro", "Falha ao enviar imagens.");
+    }
+  };
+
+const refreshOrdemAtual = async () => {
+  if (!ordemAtual?.id) return; 
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    const { data } = await api.get(`/ordemdeservico/tempo/${ordemAtual.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log("🔥 Dados recebidos no refreshOrdemAtual:", data);
+
+    // Atualiza só os campos retornados pelo endpoint de tempo
+    setOrdemAtual(prev => prev ? { ...prev, ...data } : { ...ordem!, ...data });
+  } catch (error) {
+    console.error("Erro ao buscar OS atualizada:", error);
+  }
+};
+
+
+ const handleStart = async () => {
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    await api.patch(`/ordemdeservico/iniciar/${ordemAtual.id}`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    await refreshOrdemAtual(); 
+  } catch (error) {
+    console.error("Erro ao iniciar OS:", error);
+  }
+};
+
+useEffect(() => {
+  if (!ordem) return;
+
+  const fetchOrdemAtualizada = async () => {
+    try {
+      const storageToken = await AsyncStorage.getItem("@AlltiService");
+      if (!storageToken) return;
+      const { token } = JSON.parse(storageToken);
+
+      const response = await api.get(`/ordemdeservico/${ordem.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setOrdemAtual(response.data);
+      fetchAssinatura(ordem.id);
+      fetchTempo(ordem.id);
+    } catch (err) {
+      console.error("Erro ao buscar OS atualizada:", err);
+    }
+  };
+
+  fetchOrdemAtualizada();
+}, [ordem]); // dispara sempre que o modal abrir com uma nova ordem
+
+
+
+const handlePause = async () => {
+  if (!ordemAtual?.id) {
+    console.error("❌ ordemAtual sem ID:", ordemAtual);
+    return;
+  }
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    const payload = { endedAt: new Date().toISOString() };
+
+    console.log("🚀 Chamando concluir OS");
+    console.log("ID enviado:", ordemAtual.id);
+    console.log("Token enviado:", token);
+    console.log("Payload enviado:", payload);
+
+    await api.patch(
+      `/ordemdeservico/concluir/${ordemAtual.id}`,
+      payload,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    await refreshOrdemAtual();
+  } catch (error) {
+    console.error("Erro ao pausar OS:", error);
+  }
+};
+
+  const handleReset = () => {
+    setIsRunning(false);
+    setTime(0);
+  };
+
+ const handleCloseAndComplete = async () => {
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    await api.patch(`/ordemdeservico/concluir/${ordemAtual.id}`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    await refreshOrdemAtual();
+    handleCloseModal();
+  } catch (error) {
+    console.error("Erro ao concluir OS:", error);
+  }
+};
+
+  return (
+    <>
+      <TouchableOpacity activeOpacity={1} style={styles.overlay} onPress={handleCloseModal}>
+        <TouchableOpacity activeOpacity={1} style={styles.modalContainer}>
+          <ScrollView showsVerticalScrollIndicator>
+            {/* === HEADER === */}
+            <View style={styles.header}>
+              <Text style={styles.title}>Detalhes da Ordem</Text>
+              <TouchableOpacity onPress={atualizarOrdem} style={styles.refreshIcon}>
+                <MaterialIcons name="refresh" size={24} color="#0F1431" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleCloseModal} style={styles.closeIcon}>
+                <MaterialIcons name="close" size={24} color="#0F1431" />
+              </TouchableOpacity>
+            </View>
+
+            {/* === INFORMAÇÕES === */}
+            <Text style={styles.label}>Número: {ordemAtual.numeroOS ?? "Não Disponível"}</Text>
+            <Text style={styles.label}>Status:</Text>
+            <Text>{ordemAtual.statusOrdemdeServico?.name ?? "-"}</Text>
+            <Text style={styles.label}>Quem abriu a OS:</Text>
+            <Text>{ordemAtual.name}</Text>
+
+            {ordemAtual.user?.cliente ? (
+              <>
+                <Text style={styles.label}>Empresa:</Text>
+                <Text>{ordemAtual.user.cliente.name}</Text>
+                <Text style={styles.label}>Endereço:</Text>
+                <Text>{ordemAtual.user.cliente.endereco}</Text>
+              </>
+            ) : ordemAtual.instituicaoUnidade ? (
+              <>
+                <Text style={styles.label}>Instituição:</Text>
+                <Text>{ordemAtual.instituicaoUnidade.name}</Text>
+                <Text style={styles.label}>Endereço:</Text>
+                <Text>{ordemAtual.instituicaoUnidade.endereco}</Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.label}>Endereço:</Text>
+                <Text>-</Text>
+              </>
+            )}
+
+            {/* === NAVEGAÇÃO === */}
+            {endereco && (
+              <>
+                <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirWaze(endereco)}>
+                  <View style={styles.buttonContent}>
+                    <MaterialIcons name="navigation" size={20} color="#FFF" />
+                    <Text style={styles.textButtonClose}>ABRIR NO WAZE</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirGoogleMaps(endereco)}>
+                  <View style={styles.buttonContent}>
+                    <MaterialIcons name="map" size={20} color="#FFF" />
+                    <Text style={styles.textButtonClose}>ABRIR NO GOOGLE MAPS</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            )}
+
+            {/* === TIMER === */}
+            <View style={styles.timerContainer}>
+              <Text style={styles.timerText}>Tempo decorrido: {formatTime(time)}</Text>
+              <View style={styles.timerButtons}>
+                {!isRunning ? (
+                  <TouchableOpacity style={[styles.buttonClose, styles.timerBtn]} onPress={handleStart}>
+                    <Text style={styles.textButtonClose}>Iniciar</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity style={[styles.buttonClose, styles.timerBtnPause]} onPress={handlePause}>
+                    <Text style={styles.textButtonClose}>Pausar</Text>
+                  </TouchableOpacity>
+                )}
+
+                {/* <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={handleReset}>
+                  <Text style={styles.textButtonClose}>Resetar</Text>
+                </TouchableOpacity>*/}
+              </View>
+            </View>
+
+            {/* === DETALHES === */}
+            <Text style={styles.label}>Tipo de Chamado:</Text>
+            <Text>{ordemAtual.tipodeChamado?.name ?? "-"}</Text>
+            <Text style={styles.label}>Problema:</Text>
+            <Text>{ordemAtual.descricaodoProblemaouSolicitacao}</Text>
+            <Text style={styles.label}>Contato no Local:</Text>
+            <Text>{ordemAtual.nomedoContatoaserProcuradonoLocal}</Text>
+            <Text style={styles.label}>Técnico:</Text>
+            <Text>{ordemAtual.nameTecnico ?? "-"}</Text>
+            <Text style={styles.label}>Diagnóstico:</Text>
+            <Text>{ordemAtual.diagnostico ?? "-"}</Text>
+            <Text style={styles.label}>Solução:</Text>
+            <Text>{ordemAtual.solucao ?? "-"}</Text>
+            
+           <Text style={styles.label}>Início da OS:</Text>
+              <Text>
+                {ordemAtual?.startedAt
+                  ? new Date(ordemAtual.startedAt).toLocaleTimeString("pt-BR", {
+                      timeZone: "America/Sao_Paulo",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "-"}
+              </Text>
+
+              <Text style={styles.label}>Término da OS:</Text>
+              <Text>
+                {ordemAtual?.endedAt
+                  ? new Date(ordemAtual.endedAt).toLocaleTimeString("pt-BR", {
+                      timeZone: "America/Sao_Paulo",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : isRunning
+                  ? "Em andamento..."
+                  : "-"}
+              </Text>
+
+
+            <Text style={styles.label}>Duração:</Text>
+              <Text>{formatTime(time)}</Text>
+
+            <Text style={styles.label}>Assinatura:</Text>
+
+            {/* === ASSINATURA === */}
+            {assinatura ? (
+              <Image source={{ uri: assinatura }} style={{ width: 300, height: 230, marginTop: 5, borderWidth: 1, borderColor: "#000" }} />
+            ) : (
+              <TouchableOpacity style={styles.buttonClose} onPress={() => Alert.alert("Assinatura", "Implementar captura de assinatura aqui")}>
+                <Text style={styles.textButtonClose}>ADICIONAR ASSINATURA</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* === IMAGENS === */}
+            <TouchableOpacity style={styles.buttonClose} onPress={pickImages}>
+              <View style={styles.buttonContent}>
+                <MaterialIcons name="photo-library" size={20} color="#FFF" />
+                <Text style={styles.textButtonClose}>SELECIONAR IMAGENS</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.buttonClose} onPress={openCamera}>
+              <View style={styles.buttonContent}>
+                <MaterialIcons name="photo-camera" size={20} color="#FFF" />
+                <Text style={styles.textButtonClose}>TIRAR FOTO</Text>
+              </View>
+            </TouchableOpacity>
+
+            {selectedImages.length > 0 && (
+              <>
+                <View style={styles.gridImages}>
+                  {selectedImages.map((img, index) => (
+                    <View key={index} style={styles.imageWrapper}>
+                      <Image source={{ uri: img.uri }} style={styles.imageItem} />
+                      <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
+                        <MaterialIcons name="close" size={16} color="#FFF" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+                <TouchableOpacity style={styles.buttonClose} onPress={uploadImages}>
+                  <View style={styles.buttonContent}>
+                    <MaterialIcons name="cloud-upload" size={20} color="#FFF" />
+                    <Text style={styles.textButtonClose}>ENVIAR TODAS</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            )}
+
+            <TouchableOpacity style={styles.buttonClose} onPress={() => setModalTecnicoOpen(true)}>
+              <View style={styles.buttonContent}>
+                <MaterialIcons name="description" size={20} color="#FFF" />
+                <Text style={styles.textButtonClose}>ADICIONAR DESCRIÇÃO TÉCNICA</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.buttonClose, styles.buttonComplete]} onPress={handleCloseAndComplete}>
+              <View style={styles.buttonContent}>
+                <MaterialIcons name="check-circle" size={20} color="#FFF" />
+                <Text style={styles.textButtonClose}>CONCLUIR E FECHAR</Text>
+              </View>
+            </TouchableOpacity>
+
+          </ScrollView>
+        </TouchableOpacity>
+      </TouchableOpacity>
+
+      {modalTecnicoOpen && (
+        <ModalDetailOrderFormTecnico ordemId={ordemAtual.id} handleCloseModal={() => setModalTecnicoOpen(false)} />
+      )}
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalContainer: {
+    width: WIDTH - 15,
+    maxHeight: HEIGHT - 100,
+    backgroundColor: "#FFF",
+    borderRadius: 8,
+    padding: 20,
+  },
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+
+  refreshIcon: {
+    left: 40,
+  },
+
+  closeIcon: {
+    right: 4,
+  },
+
+  label: {
+    marginTop: 10,
+    fontWeight: "bold",
+  },
+
+  buttonClose: {
+    marginTop: 20,
+    backgroundColor: "#3859F3",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  textButtonClose: {
+    color: "#FFF",
+    fontWeight: "bold",
+    marginLeft: 8,
+  },
+
+  buttonNavigation: {
+    backgroundColor: "#3859F3",
+  },
+
+  timerContainer: {
+    marginVertical: 15,
+    alignItems: "center",
+  },
+
+  timerText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  timerButtons: {
+    flexDirection: "row",
+    marginTop: 10,
+  },
+
+  timerBtn: {
+    marginRight: 10,
+    backgroundColor: "#3859F3",
+  },
+
+  timerBtnPause: {
+    marginRight: 10,
+    backgroundColor: "#888",
+  },
+
+  timerBtnReset: {
+    backgroundColor: "#555",
+  },
+
+  gridImages: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 10,
+  },
+
+  imageWrapper: {
+    width: IMAGE_SIZE,
+    height: IMAGE_SIZE,
+    marginRight: 10,
+    marginBottom: 10,
+    position: "relative",
+  },
+
+  imageItem: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+  },
+
+  removeButton: {
+    position: "absolute",
+    top: 5,
+    right: 5,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 12,
+    padding: 2,
+    zIndex: 10,
+  },
+
+  buttonComplete: {
+    backgroundColor: "green",
+  },
+});
