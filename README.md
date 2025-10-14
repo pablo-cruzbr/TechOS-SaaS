@@ -18,7 +18,8 @@ O **AlltiControl** é um sistema completo para gestão de **Ordens de Serviço (
 Ele foi projetado para **facilitar a rotina operacional**, organizar atendimentos e melhorar a comunicação entre técnicos e clientes.  
 
 Principais funcionalidades:  
-- Registro completo de OS e tickets internos  
+- Registro completo de OS e tickets internos
+- Cadastrado de Novos usuários 
 - Agenda técnica integrada (diária, semanal, mensal)  
 - Aplicativo mobile para técnicos em **React Native**  
 - Integração com **Google Maps** e **Waze**  
