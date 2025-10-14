@@ -50,8 +50,8 @@ Principais funcionalidades:
 - Geolocalização para rotas  (Waze e Google Maps)
 - Formulário de atendimento  
 - Upload e envio de imagens (biblioteca expo-image-picker)  - (Armazenamento em nuvem - Cloudinary)
-- Conclusão de ordens com assinatura digital
 - Assinatura Digital (react-native-signature-canvas)
+- Conclusão de ordens
 
 ---
 
