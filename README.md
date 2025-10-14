@@ -86,3 +86,7 @@ Este projeto demonstra **habilidades Fullstack**, integrando sistemas Web e Mobi
 
 ## 📁 Estrutura do Projeto
 
+
+
+⚙️ Este projeto está em constante atualização e atualmente em processo de desenvolvimento/implementação.
+
