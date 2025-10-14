@@ -79,8 +79,8 @@ Este projeto demonstra **habilidades Fullstack**, integrando sistemas Web e Mobi
 ## 🔜 Próximos Passos / Melhorias Futuras
 - Notificações push no app mobile  
 - Relatórios customizados e gráficos avançados  
-- Sistema de permissões mais granular  
-- Integração com ERP/CRM  
+
+
 
 ---
 
