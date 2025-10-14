@@ -1,7 +1,5 @@
 # AlltiControl – Sistema de Gestão de Ordens de Serviço e Tickets
 
-![Dashboard](./766f0928-ff0d-4ebc-b4d3-08018d40e367.PNG)
-
 <p align="center">
   <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
   <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" /></a>
