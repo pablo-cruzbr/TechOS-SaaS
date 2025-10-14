@@ -47,10 +47,11 @@ Principais funcionalidades:
 
 ### 📱 Mobile App
 - Visualização de ordens atribuídas ao técnico  
-- Geolocalização para rotas  
+- Geolocalização para rotas  (Waze e Google Maps)
 - Formulário de atendimento  
-- Upload de fotos (biblioteca expo-image-picker)  
-- Conclusão de ordens com assinatura digital  
+- Upload e envio de imagens (biblioteca expo-image-picker)  - (Armazenamento em nuvem - Cloudinary)
+- Conclusão de ordens com assinatura digital
+- Assinatura Digital (react-native-signature-canvas)
 
 ---
 
@@ -69,7 +70,7 @@ Principais funcionalidades:
 
 ## 💡 Motivação
 
-Este projeto demonstra **habilidades Fullstack**, integrando sistemas Web e Mobile, com foco em:  
+Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no período de 4 meses com o intuito de ajudar a empresa a qual o eu trabalho atualmente chamada AlltiService que force serviços de informática, demonstrando **habilidades em Programação Fullstack**, integrando sistemas Web e Mobile, com foco em:  
 - Automação e eficiência  
 - Segurança e autenticação  
 - Escalabilidade e organização de dados  
