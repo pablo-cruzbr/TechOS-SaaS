@@ -160,6 +160,7 @@ model OrdemdeServico {
   diagnostico                       String?
   solucao                           String?
   bannerassinatura                  String?
+  assinante                         String?
   assinaturaDigital                 String? 
   created_at                        DateTime?             @default(now())
   updatedAt                         DateTime?             @updatedAt @map("updated_at") 
