@@ -1,7 +1,5 @@
 # AlltiControl – Sistema de Gestão de Ordens de Serviço e Tickets
 
-![Dashboard](./766f0928-ff0d-4ebc-b4d3-08018d40e367.PNG)
-
 <p align="center">
   <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
   <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" /></a>
@@ -20,14 +18,16 @@ O **AlltiControl** é um sistema completo para gestão de **Ordens de Serviço (
 Ele foi projetado para **facilitar a rotina operacional**, organizar atendimentos e melhorar a comunicação entre técnicos e clientes.  
 
 Principais funcionalidades:  
-- Registro completo de OS e tickets internos  
+- Registro completo de OS e tickets internos
+- Cadastrado de Novos usuários 
 - Agenda técnica integrada (diária, semanal, mensal)  
 - Aplicativo mobile para técnicos em **React Native**  
 - Integração com **Google Maps** e **Waze**  
 - Assinatura digital de ordens concluídas  
 - Gestão de clientes, unidades e endereços  
-- Cadastro de máquinas e controle de status  
-- Painel administrativo moderno em **Next.js**  
+- Cadastro e controle de máquinas cadastradas por patrimônio, Assistencia Técnica, Laudo Técnico, Máquinas em Laboratório, Maquinas Pendentes e Estabilizadores e controle de status
+- Cadastrado de Técnicos 
+- Painel administrativo moderno em **Next.js e Saas**  
 - Backend seguro com **Node.js**, **Express**, **PostgreSQL** e **Prisma**  
 - Autenticação JWT e criptografia com bcrypt  
 
@@ -42,14 +42,15 @@ Principais funcionalidades:
 - Cadastro de máquinas e controle de manutenção  
 - Documentação técnica com assinatura digital  
 - Cadastro de técnicos e controle de acessos  
-- Login seguro com JWT  
+- Login seguro com JWT Json Web Token  (salva o tokens nos cookies do navegador)
 
 ### 📱 Mobile App
 - Visualização de ordens atribuídas ao técnico  
-- Geolocalização para rotas  
+- Geolocalização para rotas  (Waze e Google Maps)
 - Formulário de atendimento  
-- Upload de fotos e documentos  
-- Conclusão de ordens com assinatura digital  
+- Upload e envio de imagens (biblioteca expo-image-picker)  - (Armazenamento em nuvem - Cloudinary)
+- Assinatura Digital (react-native-signature-canvas)
+- Conclusão de ordens
 
 ---
 
@@ -68,7 +69,7 @@ Principais funcionalidades:
 
 ## 💡 Motivação
 
-Este projeto demonstra **habilidades Fullstack**, integrando sistemas Web e Mobile, com foco em:  
+Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no período de 4 meses com o intuito de ajudar a empresa a qual o eu trabalho atualmente chamada AlltiService que force serviços de informática, demonstrando **habilidades em Programação Fullstack**, integrando sistemas Web e Mobile, com foco em:  
 - Automação e eficiência  
 - Segurança e autenticação  
 - Escalabilidade e organização de dados  
