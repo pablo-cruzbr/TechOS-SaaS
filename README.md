@@ -1,4 +1,4 @@
-# AlltiControl – Sistema de Gestão de Ordens de Serviço e Tickets
+# Sistema de Gestão de Ordens de Serviço e Tickets
 
 <p align="center">
   <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
