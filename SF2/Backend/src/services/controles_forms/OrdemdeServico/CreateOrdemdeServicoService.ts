@@ -12,7 +12,7 @@ interface FormOrdemdeServicoRequest {
   instituicaoUnidade_id?: string;
   user_id: string;
   equipamento_id: string;
-
+  assinante?: string; 
   nameTecnico?: string;
   diagnostico?: string;
   solucao?: string;
@@ -25,6 +25,7 @@ class CreateOrdemdeServicoService {
     name,
     descricaodoProblemaouSolicitacao,
     nomedoContatoaserProcuradonoLocal,
+    assinante,
     cliente_id,
     tecnico_id,
     statusOrdemdeServico_id,
@@ -52,6 +53,7 @@ class CreateOrdemdeServicoService {
         data: {
           numeroOS,
           name,
+          assinante,
           descricaodoProblemaouSolicitacao,
           nomedoContatoaserProcuradonoLocal,
 
@@ -106,7 +108,8 @@ class CreateOrdemdeServicoService {
           instituicaoUnidade: { select: { name: true, endereco: true } },
           statusOrdemdeServico: { select: { name: true } },
           user: { select: { name: true } },
-          fotos: true
+          fotos: true,
+          assinante: true
         },
       });
 

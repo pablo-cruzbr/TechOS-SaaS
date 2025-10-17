@@ -22,6 +22,7 @@ type UpdateOrdemdeServicoRequest = {
   nameTecnico?: string;
   diagnostico?: string;
   solucao?: string;
+  assinante?: string; 
   descricaodoProblemaouSolicitacao?: string;
   bannerassinatura?: string;
   assinaturaDigital?: string;
@@ -54,6 +55,7 @@ class UpdateOrdemdeServicoService {
         startedAt,
         endedAt,
         duracao,
+        assinante
       } = req.body as UpdateOrdemdeServicoRequest;
 
       let bannerassinatura: string | undefined;
@@ -75,6 +77,7 @@ class UpdateOrdemdeServicoService {
         where: { id },
         data: {
           ...(solucao && { solucao }),
+          ...(assinante && {assinante}),
           ...(descricaodoProblemaouSolicitacao?.trim() && { descricaodoProblemaouSolicitacao }),
           ...(nameTecnico && { nameTecnico }),
           ...(diagnostico && { diagnostico }),
@@ -103,6 +106,7 @@ class UpdateOrdemdeServicoService {
         select: {
           id: true,
           solucao: true,
+          assinante: true,
           descricaodoProblemaouSolicitacao: true,
           tipodeChamado: { select: { id: true, name: true } },
           statusOrdemdeServico: { select: { id: true, name: true } },

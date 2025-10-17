@@ -18,6 +18,7 @@ class ListOrdemdeServicoService {
         nameTecnico: true,
         diagnostico: true,
         solucao: true,
+        assinante: true,
         equipamento:{
           select:{
             id: true,
