@@ -99,7 +99,7 @@ class CreateOrdemdeServicoService {
 
         select: {
           id: true,
-          numeroOS: true, // retorna no resultado
+          numeroOS: true, 
           name: true,
           descricaodoProblemaouSolicitacao: true,
           cliente: { select: { name: true, endereco: true } },

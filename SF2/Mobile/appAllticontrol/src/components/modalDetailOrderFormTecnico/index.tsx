@@ -30,6 +30,7 @@ export function ModalDetailOrderFormTecnico({
   const [nameTecnico, setNameTecnico] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [solucao, setSolucao] = useState('');
+  const [assinante, setAssinante] = useState('')
 
   // Assinatura
   const [signature, setSignature] = useState<string | null>(null);
@@ -68,6 +69,7 @@ export function ModalDetailOrderFormTecnico({
           nameTecnico,
           diagnostico,
           solucao,
+          assinante,
           statusOrdemdeServico_id: '80e14fbe-c7fd-45bc-b3cd-cfa51ede44e0',
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -132,8 +134,16 @@ export function ModalDetailOrderFormTecnico({
 
             {/* Assinatura Digital */}
             <Text style={{ marginBottom: 8, fontWeight: '600' }}>
-              Assinatura do Técnico
+              Assinante 
             </Text>
+            <TextInput
+              placeholder="Quem Está Assinando ?"
+              style={[styles.input, styles.textArea]}
+              value={assinante}
+              onChangeText={setAssinante}
+              multiline
+              numberOfLines={3}
+            />
             <View style={styles.signatureContainer}>
               <SignatureScreen
                 ref={signatureRef}

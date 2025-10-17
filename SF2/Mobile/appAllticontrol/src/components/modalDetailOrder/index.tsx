@@ -554,6 +554,7 @@ const handlePause = async () => {
               <Text>{formatTime(time)}</Text>
 
             <Text style={styles.label}>Assinatura:</Text>
+             <Text>Pessoa que Assinou: {ordemAtual.assinante ?? "-"}</Text>
 
             {/* === ASSINATURA === */}
             {assinatura ? (

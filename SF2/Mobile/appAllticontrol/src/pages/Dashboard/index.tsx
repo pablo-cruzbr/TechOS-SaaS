@@ -31,6 +31,7 @@ export type OrdensDeServico = {
   diagnostico: string | null;
   solucao: string | null;
   bannerassinatura: string | null;
+  assinante: string | null;
   numeroOS: number;
   startedAt?: string | null;
   endedAt?: string | null;
