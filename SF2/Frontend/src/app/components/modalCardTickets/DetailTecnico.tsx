@@ -87,7 +87,7 @@ export default function DetailTecnico({ ordemdeServico, onClose }: Props) {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      setTimeOs(data); // ✅ salva direto o objeto retornado
+      setTimeOs(data);
     } catch (error) {
       console.error("Erro ao buscar tempo da OS:", error);
     }

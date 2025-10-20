@@ -29,6 +29,7 @@ export interface OrdemdeServicoProps {
   tecnico_id?: string;
   statusOrdemdeServico_id?: string;
   numeroOS: number;
+  assinante: string | null;
 
   startedAt?: string | null;
   endedAt?: string | null;

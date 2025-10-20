@@ -29,6 +29,7 @@ export default function Assinatura({ ordemdeServico, onClose }: Props) {
   const [fotos, setFotos] = useState<FotoProps[]>([]);
   const [selectedFoto, setSelectedFoto] = useState<FotoProps | null>(null);
   const [assinaturaUrl, setAssinaturaUrl] = useState<string | null>(null);
+  const [assinante, setAssinante] = useState<string | null>(null)
 
 
   // Buscar fotos
@@ -77,14 +78,15 @@ useEffect(() => {
         <FaSignature size={20} className={styles.icon} />
         Assinatura da Ordem de Serviço:
       </h3>
-
-      {/* Grid de Miniaturas */}
+     
  <div className={styles.fotosGrid}>
   {assinaturaUrl && (
     <div className={styles.fotoCard} onClick={() => setSelectedFoto({ id: "assinatura", url: assinaturaUrl, ordemdeServico_id: ordemdeServico.id })}>
       <img src={assinaturaUrl} alt="Assinatura" />
     </div>
+     
   )}
+  <p>Quem Assinou: {ordemdeServico.assinante || "Sem Assinatura"}</p> 
 
   {fotos == null ? (
     <p>Carregando imagens...</p>
@@ -107,7 +109,6 @@ useEffect(() => {
         </button>
       </div>
 
-      {/* Painel/Lightbox */}
       {selectedFoto && (
         <div className={styles.lightbox} onClick={() => setSelectedFoto(null)}>
           <div
