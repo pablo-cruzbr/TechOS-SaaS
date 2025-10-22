@@ -19,7 +19,8 @@ Ele foi projetado para **facilitar a rotina operacional**, organizar atendimento
 
 Principais funcionalidades:  
 - Registro completo de OS e tickets internos
-- Cadastrado de Novos usuários 
+- Cadastrado de Novos usuários
+- Cadastro de Empresas e Instituições Unidade com emdereço e cnpj
 - Agenda técnica integrada (diária, semanal, mensal)  
 - Aplicativo mobile para técnicos em **React Native**  
 - Integração com **Google Maps** e **Waze**  
