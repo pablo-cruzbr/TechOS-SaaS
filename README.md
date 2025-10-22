@@ -1,4 +1,5 @@
-# Sistema de Gestão de Ordens de Serviço e Tickets
+# Gestão Full Stack de Serviços de TI e Ativos
+## Gerenciando sua Empresa de Informática
 
 <p align="center">
   <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
