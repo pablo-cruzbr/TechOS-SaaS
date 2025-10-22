@@ -79,6 +79,7 @@ Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no pe
 ---
 
 ## 🔜 Próximos Passos / Melhorias Futuras
+- Fazer Deploy na Vercel
 - Notificações push no app mobile  
 - Relatórios customizados e gráficos avançados  
 
