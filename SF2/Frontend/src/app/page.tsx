@@ -1,6 +1,6 @@
 import Image from "next/image";
 import styles from '../../src/app/page.module.scss';
-import logoImg from "../../public/logo3.svg";
+import logoImg from "../../public/Logo8.svg";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { api } from "@/services/api";

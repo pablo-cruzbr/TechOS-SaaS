@@ -1,5 +1,5 @@
 import Image from "next/image";
-import logo from "../../assets/ALLTI3.svg";
+import logo from "../../assets/Logo9.svg";
 import styles from "./logindeUsuario.module.scss";
 import { api } from "@/services/api";
 import { redirect } from "next/navigation";

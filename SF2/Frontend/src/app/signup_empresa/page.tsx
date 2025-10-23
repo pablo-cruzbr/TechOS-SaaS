@@ -3,7 +3,7 @@
 import styles from "./signup_empresa.module.scss";
 import Image from "next/image";
 import Link from "next/link";
-import logo from "../../assets/ALLTI3.svg";
+import logo from "../../assets/Logo9.svg";
 import { api } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

@@ -17,7 +17,7 @@ import { SiGoogledocs } from "react-icons/si";
 import { FiUserPlus } from "react-icons/fi";
 import { LiaUserAstronautSolid } from "react-icons/lia";
 import Image from "next/image";
-import logo from '../../../assets/logoAllti.svg'
+import logo from '../../../assets/Logo9.svg'
 
 import styles from "../sidebar/Sidebar.module.scss";
 

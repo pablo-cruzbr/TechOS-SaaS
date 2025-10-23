@@ -43,7 +43,7 @@ export default function Signin() {
       <View style={styles.card}>
         <Image
           style={styles.logo}
-          source={require("../../assets/logo3.png")}
+          source={require("../../assets/Logo8.png")}
         />
         <Text style={styles.title}>Faça seu Login</Text>
         <TextInput
