@@ -297,7 +297,7 @@ const refreshOrdemAtual = async () => {
     // Atualiza só os campos retornados pelo endpoint de tempo
     setOrdemAtual(prev => prev ? { ...prev, ...data } : { ...ordem!, ...data });
   } catch (error) {
-    console.error("Erro ao buscar OS atualizada:", error);
+    console.error("Erro ao buscar OS atualizada1:", error);
   }
 };
 
@@ -350,7 +350,7 @@ useEffect(() => {
       fetchAssinatura(ordem.id);
       fetchTempo(ordem.id);
     } catch (err) {
-      console.error("Erro ao buscar OS atualizada:", err);
+      console.error("Erro ao buscar OS atualizada2:", err);
     }
   };
 
