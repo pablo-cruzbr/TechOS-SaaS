@@ -1,4 +1,5 @@
-# Sistema de Gestão de Ordens de Serviço e Tickets
+# Gestão Full Stack de Serviços de TI e Ativos
+## Gerenciando sua Empresa de Informática de A a Z
 
 <p align="center">
   <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
@@ -19,7 +20,8 @@ Ele foi projetado para **facilitar a rotina operacional**, organizar atendimento
 
 Principais funcionalidades:  
 - Registro completo de OS e tickets internos
-- Cadastrado de Novos usuários 
+- Cadastrado de Novos usuários
+- Cadastro de Empresas e Instituições Unidade com emdereço e cnpj
 - Agenda técnica integrada (diária, semanal, mensal)  
 - Aplicativo mobile para técnicos em **React Native**  
 - Integração com **Google Maps** e **Waze**  
@@ -78,6 +80,7 @@ Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no pe
 ---
 
 ## 🔜 Próximos Passos / Melhorias Futuras
+- Fazer Deploy na Vercel
 - Notificações push no app mobile  
 - Relatórios customizados e gráficos avançados  
 
