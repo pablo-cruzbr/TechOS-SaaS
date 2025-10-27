@@ -9,9 +9,7 @@ import {
   BiChevronUp,
 } from "react-icons/bi";
 import { FaComputer } from "react-icons/fa6";
-import { IoGameControllerOutline,
-          IoEnterOutline
-                        } from "react-icons/io5";
+import { IoGameControllerOutline, IoEnterOutline} from "react-icons/io5";
 import { FaRegUserCircle } from "react-icons/fa";
 import { SiGoogledocs } from "react-icons/si";
 import { FiUserPlus } from "react-icons/fi";

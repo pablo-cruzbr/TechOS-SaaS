@@ -175,16 +175,32 @@ useEffect(() => {
 });
 
 
-    if (duracao) {
-      setTime(duracao);
-    } else if (startedAt && !endedAt) {
-      const diff = Math.floor((new Date().getTime() - new Date(startedAt).getTime()) / 1000);
-      setTime(diff);
-      setIsRunning(true);
-    }
-  } catch (err) {
-    console.error("Erro ao buscar tempo da OS:", err);
+   if (startedAt) {
+  // Converte o horário UTC para horário de Brasília (UTC-3)
+  const offsetMs = -3 * 60 * 60 * 1000;
+
+  const startedAtDate = new Date(new Date(startedAt).getTime() + offsetMs);
+  const endedAtDate = endedAt ? new Date(new Date(endedAt).getTime() + offsetMs) : null;
+
+  // Calcula duração
+  let diff = 0;
+  if (endedAtDate) {
+    diff = Math.floor((endedAtDate.getTime() - startedAtDate.getTime()) / 1000);
+  } else {
+    diff = Math.floor((Date.now() + offsetMs - startedAtDate.getTime()) / 1000);
   }
+
+  setTime(diff > 0 ? diff : 0);
+  setIsRunning(!endedAtDate);
+
+  // Atualiza ordemAtual com os horários corrigidos para exibição
+  setOrdemAtual((prev) => prev ? {
+    ...prev,
+    startedAt: startedAtDate.toISOString(),
+    endedAt: endedAtDate ? endedAtDate.toISOString() : null,
+  } : prev);
+}
+
 };
 
 
@@ -355,8 +371,7 @@ useEffect(() => {
   };
 
   fetchOrdemAtualizada();
-}, [ordem]); // dispara sempre que o modal abrir com uma nova ordem
-
+}, [ordem]); 
 
 
 const handlePause = async () => {
@@ -410,7 +425,7 @@ const handlePause = async () => {
       <TouchableOpacity activeOpacity={1} style={styles.overlay} onPress={handleCloseModal}>
         <TouchableOpacity activeOpacity={1} style={styles.modalContainer}>
           <ScrollView showsVerticalScrollIndicator>
-            {/* === HEADER === */}
+            
             <View style={styles.header}>
               <Text style={styles.title}>Detalhes da Ordem</Text>
               <TouchableOpacity onPress={atualizarOrdem} style={styles.refreshIcon}>
@@ -505,9 +520,9 @@ const handlePause = async () => {
                   </TouchableOpacity>
                 )}
 
-               {/*  <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={handleReset}>
+                 <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={handleReset}>
                   <Text style={styles.textButtonClose}>Resetar</Text>
-                </TouchableOpacity>*/} 
+                </TouchableOpacity>
               </View>
             </View>
 

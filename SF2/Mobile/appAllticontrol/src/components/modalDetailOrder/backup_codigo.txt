@@ -44,39 +44,81 @@ export function ModalDetailOrder({ ordem, handleCloseModal }: ModalDetailOsProps
   const [time, setTime] = useState(0);
   const [assinatura, setAssinatura] = useState<string | null>(null);
 
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
-    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
-    const s = (seconds % 60).toString().padStart(2, "0");
-    return `${h}:${m}:${s}`;
-  };
+const formatTime = (seconds: number) => {
+  const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
+  const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
+  const s = (seconds % 60).toString().padStart(2, "0");
+  return `${h}:${m}:${s}`;
+};
 
+ {/*
+// ===== MONITORANDO A ORDENAÇÃO =====
 useEffect(() => {
-  if (ordemAtual?.duracao) {
+  console.log("🔹 useEffect ordemAtual disparado", ordemAtual);
+
+  if (!ordemAtual) return;
+
+  if (ordemAtual.duracao) {
+    console.log("⏱️ Usando duração existente:", ordemAtual.duracao);
     setTime(ordemAtual.duracao);
-  } else if (ordemAtual?.startedAt && !ordemAtual?.endedAt) {
-    const diff = Math.floor((new Date().getTime() - new Date(ordemAtual.startedAt).getTime()) / 1000);
+    setIsRunning(!ordemAtual.endedAt); // Se não terminou, mantém rodando
+  } else if (ordemAtual.startedAt && !ordemAtual.endedAt) {
+    const diff = Math.floor(
+      (new Date().getTime() - new Date(ordemAtual.startedAt).getTime()) / 1000
+    );
+    console.log("⏱️ Calculando tempo a partir do startedAt:", diff);
     setTime(diff);
     setIsRunning(true);
+  } else {
+    console.log("⏱️ Sem tempo definido ainda, timer parado");
+    setIsRunning(false);
+    setTime(0);
   }
-  if (ordemAtual?.id) fetchAssinatura(ordemAtual.id);
+
+  if (ordemAtual.id) {
+    console.log("🆔 Buscando assinatura para ordemId:", ordemAtual.id);
+    fetchAssinatura(ordemAtual.id).catch(err => console.error(err));
+  }
 }, [ordemAtual]);
 
+// ===== FINALIZAR TIMER =====
 useEffect(() => {
-  if (ordemAtual?.endedAt) {
-    setIsRunning(false); // para o timer
-    const duracao = Math.floor(
-      (new Date(ordemAtual.endedAt).getTime() - new Date(ordemAtual.startedAt!).getTime()) / 1000
-    );
-    setTime(duracao);
-  }
-}, [ordemAtual]);
+  if (!ordemAtual) return;
+  if (!ordemAtual.endedAt) return;
 
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isRunning) interval = setInterval(() => setTime(prev => prev + 1), 1000);
-    return () => clearInterval(interval);
-  }, [isRunning]);
+  console.log("⏹️ Ordem finalizada, calculando duração");
+  const duracao = Math.floor(
+    (new Date(ordemAtual.endedAt).getTime() - new Date(ordemAtual.startedAt!).getTime()) / 1000
+  );
+  console.log("⏹️ Duração calculada:", duracao);
+
+  setTime(duracao);
+  setIsRunning(false);
+}, [ordemAtual?.endedAt]);
+
+// ===== TIMER INTERVAL =====
+useEffect(() => {
+  console.log("⏱️ useEffect timer disparado, isRunning =", isRunning);
+  let interval: ReturnType<typeof setInterval>;
+
+  if (isRunning) {
+    interval = setInterval(() => {
+      setTime(prev => {
+        console.log("⏱️ Timer incrementando:", prev + 1);
+        return prev + 1;
+      });
+    }, 1000);
+  }
+
+  return () => {
+    if (interval) {
+      console.log("🛑 Limpando intervalo do timer");
+      clearInterval(interval);
+    }
+  };
+}, [isRunning]);
+
+*/}
 
   if (!ordemAtual) return null;
 
@@ -255,26 +297,41 @@ const refreshOrdemAtual = async () => {
     // Atualiza só os campos retornados pelo endpoint de tempo
     setOrdemAtual(prev => prev ? { ...prev, ...data } : { ...ordem!, ...data });
   } catch (error) {
-    console.error("Erro ao buscar OS atualizada:", error);
+    console.error("Erro ao buscar OS atualizada1:", error);
   }
 };
 
 
- const handleStart = async () => {
+const handleStart = async () => {
+  console.log("🚀 handleStart disparado");
+  if (!ordemAtual?.id) {
+    console.error("❌ ordemAtual ou ID inválido", ordemAtual);
+    return;
+  }
+
   try {
     const storageToken = await AsyncStorage.getItem("@AlltiService");
-    if (!storageToken) return;
+    if (!storageToken) {
+      console.error("❌ Token não encontrado no AsyncStorage");
+      return;
+    }
     const { token } = JSON.parse(storageToken);
+    //console.log("Token obtido:", token);
 
-    await api.patch(`/ordemdeservico/iniciar/${ordemAtual.id}`, {}, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    //console.log("Chamando API PATCH para iniciar OS ID:", ordemAtual.id);
+    const response = await api.patch(
+      `/ordemdeservico/iniciar/${ordemAtual.id}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-    await refreshOrdemAtual(); 
+    await refreshOrdemAtual();
+  //  console.log("Ordem atualizada após iniciar:", ordemAtual);
   } catch (error) {
     console.error("Erro ao iniciar OS:", error);
   }
 };
+
 
 useEffect(() => {
   if (!ordem) return;
@@ -293,7 +350,7 @@ useEffect(() => {
       fetchAssinatura(ordem.id);
       fetchTempo(ordem.id);
     } catch (err) {
-      console.error("Erro ao buscar OS atualizada:", err);
+      console.error("Erro ao buscar OS atualizada2:", err);
     }
   };
 
@@ -313,12 +370,7 @@ const handlePause = async () => {
     const { token } = JSON.parse(storageToken);
 
     const payload = { endedAt: new Date().toISOString() };
-
-    console.log("🚀 Chamando concluir OS");
-    console.log("ID enviado:", ordemAtual.id);
-    console.log("Token enviado:", token);
-    console.log("Payload enviado:", payload);
-
+    
     await api.patch(
       `/ordemdeservico/concluir/${ordemAtual.id}`,
       payload,
@@ -369,6 +421,31 @@ const handlePause = async () => {
               </TouchableOpacity>
             </View>
 
+            
+          {/* Informações adicionais do setor */}
+           {ordemAtual.informacoesSetor && (
+          <View style={{ marginTop: 20 }}>
+          <Text style={styles.label}>Local do Chamado: </Text>
+          
+            {ordemAtual?.informacoesSetor?.instituicaoUnidade?.name ? (
+              <Text>{ordemAtual.informacoesSetor.instituicaoUnidade.name}</Text>
+              ) : ordemAtual?.informacoesSetor?.cliente?.name ? (
+              <Text>{ordemAtual.informacoesSetor.cliente.name}</Text>
+              ) : (
+              <Text>Não informado</Text>
+             )}
+          
+               <Text style={styles.label}>
+              Informações do usuário que solicitou o chamado
+             </Text>
+                            
+               <Text>Setor: {ordemAtual.informacoesSetor.setor.name}</Text>
+               <Text>Usuário: {ordemAtual.informacoesSetor.usuario}</Text>
+               <Text>Ramal: {ordemAtual.informacoesSetor.ramal}</Text>
+              <Text>Andar: {ordemAtual.informacoesSetor.andar}</Text>
+                </View>
+               )}
+
             {/* === INFORMAÇÕES === */}
             <Text style={styles.label}>Número: {ordemAtual.numeroOS ?? "Não Disponível"}</Text>
             <Text style={styles.label}>Status:</Text>
@@ -397,7 +474,6 @@ const handlePause = async () => {
               </>
             )}
 
-            {/* === NAVEGAÇÃO === */}
             {endereco && (
               <>
                 <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirWaze(endereco)}>
@@ -415,7 +491,7 @@ const handlePause = async () => {
               </>
             )}
 
-            {/* === TIMER === */}
+            
             <View style={styles.timerContainer}>
               <Text style={styles.timerText}>Tempo decorrido: {formatTime(time)}</Text>
               <View style={styles.timerButtons}>
@@ -429,9 +505,9 @@ const handlePause = async () => {
                   </TouchableOpacity>
                 )}
 
-                {/* <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={handleReset}>
+                 <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={handleReset}>
                   <Text style={styles.textButtonClose}>Resetar</Text>
-                </TouchableOpacity>*/}
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -478,6 +554,7 @@ const handlePause = async () => {
               <Text>{formatTime(time)}</Text>
 
             <Text style={styles.label}>Assinatura:</Text>
+             <Text>Pessoa que Assinou: {ordemAtual.assinante ?? "-"}</Text>
 
             {/* === ASSINATURA === */}
             {assinatura ? (
