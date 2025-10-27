@@ -1,7 +1,5 @@
 # Gestão Full Stack de Serviços de TI e Ativos
 ## Gerenciando sua Empresa de Informática de A a Z
-<img width="1280" height="800" alt="5" src="https://github.com/user-attachments/assets/2a391f74-2da2-4bd9-94e6-3dc382919e3e" />
-
 <p align="center">
   <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
   <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" /></a>
@@ -11,6 +9,17 @@
   <a href="https://reactnative.dev/"><img src="https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
 </p>
 
+<img width="1280" height="800" alt="5" src="https://github.com/user-attachments/assets/2a391f74-2da2-4bd9-94e6-3dc382919e3e" />
+---
+
+<img width="1280" height="800" alt="6" src="https://github.com/user-attachments/assets/e3467628-b736-4948-8a0f-bfc5a19227ff" />
+---
+
+<img width="1280" height="800" alt="7" src="https://github.com/user-attachments/assets/5d19cc09-84f3-4cde-93fd-aececc7872fc" />
+---
+
+
+<img width="1280" height="800" alt="8" src="https://github.com/user-attachments/assets/2c65e271-6da0-4d9f-8c9e-28d120429567" />
 ---
 
 ## 🚀 Sobre o Projeto
