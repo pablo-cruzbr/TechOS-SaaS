@@ -51,75 +51,6 @@ const formatTime = (seconds: number) => {
   return `${h}:${m}:${s}`;
 };
 
- {/*
-// ===== MONITORANDO A ORDENAÇÃO =====
-useEffect(() => {
-  console.log("🔹 useEffect ordemAtual disparado", ordemAtual);
-
-  if (!ordemAtual) return;
-
-  if (ordemAtual.duracao) {
-    console.log("⏱️ Usando duração existente:", ordemAtual.duracao);
-    setTime(ordemAtual.duracao);
-    setIsRunning(!ordemAtual.endedAt); // Se não terminou, mantém rodando
-  } else if (ordemAtual.startedAt && !ordemAtual.endedAt) {
-    const diff = Math.floor(
-      (new Date().getTime() - new Date(ordemAtual.startedAt).getTime()) / 1000
-    );
-    console.log("⏱️ Calculando tempo a partir do startedAt:", diff);
-    setTime(diff);
-    setIsRunning(true);
-  } else {
-    console.log("⏱️ Sem tempo definido ainda, timer parado");
-    setIsRunning(false);
-    setTime(0);
-  }
-
-  if (ordemAtual.id) {
-    console.log("🆔 Buscando assinatura para ordemId:", ordemAtual.id);
-    fetchAssinatura(ordemAtual.id).catch(err => console.error(err));
-  }
-}, [ordemAtual]);
-
-// ===== FINALIZAR TIMER =====
-useEffect(() => {
-  if (!ordemAtual) return;
-  if (!ordemAtual.endedAt) return;
-
-  console.log("⏹️ Ordem finalizada, calculando duração");
-  const duracao = Math.floor(
-    (new Date(ordemAtual.endedAt).getTime() - new Date(ordemAtual.startedAt!).getTime()) / 1000
-  );
-  console.log("⏹️ Duração calculada:", duracao);
-
-  setTime(duracao);
-  setIsRunning(false);
-}, [ordemAtual?.endedAt]);
-
-// ===== TIMER INTERVAL =====
-useEffect(() => {
-  console.log("⏱️ useEffect timer disparado, isRunning =", isRunning);
-  let interval: ReturnType<typeof setInterval>;
-
-  if (isRunning) {
-    interval = setInterval(() => {
-      setTime(prev => {
-        console.log("⏱️ Timer incrementando:", prev + 1);
-        return prev + 1;
-      });
-    }, 1000);
-  }
-
-  return () => {
-    if (interval) {
-      console.log("🛑 Limpando intervalo do timer");
-      clearInterval(interval);
-    }
-  };
-}, [isRunning]);
-
-*/}
-
   if (!ordemAtual) return null;
 
   const endereco = ordemAtual.user?.cliente?.endereco ?? ordemAtual.instituicaoUnidade?.endereco ?? "";
@@ -175,17 +106,33 @@ useEffect(() => {
 });
 
 
-    if (duracao) {
-      setTime(duracao);
-    } else if (startedAt && !endedAt) {
-      const diff = Math.floor((new Date().getTime() - new Date(startedAt).getTime()) / 1000);
-      setTime(diff);
-      setIsRunning(true);
-    }
-  } catch (err) {
-    console.error("Erro ao buscar tempo da OS:", err);
+   if (startedAt) {
+  // Converte o horário UTC para horário de Brasília (UTC-3)
+  const offsetMs = -3 * 60 * 60 * 1000;
+
+  const startedAtDate = new Date(new Date(startedAt).getTime() + offsetMs);
+  const endedAtDate = endedAt ? new Date(new Date(endedAt).getTime() + offsetMs) : null;
+
+  // Calcula duração
+  let diff = 0;
+  if (endedAtDate) {
+    diff = Math.floor((endedAtDate.getTime() - startedAtDate.getTime()) / 1000);
+  } else {
+    diff = Math.floor((Date.now() + offsetMs - startedAtDate.getTime()) / 1000);
   }
-};
+
+  setTime(diff > 0 ? diff : 0);
+  setIsRunning(!endedAtDate);
+
+  // Atualiza ordemAtual com os horários corrigidos para exibição
+  setOrdemAtual((prev) => prev ? {
+    ...prev,
+    startedAt: startedAtDate.toISOString(),
+    endedAt: endedAtDate ? endedAtDate.toISOString() : null,
+  } : prev);
+}
+
+  };
 
 
     useEffect(() => {
@@ -355,8 +302,7 @@ useEffect(() => {
   };
 
   fetchOrdemAtualizada();
-}, [ordem]); // dispara sempre que o modal abrir com uma nova ordem
-
+}, [ordem]); 
 
 
 const handlePause = async () => {
@@ -410,7 +356,7 @@ const handlePause = async () => {
       <TouchableOpacity activeOpacity={1} style={styles.overlay} onPress={handleCloseModal}>
         <TouchableOpacity activeOpacity={1} style={styles.modalContainer}>
           <ScrollView showsVerticalScrollIndicator>
-            {/* === HEADER === */}
+            
             <View style={styles.header}>
               <Text style={styles.title}>Detalhes da Ordem</Text>
               <TouchableOpacity onPress={atualizarOrdem} style={styles.refreshIcon}>

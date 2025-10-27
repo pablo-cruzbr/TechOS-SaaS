@@ -51,75 +51,6 @@ const formatTime = (seconds: number) => {
   return `${h}:${m}:${s}`;
 };
 
- {/*
-// ===== MONITORANDO A ORDENAÇÃO =====
-useEffect(() => {
-  console.log("🔹 useEffect ordemAtual disparado", ordemAtual);
-
-  if (!ordemAtual) return;
-
-  if (ordemAtual.duracao) {
-    console.log("⏱️ Usando duração existente:", ordemAtual.duracao);
-    setTime(ordemAtual.duracao);
-    setIsRunning(!ordemAtual.endedAt); // Se não terminou, mantém rodando
-  } else if (ordemAtual.startedAt && !ordemAtual.endedAt) {
-    const diff = Math.floor(
-      (new Date().getTime() - new Date(ordemAtual.startedAt).getTime()) / 1000
-    );
-    console.log("⏱️ Calculando tempo a partir do startedAt:", diff);
-    setTime(diff);
-    setIsRunning(true);
-  } else {
-    console.log("⏱️ Sem tempo definido ainda, timer parado");
-    setIsRunning(false);
-    setTime(0);
-  }
-
-  if (ordemAtual.id) {
-    console.log("🆔 Buscando assinatura para ordemId:", ordemAtual.id);
-    fetchAssinatura(ordemAtual.id).catch(err => console.error(err));
-  }
-}, [ordemAtual]);
-
-// ===== FINALIZAR TIMER =====
-useEffect(() => {
-  if (!ordemAtual) return;
-  if (!ordemAtual.endedAt) return;
-
-  console.log("⏹️ Ordem finalizada, calculando duração");
-  const duracao = Math.floor(
-    (new Date(ordemAtual.endedAt).getTime() - new Date(ordemAtual.startedAt!).getTime()) / 1000
-  );
-  console.log("⏹️ Duração calculada:", duracao);
-
-  setTime(duracao);
-  setIsRunning(false);
-}, [ordemAtual?.endedAt]);
-
-// ===== TIMER INTERVAL =====
-useEffect(() => {
-  console.log("⏱️ useEffect timer disparado, isRunning =", isRunning);
-  let interval: ReturnType<typeof setInterval>;
-
-  if (isRunning) {
-    interval = setInterval(() => {
-      setTime(prev => {
-        console.log("⏱️ Timer incrementando:", prev + 1);
-        return prev + 1;
-      });
-    }, 1000);
-  }
-
-  return () => {
-    if (interval) {
-      console.log("🛑 Limpando intervalo do timer");
-      clearInterval(interval);
-    }
-  };
-}, [isRunning]);
-
-*/}
-
   if (!ordemAtual) return null;
 
   const endereco = ordemAtual.user?.cliente?.endereco ?? ordemAtual.instituicaoUnidade?.endereco ?? "";
@@ -136,7 +67,6 @@ useEffect(() => {
 
   const atualizarOrdem = () => setOrdemAtual({ ...ordemAtual });
 
-  // ===== ASSINATURA =====
   const fetchAssinatura = async (ordemId: string) => {
     try {
       const storageToken = await AsyncStorage.getItem("@AlltiService");
@@ -156,6 +86,7 @@ useEffect(() => {
   try {
     const storageToken = await AsyncStorage.getItem("@AlltiService");
     if (!storageToken) return;
+
     const { token } = JSON.parse(storageToken);
 
     const response = await api.get(`/ordemdeservico/tempo/${ordemId}`, {
@@ -164,44 +95,39 @@ useEffect(() => {
 
     const { duracao, startedAt, endedAt } = response.data;
 
-    // Atualiza ordemAtual com os valores retornados
-    setOrdemAtual((prev) => {
-    if (!prev) return prev; // se for null, não altera
-    return {
-    ...prev,
-    startedAt,
-    endedAt,
-  };
-});
+    if (startedAt) {
+      // Converte o horário UTC para horário de Brasília (UTC-3)
+      const offsetMs = -3 * 60 * 60 * 1000;
+      const startedAtDate = new Date(new Date(startedAt).getTime() + offsetMs);
+      const endedAtDate = endedAt ? new Date(new Date(endedAt).getTime() + offsetMs) : null;
 
+      // Calcula duração
+      let diff = 0;
+      if (endedAtDate) {
+        diff = Math.floor((endedAtDate.getTime() - startedAtDate.getTime()) / 1000);
+      } else {
+        diff = Math.floor((Date.now() + offsetMs - startedAtDate.getTime()) / 1000);
+      }
 
-   if (startedAt) {
-  // Converte o horário UTC para horário de Brasília (UTC-3)
-  const offsetMs = -3 * 60 * 60 * 1000;
+      setTime(diff > 0 ? diff : 0);
+      setIsRunning(!endedAtDate);
 
-  const startedAtDate = new Date(new Date(startedAt).getTime() + offsetMs);
-  const endedAtDate = endedAt ? new Date(new Date(endedAt).getTime() + offsetMs) : null;
-
-  // Calcula duração
-  let diff = 0;
-  if (endedAtDate) {
-    diff = Math.floor((endedAtDate.getTime() - startedAtDate.getTime()) / 1000);
-  } else {
-    diff = Math.floor((Date.now() + offsetMs - startedAtDate.getTime()) / 1000);
+      // Atualiza ordemAtual com os horários corrigidos para exibição
+      setOrdemAtual((prev) =>
+        prev
+          ? {
+              ...prev,
+              startedAt: startedAtDate.toISOString(),
+              endedAt: endedAtDate ? endedAtDate.toISOString() : null,
+            }
+          : prev
+      );
+    }
+  } catch (error) {
+    console.error("Erro ao buscar tempo da OS:", error);
   }
-
-  setTime(diff > 0 ? diff : 0);
-  setIsRunning(!endedAtDate);
-
-  // Atualiza ordemAtual com os horários corrigidos para exibição
-  setOrdemAtual((prev) => prev ? {
-    ...prev,
-    startedAt: startedAtDate.toISOString(),
-    endedAt: endedAtDate ? endedAtDate.toISOString() : null,
-  } : prev);
-}
-
 };
+
 
 
     useEffect(() => {
@@ -350,29 +276,74 @@ const handleStart = async () => {
 
 
 useEffect(() => {
-  if (!ordem) return;
+  console.log("DEBUG: useEffect iniciado.");
+
+  if (!ordem) {
+    console.log("DEBUG: Variável 'ordem' é nula ou indefinida. Saindo.");
+    return;
+  }
+  
+  // ✅ PONTO DE DEBUG CRÍTICO: Verificar o ID
+  console.log("DEBUG: ID da Ordem de Serviço (ordem.id):", ordem.id);
+  
+  // Garante que o ID é válido antes de prosseguir
+  if (!ordem.id) {
+    console.log("DEBUG: 'ordem.id' é nulo ou inválido. Saindo.");
+    return;
+  }
+
+  let isMounted = true; // ✅ flag de controle
 
   const fetchOrdemAtualizada = async () => {
     try {
       const storageToken = await AsyncStorage.getItem("@AlltiService");
-      if (!storageToken) return;
+      if (!storageToken) {
+        console.log("DEBUG: Token não encontrado no AsyncStorage. Saindo.");
+        return;
+      }
       const { token } = JSON.parse(storageToken);
+      
+      // ✅ PONTO DE DEBUG CRÍTICO: Verificar a URL completa e o Token
+      const urlCompleta = `/ordemdeservico/${ordem.id}`;
+      console.log("DEBUG: URL da Requisição:", urlCompleta);
+      console.log("DEBUG: Token (primeiros 10 caracteres):", token ? token.substring(0, 10) + '...' : 'Token Vazio');
 
-      const response = await api.get(`/ordemdeservico/${ordem.id}`, {
+
+      const response = await api.get(urlCompleta, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setOrdemAtual(response.data);
-      fetchAssinatura(ordem.id);
-      fetchTempo(ordem.id);
+      if (isMounted) {
+        setOrdemAtual(response.data);
+        fetchAssinatura(ordem.id);
+        fetchTempo(ordem.id);
+        console.log("DEBUG: Requisição bem-sucedida! Status:", response.status);
+      }
     } catch (err) {
-      console.error("Erro ao buscar OS atualizada2:", err);
+      if (isMounted) {
+    // ✅ Solução 1: Asserção de tipo para AxiosError (se tiver o tipo importado)
+    // const error = err as AxiosError;
+    // const axiosErrorStatus = error.response ? error.response.status : 'Sem Status';
+    
+    // ✅ Solução 2: Checagem de tipo (a mais comum e fácil de implementar)
+    const error = err as any; // Simplifica a vida para fins de depuração
+    const axiosErrorStatus = error.response ? error.response.status : 'Sem Status';
+    const axiosErrorMessage = error.response ? error.response.data : 'Sem Dados de Erro';
+
+    console.error("ERRO COMPLETO (Catch):", error);
+    console.error("ERRO AO BUSCAR OS ATUALIZADA - Status HTTP:", axiosErrorStatus);
+    console.error("ERRO AO BUSCAR OS ATUALIZADA - Resposta do Servidor:", axiosErrorMessage);
+  }
     }
   };
 
   fetchOrdemAtualizada();
-}, [ordem]); 
 
+  return () => {
+    isMounted = false;
+    console.log("DEBUG: Cleanup function (componente desmontado) executada.");
+  };
+}, [ordem]); // Inclua todas as dependências do useEffect
 
 const handlePause = async () => {
   if (!ordemAtual?.id) {
@@ -520,9 +491,9 @@ const handlePause = async () => {
                   </TouchableOpacity>
                 )}
 
-                 <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={handleReset}>
+               {/*  <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={handleReset}>
                   <Text style={styles.textButtonClose}>Resetar</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
             </View>
 

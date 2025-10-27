@@ -255,6 +255,7 @@ router.patch('/compra/update/:id', isAuthenticated, new UpdateSolicitacaodeCompr
 //ORDEM DE SERVIÇO
 router.post('/ordemdeservico', isAuthenticated, new CreateOrdemServicoController().handle)
 router.get('/listordemdeservico', isAuthenticated, new ListOrdemdeServicoController().handle)
+router.get('/ordemdeservico/:id', isAuthenticated, new ListOrdemdeServicoController().handle)
 
 router.patch(
   '/ordemdeservico/update/:id',
