@@ -101,6 +101,7 @@ import { SaveAssinaturaController } from "./controllers/controles_forms/OrdemdeS
 import { AssinaturaController } from "./controllers/controles_forms/OrdemdeServico/assinatura/saveAssinatura";
 import { CreateInformacoesSetorController } from "./controllers/status categorias/setor/informacoessetor/CreateInformacoesSetorController";
 import { ListInformacaoesSetoresController } from "./controllers/status categorias/setor/informacoessetor/ListInformacoesSetorController";
+import { GetOrdemdeServicoByIdController } from "./controllers/controles_forms/OrdemdeServico/ListByIdOrdemdeServicoController";
 
 const router = Router();
 //get,post, update, delete
@@ -255,7 +256,7 @@ router.patch('/compra/update/:id', isAuthenticated, new UpdateSolicitacaodeCompr
 //ORDEM DE SERVIÇO
 router.post('/ordemdeservico', isAuthenticated, new CreateOrdemServicoController().handle)
 router.get('/listordemdeservico', isAuthenticated, new ListOrdemdeServicoController().handle)
-router.get('/ordemdeservico/:id', isAuthenticated, new ListOrdemdeServicoController().handle)
+router.get('/ordemdeservico/:id', isAuthenticated, new GetOrdemdeServicoByIdController().handle)
 
 router.patch(
   '/ordemdeservico/update/:id',
