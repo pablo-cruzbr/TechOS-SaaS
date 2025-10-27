@@ -24,7 +24,7 @@
 
 ## 🚀 Sobre o Projeto
 
-O **AlltiControl** é um sistema completo para gestão de **Ordens de Serviço (OS)** e tickets internos, desenvolvido para empresas de informática que oferecem serviços de **hardware, helpdesk, telecom e gestão de máquinas**.  
+O **Tech OS** é um sistema completo para gestão de **Ordens de Serviço (OS)** e tickets internos, desenvolvido para empresas de informática que oferecem serviços de **hardware, helpdesk, telecom e gestão de máquinas**.  
 
 Ele foi projetado para **facilitar a rotina operacional**, organizar atendimentos e melhorar a comunicação entre técnicos e clientes.  
 
