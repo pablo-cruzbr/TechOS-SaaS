@@ -1,5 +1,6 @@
 # Gestão Full Stack de Serviços de TI e Ativos
 ## Gerenciando sua Empresa de Informática de A a Z
+<img width="1280" height="800" alt="5" src="https://github.com/user-attachments/assets/2a391f74-2da2-4bd9-94e6-3dc382919e3e" />
 
 <p align="center">
   <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
