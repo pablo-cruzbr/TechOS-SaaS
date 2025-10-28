@@ -20,11 +20,6 @@
 
 ---
 
-<img width="1280" height="800" alt="7" src="https://github.com/user-attachments/assets/5d19cc09-84f3-4cde-93fd-aececc7872fc" />
-
----
-
-
 <img width="1280" height="800" alt="8" src="https://github.com/user-attachments/assets/2c65e271-6da0-4d9f-8c9e-28d120429567" />
 ---
 
