@@ -91,6 +91,7 @@ Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no pe
 
 ## 🔜 Próximos Passos / Melhorias Futuras
 - Fazer Deploy na Vercel
+- Criar Funcionalidade de Transformar audio em texto para documentação técnica (biblioteca: Expo Speech)
 - Notificações push no app mobile  
 - Relatórios customizados e gráficos avançados  
 
