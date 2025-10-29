@@ -1,6 +1,5 @@
 # Gestão Full Stack de Serviços de TI e Ativos
 ## Gerenciando sua Empresa de Informática de A a Z
-
 <p align="center">
   <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
   <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" /></a>
@@ -10,11 +9,23 @@
   <a href="https://reactnative.dev/"><img src="https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
 </p>
 
+<img width="1280" height="800" alt="5" src="https://github.com/user-attachments/assets/2a391f74-2da2-4bd9-94e6-3dc382919e3e" />
+---
+
+<img width="1280" height="800" alt="os web" src="https://github.com/user-attachments/assets/d77e498b-efb2-4248-af87-32ebb5050c4e" />
+
+---
+
+<img width="1280" height="800" alt="web" src="https://github.com/user-attachments/assets/95147eff-d224-4f8e-894d-3b751a39dfc4" />
+
+---
+
+<img width="1280" height="800" alt="8" src="https://github.com/user-attachments/assets/2c65e271-6da0-4d9f-8c9e-28d120429567" />
 ---
 
 ## 🚀 Sobre o Projeto
 
-O **AlltiControl** é um sistema completo para gestão de **Ordens de Serviço (OS)** e tickets internos, desenvolvido para empresas de informática que oferecem serviços de **hardware, helpdesk, telecom e gestão de máquinas**.  
+O **Tech OS** é um sistema completo para gestão de **Ordens de Serviço (OS)** e tickets internos, desenvolvido para empresas de informática que oferecem serviços de **hardware, helpdesk, telecom e gestão de máquinas**.  
 
 Ele foi projetado para **facilitar a rotina operacional**, organizar atendimentos e melhorar a comunicação entre técnicos e clientes.  
 
@@ -81,6 +92,7 @@ Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no pe
 
 ## 🔜 Próximos Passos / Melhorias Futuras
 - Fazer Deploy na Vercel
+- Criar Funcionalidade de Transformar audio em texto para documentação técnica (biblioteca: Expo Speech)
 - Notificações push no app mobile  
 - Relatórios customizados e gráficos avançados  
 
