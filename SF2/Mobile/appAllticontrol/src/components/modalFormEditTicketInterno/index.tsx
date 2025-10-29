@@ -262,16 +262,7 @@ export function ModalEditFormTicketInterno({
     <Text>Andar: {setorInfo?.andar}</Text>
   </View>
 )}         
-          {informacoesSetor ? (
-          <Text style={{ marginBottom: 10 }}>
-            Setor selecionado:{" "}
-            {setorInfo?.setor?.name || 
-              (typeof informacoesSetor !== "string" ? informacoesSetor.setor.name : informacoesSetor)}
-          </Text>
-        ) : null}
-
-
-
+        
             <Text style={styles.label}>Tipo de Chamado</Text>
             <View style={styles.pickerWrapper}>
               <Picker
