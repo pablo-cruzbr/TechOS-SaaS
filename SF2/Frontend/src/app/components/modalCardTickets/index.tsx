@@ -90,7 +90,7 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
             <p className={styles.sectionTitle}>Dados do Usuário</p>
             <div className={styles.infoGrid}>
               <div className={styles.infoItem}>
-                <label>Numero da OS:</label>
+                <label>Número da OS:</label>
                 <span>{OrdemdeServico.numeroOS}</span>
               </div>
 
