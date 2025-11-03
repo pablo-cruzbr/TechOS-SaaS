@@ -10,7 +10,7 @@ class ListOrdemdeServicoId {
         // Busca uma única Ordem de Serviço pelo ID
         const ordem = await prismaClient.ordemdeServico.findUnique({
             where: {
-                id: id, // <--- Aqui está a diferença crucial: findUnique com 'where'
+                id: id, 
             },
             select: {
                 id: true,

@@ -57,6 +57,12 @@ export interface OrdemdeServicoProps {
     endereco?: string;
   };
 
+   equipamento?: {
+    id: string;
+    name: string;
+    patrimonio?: string;
+  };
+
   tecnico?: {
     id: string;
     name: string;

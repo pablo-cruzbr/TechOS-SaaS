@@ -176,6 +176,13 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
                 </span>
               </div>
             </div>
+             <div className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <label>Equipamento:</label>
+                <span>{OrdemdeServico.equipamento?.name}</span> <span> Patrimônio: {OrdemdeServico.equipamento?.patrimonio}</span>
+              </div>
+            </div>
+
 
             {/* BOTÕES */}
             <div className={styles.areaButton}>

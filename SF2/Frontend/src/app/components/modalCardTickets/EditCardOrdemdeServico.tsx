@@ -13,12 +13,13 @@ type Status = { id: string; name: string };
 type Tecnicos = { id: string; name: string };
 type Instituicoes = { id: string; name: string; endereco?: string };
 type Cliente = { id: string; name: string; endereco?: string; cnpj?: string };
-
+type Equipamento = {id: string; name: string; patrimonio: string};
 type FormState = {
   tecnico_id: string;
   statusOrdemdeServico_id: string;
   instituicaoUnidade_id: string;
   cliente_id: string;
+  equipamento_id: string;
 };
 
 type Props = {
@@ -33,11 +34,13 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     statusOrdemdeServico_id: "",
     instituicaoUnidade_id: "",
     cliente_id: "",
+    equipamento_id: ""
   });
   const [statusList, setStatusList] = useState<Status[]>([]);
   const [tecnicoList, setTecnicoList] = useState<Tecnicos[]>([]);
   const [instituicaoList, setInstituicaoList] = useState<Instituicoes[]>([]);
   const [clienteList, setClienteList] = useState<Cliente[]>([]);
+  const [equipamentoList, setEquipamentoList] = useState<Equipamento[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -54,11 +57,18 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
       (ordemdeServico as any)?.instituicaoUnidadeId ??
       "";
 
+    const equipamentoId =
+     (ordemdeServico as any)?.equipamento?.id ??
+      (ordemdeServico as any)?.equipamentoId ??
+      "";
+
+
     setForm({
       tecnico_id: (ordemdeServico as any)?.tecnico?.id ?? "",
       statusOrdemdeServico_id: (ordemdeServico as any)?.statusOrdemdeServico?.id ?? "",
       instituicaoUnidade_id: instituicaoId?.toString() ?? "",
       cliente_id: clienteId?.toString() ?? "",
+      equipamento_id: equipamentoId?.toString() ?? ""
     });
   }, [ordemdeServico]);
 
@@ -68,17 +78,19 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         const token = await getCookieClient();
         if (!token) return;
 
-        const [tecnicosRes, statusRes, clienteRes, instituicoesRes] = await Promise.all([
+        const [tecnicosRes, statusRes, clienteRes, instituicoesRes, equipamentoRes] = await Promise.all([
           api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/listequipamento", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
         setTecnicoList(tecnicosRes.data.controles ?? []);
         setStatusList(statusRes.data ?? []);
         setClienteList(clienteRes.data.controles ?? []);
         setInstituicaoList(instituicoesRes.data.instituicoes ?? []);
+        setEquipamentoList(equipamentoRes.data ?? [])
       } catch (error) {
         console.error("Erro ao buscar listas:", error);
       }
@@ -103,6 +115,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
       statusOrdemdeServico_id: form.statusOrdemdeServico_id || undefined,
       cliente_id: form.cliente_id || null, // envia null se não selecionar
       instituicaoUnidade_id: form.instituicaoUnidade_id || null, // envia null se não selecionar
+      equipamento_id: form.equipamento_id || null,
     };
 
     console.log("Payload enviado:", payload);
@@ -183,6 +196,18 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
           {clienteList.map((cli) => (
             <option key={cli.id} value={cli.id}>
               {cli.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        <p>EQUIPAMENTO</p>
+        <select name="equipamento_id" value={form.equipamento_id} onChange={handleChange} className={styles.input}>
+          <option value="">Selecione o Equipamento (opcional)</option>
+          {equipamentoList.map((equi) => (
+            <option key={equi.id} value={equi.id}>
+              {equi.name}
             </option>
           ))}
         </select>
