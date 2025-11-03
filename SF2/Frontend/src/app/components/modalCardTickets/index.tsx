@@ -44,7 +44,7 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
   if (modalType !== "OrdemdeServico" || !isOpen || !OrdemdeServico) return null;
 
   return (
-    <div className={styles.dialogContainer} open>
+    <dialog className={styles.dialogContainer} open>
       <section className={styles.dialogContent}>
         <button onClick={closeModal} className={styles.dialogBack}>
           <IoIosCloseCircleOutline size={36} color="#526D82" />
@@ -210,6 +210,6 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
           </>
         )}
       </section>
-    </div>
+    </dialog>
   );
 }
