@@ -8,6 +8,7 @@ import { SiGoogledocs } from "react-icons/si";
 import { FaUserPlus } from "react-icons/fa6";
 import { BsImages } from "react-icons/bs";
 import { FaSignature } from "react-icons/fa";
+import { FaComputer } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { useGlobalModal } from "@/provider/GlobalModalProvider";
 import { OrdemdeServicoProps } from "@/lib/getOrdemdeServico.type";
@@ -207,8 +208,8 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
               </button>
 
               <button className={styles.buttonBuy} onClick={handleAddCard}>
-                <BsImages size={18} />
-                Cadastrar Máquina
+                <FaComputer size={21} />
+                Cadastrar nova Máquina
               </button>
               
               <button className={styles.buttonBuy} onClick={() => setDetailTecnico(true)}>

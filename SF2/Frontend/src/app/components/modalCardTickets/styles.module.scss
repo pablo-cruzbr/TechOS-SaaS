@@ -13,7 +13,7 @@
 .dialogContent {
   position: relative;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   max-height: 97vh;
   overflow-y: auto;
   background-color: #fff;
@@ -112,11 +112,11 @@
   }
 
   .areaButton {
-    display: flex;
-    justify-content: flex-end;
+   display: flex;
+    justify-content: flex-end; 
     gap: 12px;
     margin-top: 20px; 
-    flex-wrap: wrap;
+    width: 100%;
   }
 
   .buttonBuy {
