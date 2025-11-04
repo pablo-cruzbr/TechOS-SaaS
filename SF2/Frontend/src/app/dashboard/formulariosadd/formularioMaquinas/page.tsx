@@ -16,7 +16,7 @@ export default function FormularioCompras() {
   const router = useRouter();
 
   function handleBackCardCompras() {
-    router.push('/dashboard/compras');
+    router.push('/dashboard/controles/equipamentos');
   }
 
   useEffect(() => {
