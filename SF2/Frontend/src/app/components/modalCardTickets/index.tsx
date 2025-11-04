@@ -43,6 +43,15 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
 
   if (modalType !== "OrdemdeServico" || !isOpen || !OrdemdeServico) return null;
 
+   async function handleAddCard() {
+    router.push('/dashboard/formulariosadd/formularioMaquinas');
+
+    const url = '/dashboard/formulariosadd/formularioMaquinas';
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank');
+    }
+  }
+
   return (
     <div className={styles.dialogContainer} open>
       <section className={styles.dialogContent}>
@@ -195,6 +204,11 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
                <button className={styles.buttonBuy} onClick={() => setIsFotos(true)}>
                 <BsImages size={18} />
                 Ver Fotos
+              </button>
+
+              <button className={styles.buttonBuy} onClick={handleAddCard}>
+                <BsImages size={18} />
+                Cadastrar Máquina
               </button>
               
               <button className={styles.buttonBuy} onClick={() => setDetailTecnico(true)}>
