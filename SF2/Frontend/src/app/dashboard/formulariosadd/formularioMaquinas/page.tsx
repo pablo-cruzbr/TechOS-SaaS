@@ -72,7 +72,7 @@ export default function FormularioCompras() {
   return (
     <section>
       <div className={styles.headerClient}>
-        <h1 className={styles.titleClient}> CADASTRO DE MAQUINAS</h1>
+        <h1 className={styles.titleClient}> CADASTRO DE MÁQUINAS</h1>
         <IoArrowBackCircleOutline size={30} color="#4B4B4B" onClick={handleBackCardCompras}/>
         <button className={styles.button} onClick={handleBackCardCompras}>
           Voltar para Lista de Equipamentos
