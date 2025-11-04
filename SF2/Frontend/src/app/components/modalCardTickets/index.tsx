@@ -207,19 +207,18 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
                 Ver Fotos
               </button>
 
-              <button className={styles.buttonBuy} onClick={handleAddCard}>
-                <FaComputer size={21} />
-                Cadastrar nova Máquina
-              </button>
-              
               <button className={styles.buttonBuy} onClick={() => setDetailTecnico(true)}>
-                <SiGoogledocs  size={18}/>
-               
+                <SiGoogledocs  size={18}/>               
               </button>
 
               <button className={styles.buttonBuy} onClick={() => setIsEditing(true)}>
                 <FaUserPlus size={18} />
                 Atribuir OS a um Técnico ou Alterar Status
+              </button>
+
+              <button className={styles.buttonBuy} onClick={handleAddCard}>
+                <FaComputer size={21} />
+                Cadastrar nova Máquina
               </button>
             </div>
           </>
