@@ -100,7 +100,7 @@ Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no pe
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Em que fase está o Projeto
 
 
 
