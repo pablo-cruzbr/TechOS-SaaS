@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import { TimeOrdemDeServicoService } from "../../../../services/controles_forms/OrdemdeServico/time/timeOrdemdeServicoService";
 
 export const timeOrdemDeServicoController = {
-  // ... (Métodos iniciar, concluir, atualizarTempo, lerTempo continuam os mesmos)
-
   async iniciar(req: Request, res: Response) {
     try {
       const { id } = req.params;

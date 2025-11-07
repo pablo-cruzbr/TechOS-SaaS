@@ -7,9 +7,6 @@ interface UpdateTempoInput {
     endedAt?: Date;
 }
 
-// Tipo auxiliar para incluir o campo de chave estrangeira e o campo de pausa
-// que o Prisma gera/requer na lógica de tempo.
-// Se você usa o campo de relacionamento 'statusOrdemdeServico', o campo ID será 'statusOrdemdeServico_id'
 type OrdemdeServicoComPausa = OrdemdeServico & {
     pausaIniciadaEm: Date | null;
     statusOrdemdeServico_id: string; 
@@ -17,10 +14,6 @@ type OrdemdeServicoComPausa = OrdemdeServico & {
 
 
 export const TimeOrdemDeServicoService = {
-
-    // --- Métodos Auxiliares Corrigidos (Removido 'private') ---
-    
-    // Busca o status pelo nome e lança erro se não encontrar
     async getStatusOrThrow(statusName: string) {
         const status = await prismaClient.statusOrdemdeServico.findFirst({
             where: { name: statusName },
@@ -29,7 +22,6 @@ export const TimeOrdemDeServicoService = {
         return status;
     },
 
-    // Busca o ID do status pelo nome
     async getStatusId(statusName: string) {
         const status = await prismaClient.statusOrdemdeServico.findFirst({
             where: { name: statusName },
@@ -38,10 +30,7 @@ export const TimeOrdemDeServicoService = {
         return status?.id;
     },
 
-    // --- Lógica Principal ---
-
     async iniciarOrdem(ordemId: string) {
-        // Usamos um cast para garantir a tipagem do campo de relacionamento
         const ordem = await prismaClient.ordemdeServico.findUnique({ where: { id: ordemId } }) as OrdemdeServicoComPausa | null;
         if (!ordem) throw new Error("Ordem não encontrada");
 
@@ -62,13 +51,11 @@ export const TimeOrdemDeServicoService = {
     },
 
     async pausarOrdem(ordemId: string) {
-        // Usamos um cast
         const ordem = await prismaClient.ordemdeServico.findUnique({ where: { id: ordemId } }) as OrdemdeServicoComPausa | null;
         if (!ordem) throw new Error("Ordem não encontrada");
 
         const statusEmAndamentoId = await this.getStatusId("EM ANDAMENTO");
 
-        // CORREÇÃO: Usando a chave correta 'statusOrdemdeServico_id'
         if (ordem.statusOrdemdeServico_id !== statusEmAndamentoId) {
             throw new Error("A OS não está EM ANDAMENTO e não pode ser pausada.");
         }
@@ -79,23 +66,20 @@ export const TimeOrdemDeServicoService = {
         return prismaClient.ordemdeServico.update({
             where: { id: ordemId },
             data: {
-                // 1. Muda o status para PAUSADA
                 statusOrdemdeServico: { connect: { id: statusPausada.id } },
-                // 2. Campo 'pausaIniciadaEm'. O erro desaparecerá após a atualização do schema/geração.
-             // @ts-ignore   pausaIniciadaEm: now, 
             },
             include: { statusOrdemdeServico: true },
         });
     },
 
     async retomarOrdem(ordemId: string) {
-        // Usamos um cast
+      
         const ordem = await prismaClient.ordemdeServico.findUnique({ where: { id: ordemId } }) as OrdemdeServicoComPausa | null;
         if (!ordem) throw new Error("Ordem não encontrada");
 
         const statusPausadaId = await this.getStatusId("PAUSADA");
         
-        // CORREÇÃO: Usando a chave correta 'statusOrdemdeServico_id'
+        
         if (ordem.statusOrdemdeServico_id !== statusPausadaId) {
             throw new Error("A OS não está PAUSADA e não pode ser retomada.");
         }
@@ -106,23 +90,17 @@ export const TimeOrdemDeServicoService = {
 
         const now = new Date();
         
-        // Calcula o tempo de duração da pausa em milissegundos
+        
         const tempoDePausaMs = now.getTime() - ordem.pausaIniciadaEm.getTime();
-
-        // Novo startedAt = original + tempo de pausa (Ajusta o relógio de início)
         const novoStartedAt = new Date(ordem.startedAt.getTime() + tempoDePausaMs);
 
         const statusEmAndamento = await this.getStatusOrThrow("EM ANDAMENTO");
 
         return prismaClient.ordemdeServico.update({
             where: { id: ordemId },
-            data: {
-                // 1. Muda o status para EM ANDAMENTO
+            data: { 
                 statusOrdemdeServico: { connect: { id: statusEmAndamento.id } },
-                // 2. Aplica o ajuste de tempo
                 startedAt: novoStartedAt, 
-                // 3. Zera o registro da pausa. O erro desaparecerá após a atualização do schema/geração.
-                // @ts-ignore pausaIniciadaEm: null,
             },
             include: { statusOrdemdeServico: true },
         });
