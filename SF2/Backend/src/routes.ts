@@ -299,7 +299,10 @@ router.patch("/ordemdeservico/concluir/:id", isAuthenticated, timeOrdemDeServico
 router.patch("/ordemdeservico/atualizar-tempo/:id", isAuthenticated, timeOrdemDeServicoController.atualizarTempo);
 router.get("/ordemdeservico/tempo/:id", isAuthenticated, timeOrdemDeServicoController.lerTempo);
 
+router.patch("/ordemdeservico/pausar/:id", isAuthenticated, timeOrdemDeServicoController.pausar);
+router.patch("/ordemdeservico/retomar/:id", isAuthenticated, timeOrdemDeServicoController.retomar);
 
+// ASSINATURA
 router.patch("/assinatura/:id", isAuthenticated, AssinaturaController.atualizar);
 
 // GET → buscar assinatura

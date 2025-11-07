@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { TimeOrdemDeServicoService } from "../../../../services/controles_forms/OrdemdeServico/time/timeOrdemdeServicoService";
 
 export const timeOrdemDeServicoController = {
+  // ... (Métodos iniciar, concluir, atualizarTempo, lerTempo continuam os mesmos)
+
   async iniciar(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -25,6 +27,32 @@ export const timeOrdemDeServicoController = {
     } catch (error: any) {
       console.error("Erro ao concluir OS:", error);
       return res.status(500).json({ error: error.message || "Falha ao concluir a OS" });
+    }
+  },
+
+  async pausar(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório" });
+
+      const ordem = await TimeOrdemDeServicoService.pausarOrdem(id);
+      return res.json(ordem);
+    } catch (error: any) {
+      console.error("Erro ao pausar OS:", error);
+      return res.status(500).json({ error: error.message || "Falha ao pausar a OS" });
+    }
+  },
+
+  async retomar(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório" });
+
+      const ordem = await TimeOrdemDeServicoService.retomarOrdem(id);
+      return res.json(ordem);
+    } catch (error: any) {
+      console.error("Erro ao retomar OS:", error);
+      return res.status(500).json({ error: error.message || "Falha ao retomar a OS" });
     }
   },
 
