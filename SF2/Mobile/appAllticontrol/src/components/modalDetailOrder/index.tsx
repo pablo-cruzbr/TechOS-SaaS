@@ -259,7 +259,6 @@ const handleStart = async () => {
     }
     const { token } = JSON.parse(storageToken);
     //console.log("Token obtido:", token);
-
     //console.log("Chamando API PATCH para iniciar OS ID:", ordemAtual.id);
     const response = await api.patch(
       `/ordemdeservico/iniciar/${ordemAtual.id}`,
@@ -432,7 +431,6 @@ const handlePause = async () => {
                 </View>
                )}
 
-            {/* === INFORMAÇÕES === */}
             <Text style={styles.label}>Número: {ordemAtual.numeroOS ?? "Não Disponível"}</Text>
             <Text style={styles.label}>Status:</Text>
             <Text>{ordemAtual.statusOrdemdeServico?.name ?? "-"}</Text>
@@ -497,7 +495,6 @@ const handlePause = async () => {
               </View>
             </View>
 
-            {/* === DETALHES === */}
             <Text style={styles.label}>Tipo de Chamado:</Text>
             <Text>{ordemAtual.tipodeChamado?.name ?? "-"}</Text>
             <Text style={styles.label}>Problema:</Text>
