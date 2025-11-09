@@ -172,6 +172,7 @@ model OrdemdeServico {
   user_id                           String
   startedAt                         DateTime?   
   endedAt                           DateTime?
+  pausaIniciadaEm                   DateTime?
   duracao                           Int?
   numeroOS                          Int?                  @unique
 

@@ -1,0 +1,23 @@
+ {/*  <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={handleReset}>
+                  <Text style={styles.textButtonClose}>Resetar</Text>
+                </TouchableOpacity> */}
+
+
+
+
+ ):(
+                   <TouchableOpacity style={[styles.buttonClose, styles.timerBtnPause]} onPress={handlePause}>
+                    <Text style={styles.textButtonClose}>Retomar</Text>
+                  </TouchableOpacity>
+                )
+
+
+
+============
+{/* BOTÃO RESET 
+  <TouchableOpacity
+    style={[styles.buttonClose, styles.timerBtnReset]}
+    onPress={handleResume}
+  >
+    <Text style={styles.textButtonClose}>Retomar</Text>
+  </TouchableOpacity>*/}

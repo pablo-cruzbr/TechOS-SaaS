@@ -41,6 +41,7 @@ export function ModalDetailOrder({ ordem, handleCloseModal }: ModalDetailOsProps
   const [ordemAtual, setOrdemAtual] = useState<OrdensDeServico | null>(ordem);
   const [selectedImages, setSelectedImages] = useState<{ uri: string; base64: string }[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false)
   const [time, setTime] = useState(0);
   const [assinatura, setAssinatura] = useState<string | null>(null);
 
@@ -224,7 +225,8 @@ const formatTime = (seconds: number) => {
   };
 
 const refreshOrdemAtual = async () => {
-  if (!ordemAtual?.id) return; 
+  if (!ordemAtual?.id) return;
+
   try {
     const storageToken = await AsyncStorage.getItem("@AlltiService");
     if (!storageToken) return;
@@ -236,42 +238,54 @@ const refreshOrdemAtual = async () => {
 
     console.log("🔥 Dados recebidos no refreshOrdemAtual:", data);
 
-    // Atualiza só os campos retornados pelo endpoint de tempo
-    setOrdemAtual(prev => prev ? { ...prev, ...data } : { ...ordem!, ...data });
+    // Atualiza o estado da ordem
+    setOrdemAtual(prev => (prev ? { ...prev, ...data } : { ...ordem!, ...data }));
+
+    // 🔹 Atualiza o controle do timer de acordo com o status recebido
+    const statusNome = data?.statusOrdemdeServico?.name || "";
+    if (statusNome === "EM ANDAMENTO") {
+      setIsRunning(true);
+      setIsPaused(false);
+    } else if (statusNome === "PAUSADA") {
+      setIsRunning(false);
+      setIsPaused(true);
+    } else {
+      // Outros status (CONCLUÍDA, CANCELADA, etc.)
+      setIsRunning(false);
+      setIsPaused(false);
+    }
+
+    console.log("🧩 Status atualizado:", statusNome);
   } catch (error) {
-    console.error("Erro ao buscar OS atualizada1:", error);
+    console.error("Erro ao buscar OS atualizada:", error);
   }
 };
 
 
 const handleStart = async () => {
-  console.log("🚀 handleStart disparado");
-  if (!ordemAtual?.id) {
-    console.error("❌ ordemAtual ou ID inválido", ordemAtual);
-    return;
-  }
-
   try {
     const storageToken = await AsyncStorage.getItem("@AlltiService");
-    if (!storageToken) {
-      console.error("❌ Token não encontrado no AsyncStorage");
-      return;
-    }
+    if (!storageToken) return;
     const { token } = JSON.parse(storageToken);
-    //console.log("Token obtido:", token);
-    //console.log("Chamando API PATCH para iniciar OS ID:", ordemAtual.id);
-    const response = await api.patch(
+
+    await api.patch(
       `/ordemdeservico/iniciar/${ordemAtual.id}`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
+    // 🔁 Atualiza a ordem para pegar o novo status
     await refreshOrdemAtual();
-  //  console.log("Ordem atualizada após iniciar:", ordemAtual);
+
+    // Agora o status estará “EM ANDAMENTO”
+    setIsRunning(true);
+    setIsPaused(false);
+
   } catch (error) {
     console.error("Erro ao iniciar OS:", error);
   }
 };
+
 
 
 useEffect(() => {
@@ -291,7 +305,7 @@ useEffect(() => {
     return;
   }
 
-  let isMounted = true; // ✅ flag de controle
+  let isMounted = true; 
 
   const fetchOrdemAtualizada = async () => {
     try {
@@ -320,11 +334,6 @@ useEffect(() => {
       }
     } catch (err) {
       if (isMounted) {
-    // ✅ Solução 1: Asserção de tipo para AxiosError (se tiver o tipo importado)
-    // const error = err as AxiosError;
-    // const axiosErrorStatus = error.response ? error.response.status : 'Sem Status';
-    
-    // ✅ Solução 2: Checagem de tipo (a mais comum e fácil de implementar)
     const error = err as any; // Simplifica a vida para fins de depuração
     const axiosErrorStatus = error.response ? error.response.status : 'Sem Status';
     const axiosErrorMessage = error.response ? error.response.data : 'Sem Dados de Erro';
@@ -342,31 +351,64 @@ useEffect(() => {
     isMounted = false;
     console.log("DEBUG: Cleanup function (componente desmontado) executada.");
   };
-}, [ordem]); // Inclua todas as dependências do useEffect
+}, [ordem]); 
 
 const handlePause = async () => {
-  if (!ordemAtual?.id) {
-    console.error("❌ ordemAtual sem ID:", ordemAtual);
-    return;
-  }
+  if (!ordemAtual?.id) return;
+
   try {
     const storageToken = await AsyncStorage.getItem("@AlltiService");
     if (!storageToken) return;
     const { token } = JSON.parse(storageToken);
 
     const payload = { endedAt: new Date().toISOString() };
-    
-    await api.patch(
-      `/ordemdeservico/concluir/${ordemAtual.id}`,
+
+    const response = await api.patch(
+      `/ordemdeservico/pausar/${ordemAtual.id}`,
       payload,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
+    // 🔹 Primeiro, atualiza os estados locais para exibir o botão imediatamente
+    setIsRunning(false);
+    setIsPaused(true);
+
+    // 🔹 Depois atualiza os dados da OS, mas sem sobrescrever o estado local
     await refreshOrdemAtual();
-  } catch (error) {
-    console.error("Erro ao pausar OS:", error);
+
+    console.log("⏸️ Ordem pausada com sucesso:", response.data);
+  } catch (error: any) {
+    console.error("Erro detalhado ao pausar OS:", JSON.stringify(error, null, 2));
+    Alert.alert("Erro", "Não foi possível pausar a OS.");
   }
 };
+
+
+
+
+const handleResume = async () => {
+  if (!ordemAtual?.id) return;
+
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    const response = await api.patch(`/ordemdeservico/retomar/${ordemAtual.id}`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    console.log("✅ Retomada:", response.data);
+    await refreshOrdemAtual();
+    setIsRunning(true);
+    setIsPaused(false);
+  } catch (err: any) {
+    console.error("Erro ao Retomar OS:", err);
+    const serverMessage = err?.response?.data?.error || err?.response?.data?.message || err.message;
+    Alert.alert("Erro ao retomar", serverMessage ?? "Falha ao retomar a OS.");
+  }
+};
+
 
   const handleReset = () => {
     setIsRunning(false);
@@ -476,24 +518,43 @@ const handlePause = async () => {
             )}
 
             
-            <View style={styles.timerContainer}>
+              <View style={styles.timerContainer}>
               <Text style={styles.timerText}>Tempo decorrido: {formatTime(time)}</Text>
-              <View style={styles.timerButtons}>
-                {!isRunning ? (
-                  <TouchableOpacity style={[styles.buttonClose, styles.timerBtn]} onPress={handleStart}>
-                    <Text style={styles.textButtonClose}>Iniciar</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity style={[styles.buttonClose, styles.timerBtnPause]} onPress={handlePause}>
-                    <Text style={styles.textButtonClose}>Pausar</Text>
-                  </TouchableOpacity>
-                )}
 
-               {/*  <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={handleReset}>
-                  <Text style={styles.textButtonClose}>Resetar</Text>
-                </TouchableOpacity> */}
-              </View>
+                        <View style={styles.timerButtons}>
+              {/* BOTÃO PRINCIPAL */}
+              {!isRunning && !isPaused && (
+                // ⏯ Timer ainda não começou
+                <TouchableOpacity
+                  style={[styles.buttonClose, styles.timerBtn]}
+                  onPress={handleStart}
+                >
+                  <Text style={styles.textButtonClose}>Iniciar</Text>
+                </TouchableOpacity>
+              )}
+
+              {isRunning && (
+                // ⏸ Timer em andamento
+                <TouchableOpacity
+                  style={[styles.buttonClose, styles.timerBtnPause]}
+                  onPress={handlePause}
+                >
+                  <Text style={styles.textButtonClose}>Pausar</Text>
+                </TouchableOpacity>
+              )}
+              {!isRunning && isPaused && (
+                // ▶ Timer pausado
+                <TouchableOpacity
+                  style={[styles.buttonClose, styles.timerBtnReset]}
+                  onPress={handleResume}
+                >
+                  <Text style={styles.textButtonClose}>Retomar</Text>
+                </TouchableOpacity>
+              )}
             </View>
+            </View>
+
+
 
             <Text style={styles.label}>Tipo de Chamado:</Text>
             <Text>{ordemAtual.tipodeChamado?.name ?? "-"}</Text>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -22,63 +22,43 @@ interface ModalDetailOsProps {
   handleCloseModal: () => void;
 }
 
+interface Setor {
+  id: string;
+  usuario: string;
+  ramal: string;
+  andar: string;
+  setor: {
+    id: string;
+    name: string;
+  };
+}
+
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 const IMAGE_SIZE = (WIDTH - 90) / 3;
-
-/**
- * ModalDetailOrder (refatorado)
- *
- * Mudanças principais:
- * - Consolidei as requisições iniciais em um único useEffect (quando `ordem` muda).
- * - Controle de loading global (`isLoading`) para evitar chamadas paralelas redundantes.
- * - Timer separado: um useEffect leve que escuta `isRunning` e atualiza `time` com um único interval guardado em ref.
- * - Funções de API com token reutilizável (obtido uma vez) e tratativas de erro.
- * - Uso de useRef para evitar intervals duplicados e para checar se o componente continua montado.
- *
- * Objetivo: reduzir re-renders e evitar loops que causam crash.
- */
 
 export function ModalDetailOrder({ ordem, handleCloseModal }: ModalDetailOsProps) {
   const [modalTecnicoOpen, setModalTecnicoOpen] = useState(false);
   const [ordemAtual, setOrdemAtual] = useState<OrdensDeServico | null>(ordem);
   const [selectedImages, setSelectedImages] = useState<{ uri: string; base64: string }[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false)
   const [time, setTime] = useState(0);
   const [assinatura, setAssinatura] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  // ref para armazenar o id do intervalo do timer e evitar múltiplos intervals
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  // ref para checar se o componente está montado (evitar setState após unmount)
-  const isMountedRef = useRef(true);
+const formatTime = (seconds: number) => {
+  const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
+  const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
+  const s = (seconds % 60).toString().padStart(2, "0");
+  return `${h}:${m}:${s}`;
+};
 
-  useEffect(() => {
-    console.log(">>> Carregando OS inicial - ordem prop:", ordem);
-console.log(">>> api baseURL:", (api as any).defaults?.baseURL);
+  if (!ordemAtual) return null;
 
-    // marca como montado quando montado; limpa no unmount
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, []);
-
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
-    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
-    const s = (seconds % 60).toString().padStart(2, "0");
-    return `${h}:${m}:${s}`;
-  };
+  const endereco = ordemAtual.user?.cliente?.endereco ?? ordemAtual.instituicaoUnidade?.endereco ?? "";
 
   const abrirWaze = (endereco: string) => {
     const url = `https://waze.com/ul?q=${encodeURIComponent(endereco)}`;
-    Linking.canOpenURL(url).then((supported) =>
-      supported ? Linking.openURL(url) : Alert.alert("Erro", "Não foi possível abrir o Waze.")
-    );
+    Linking.canOpenURL(url).then(supported => supported ? Linking.openURL(url) : Alert.alert("Erro", "Não foi possível abrir o Waze."));
   };
 
   const abrirGoogleMaps = (endereco: string) => {
@@ -86,238 +66,96 @@ console.log(">>> api baseURL:", (api as any).defaults?.baseURL);
     Linking.openURL(url);
   };
 
-  const atualizarOrdem = () => setOrdemAtual((prev) => (prev ? { ...prev } : prev));
+  const atualizarOrdem = () => setOrdemAtual({ ...ordemAtual });
 
-  // ----- Função utilitária para obter token (reutilizada) -----
-  const getToken = useCallback(async (): Promise<string | null> => {
+  const fetchAssinatura = async (ordemId: string) => {
     try {
       const storageToken = await AsyncStorage.getItem("@AlltiService");
-      if (!storageToken) return null;
+      if (!storageToken) return;
       const { token } = JSON.parse(storageToken);
-      return token ?? null;
+
+      const response = await api.get(`/assinatura/${ordemId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAssinatura(response.data?.assinatura ?? null);
     } catch (err) {
-      console.error("Erro ao ler token do AsyncStorage", err);
-      return null;
+      console.error("Erro ao buscar assinatura:", err);
     }
-  }, []);
+  };
 
-  // ----- Função que atualiza os campos de tempo e o estado do timer baseado na resposta -----
-  const applyTempoData = useCallback(
-    (data: any) => {
-      if (!isMountedRef.current) return;
-      const { duracao, startedAt, endedAt } = data ?? {};
-      if (duracao) {
-        setTime(duracao);
-        setIsRunning(!endedAt); // se terminou, isRunning false
-      } else if (startedAt && !endedAt) {
-        const diff = Math.floor((new Date().getTime() - new Date(startedAt).getTime()) / 1000);
-        setTime(diff);
-        setIsRunning(true);
+ const fetchTempo = async (ordemId: string) => {
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+
+    const { token } = JSON.parse(storageToken);
+
+    const response = await api.get(`/ordemdeservico/tempo/${ordemId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const { duracao, startedAt, endedAt } = response.data;
+
+    if (startedAt) {
+      // Converte o horário UTC para horário de Brasília (UTC-3)
+      const offsetMs = -3 * 60 * 60 * 1000;
+      const startedAtDate = new Date(new Date(startedAt).getTime() + offsetMs);
+      const endedAtDate = endedAt ? new Date(new Date(endedAt).getTime() + offsetMs) : null;
+
+      // Calcula duração
+      let diff = 0;
+      if (endedAtDate) {
+        diff = Math.floor((endedAtDate.getTime() - startedAtDate.getTime()) / 1000);
       } else {
-        setTime(0);
-        setIsRunning(false);
+        diff = Math.floor((Date.now() + offsetMs - startedAtDate.getTime()) / 1000);
       }
 
-      // Atualiza somente os campos relacionados ao tempo na ordem atual
-      setOrdemAtual((prev) => {
-        if (!prev) return prev;
-        return { ...prev, startedAt, endedAt, duracao };
-      });
-    },
-    []
-  );
+      setTime(diff > 0 ? diff : 0);
+      setIsRunning(!endedAtDate);
 
-  // ----- Função que refresh da OS (usada após patches) -----
-  const refreshOrdemAtual = useCallback(
-    async (ordemId?: string) => {
-      if (!ordemId && !ordemAtual?.id) return;
-      const id = ordemId ?? ordemAtual!.id;
-      try {
-        const token = await getToken();
-        if (!token) return;
-        const { data } = await api.get(`/ordemdeservico/tempo/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!isMountedRef.current) return;
-        // aplica os dados de tempo recebidos
-        applyTempoData(data);
-      } catch (error) {
-        console.error("Erro ao refreshOrdemAtual:", error);
-      }
-    },
-    [ordenAtualPlaceholder()],
-  );
-
-  // note: workaround to satisfy linter about ordemAtual dependency - we'll implement a no-op function
-  function ordenAtualPlaceholder() {
-    // função vazia apenas para manter dependências claras.
-    return null;
+      // Atualiza ordemAtual com os horários corrigidos para exibição
+      setOrdemAtual((prev) =>
+        prev
+          ? {
+              ...prev,
+              startedAt: startedAtDate.toISOString(),
+              endedAt: endedAtDate ? endedAtDate.toISOString() : null,
+            }
+          : prev
+      );
+    }
+  } catch (error) {
+    console.error("Erro ao buscar tempo da OS:", error);
   }
+};
 
-  // ----- Função para buscar assinatura (se existir) -----
-  const fetchAssinatura = useCallback(
-    async (ordemId: string) => {
-      try {
-        const token = await getToken();
-        if (!token) return;
-        const response = await api.get(`/assinatura/${ordemId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!isMountedRef.current) return;
-        setAssinatura(response.data?.assinatura ?? null);
-      } catch (err) {
-        console.error("Erro ao buscar assinatura:", err);
-      }
-    },
-    [getToken]
-  );
 
-  // ----- useEffect de inicialização: quando "ordem" (prop) muda, traz dados necessários em 1 bloco -----
-  useEffect(() => {
-    if (!ordem) {
-      // se não recebeu ordem, limpa estados relevantes
-      setOrdemAtual(null);
-      setAssinatura(null);
-      setTime(0);
-      setIsRunning(false);
-      return;
+
+    useEffect(() => {
+    if (ordemAtual?.id) {
+      fetchAssinatura(ordemAtual.id);
+      fetchTempo(ordemAtual.id); // chama a requisição GET do tempo
     }
+  }, [ordemAtual]);
 
-    let cancelled = false;
-    const loadAll = async () => {
-      setIsLoading(true);
-      try {
-        const token = await getToken();
-        if (!token) {
-          console.warn("Token ausente ao carregar ordem");
-          setIsLoading(false);
-          return;
-        }
+  const enviarAssinatura = async (base64: string) => {
+    try {
+      const storageToken = await AsyncStorage.getItem("@AlltiService");
+      if (!storageToken) return;
+      const { token } = JSON.parse(storageToken);
 
-        // Dispara as requisições principais em paralelo (ordem geral, assinatura e tempo)
-        // Mantemos as rotas que você usava: /ordemdeservico/:id, /assinatura/:id, /ordemdeservico/tempo/:id
-            console.log(">>> endpoint tentativa:", `/ordemdeservico/${ordem.id}`);
-        const [ordemResp, assinaturaResp, tempoResp] = await Promise.all([
-      
-          api.get(`/ordemdeservico/${ordem.id}`, { headers: { Authorization: `Bearer ${token}` } }),
-          api.get(`/assinatura/${ordem.id}`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: null })), // aceita falha sem quebrar tudo
-          api.get(`/ordemdeservico/tempo/${ordem.id}`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: null })),
-          
-        ]);
-
-        if (cancelled || !isMountedRef.current) return;
-
-        // atualiza ordem completa
-        const ordemData = ordemResp.data;
-        setOrdemAtual(ordemData);
-
-        // assinatura (se houver)
-        setAssinatura(assinaturaResp?.data?.assinatura ?? null);
-
-        // aplica lógica de tempo via helper (centraliza comportamento)
-        applyTempoData(tempoResp?.data ?? null);
-      } catch (err) {
-        console.error("Erro ao carregar dados iniciais da OS:", err);
-        Alert.alert("Erro", "Falha ao carregar informações da ordem. Tente novamente.");
-      } finally {
-        if (!cancelled && isMountedRef.current) setIsLoading(false);
-      }
-    };
-
-    loadAll();
-
-    return () => {
-      cancelled = true; // cancela caso o efeito seja desmontado/atualizado
-    };
-    // Disparar quando a prop 'ordem' muda.
-  }, [ordem, getToken, applyTempoData]);
-
-  // ----- Timer: singelo useEffect que controla o interval com base em isRunning -----
-  useEffect(() => {
-    // se já existe interval, limpa antes de criar outro
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-
-    if (isRunning) {
-      intervalRef.current = setInterval(() => {
-        // atualiza o tempo cada 1s
-        setTime((prev) => prev + 1);
-      }, 1000);
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [isRunning]);
-
-  // ----- enviarAssinatura (patch) -----
-  const enviarAssinatura = useCallback(
-    async (base64: string) => {
-      if (!ordemAtual?.id) return;
-      try {
-        const token = await getToken();
-        if (!token) return;
-        await api.patch(
-          `/assinatura/${ordemAtual.id}`,
-          { assinatura: base64 },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (!isMountedRef.current) return;
-        setAssinatura(base64);
-        Alert.alert("Sucesso", "Assinatura salva!");
-      } catch (err) {
-        console.error("Erro ao salvar assinatura:", err);
-        Alert.alert("Erro", "Não foi possível salvar a assinatura.");
-      }
-    },
-    [ordemAtual?.id, getToken]
-  );
-
-  // ----- Upload de imagens (POST) -----
-  const uploadImages = useCallback(
-    async () => {
-      if (selectedImages.length === 0) return Alert.alert("Atenção", "Selecione pelo menos uma imagem.");
-      if (!ordemAtual?.id) return Alert.alert("Erro", "Ordem inválida.");
-
-      const formData = new FormData();
-      formData.append("ordemdeServico_id", ordemAtual.id);
-
-      selectedImages.forEach((img, index) => {
-        formData.append("file", {
-          uri: img.uri,
-          name: `ordem_${ordemAtual.id}_${index}.jpg`,
-          type: "image/jpeg",
-        } as any);
+      await api.patch(`/assinatura/${ordemAtual!.id}`, { assinatura: base64 }, {
+        headers: { Authorization: `Bearer ${token}` },
       });
+      Alert.alert("Sucesso", "Assinatura salva!");
+      setAssinatura(base64);
+    } catch (err) {
+      console.error("Erro ao salvar assinatura:", err);
+      Alert.alert("Erro", "Não foi possível salvar a assinatura.");
+    }
+  };
 
-      try {
-        const token = await getToken();
-        if (!token) return;
-        await api.post(`/foto`, formData, {
-          headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
-          timeout: 30000,
-        });
-        if (!isMountedRef.current) return;
-        Alert.alert("Sucesso", "Imagens enviadas com sucesso!");
-        setSelectedImages([]);
-        // atualiza a ordem após upload (caso o backend adicione URLs)
-        await refreshOrdemAtual(ordemAtual.id);
-      } catch (err: unknown) {
-        const error = err as any;
-        console.error("Erro no upload de imagens:", error.response?.data || error.message);
-        Alert.alert("Erro", "Falha ao enviar imagens.");
-      }
-    },
-    [selectedImages, ordemAtual?.id, getToken, refreshOrdemAtual]
-  );
-
-  // ----- pickImages / openCamera (mantidos, mas seguros) -----
-  const pickImages = useCallback(async () => {
+  const pickImages = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") return Alert.alert("Permissão negada", "Habilite o acesso às fotos.");
 
@@ -329,15 +167,15 @@ console.log(">>> api baseURL:", (api as any).defaults?.baseURL);
     });
 
     if (!result.canceled) {
-      const imagesWithBase64 = result.assets.map((asset) => ({
+      const imagesWithBase64 = result.assets.map(asset => ({
         uri: asset.uri,
         base64: `data:${asset.type};base64,${asset.base64}`,
       }));
-      setSelectedImages((prev) => [...prev, ...imagesWithBase64]);
+      setSelectedImages([...selectedImages, ...imagesWithBase64]);
     }
-  }, []);
+  };
 
-  const openCamera = useCallback(async () => {
+  const openCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") return Alert.alert("Permissão negada", "Habilite o acesso à câmera.");
 
@@ -348,92 +186,242 @@ console.log(">>> api baseURL:", (api as any).defaults?.baseURL);
     });
 
     if (!result.canceled) {
-      const imagesWithBase64 = result.assets.map((asset) => ({
+      const imagesWithBase64 = result.assets.map(asset => ({
         uri: asset.uri,
         base64: `data:${asset.type};base64,${asset.base64}`,
       }));
-      setSelectedImages((prev) => [...prev, ...imagesWithBase64]);
+      setSelectedImages([...selectedImages, ...imagesWithBase64]);
     }
-  }, []);
+  };
 
-  const removeImage = useCallback((index: number) => {
-    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+  const removeImage = (index: number) => setSelectedImages(selectedImages.filter((_, i) => i !== index));
 
-  // ----- Iniciar OS (patch) -----
-  const handleStart = useCallback(async () => {
-    if (!ordemAtual?.id) {
-      console.error("Ordem inválida ao iniciar:", ordemAtual);
-      return;
-    }
+  const uploadImages = async () => {
+    if (selectedImages.length === 0) return Alert.alert("Atenção", "Selecione pelo menos uma imagem.");
+
+    const formData = new FormData();
+    formData.append("ordemdeServico_id", ordemAtual.id);
+
+    selectedImages.forEach((img, index) => {
+      formData.append("file", {
+        uri: img.uri,
+        name: `ordem_${ordemAtual.id}_${index}.jpg`,
+        type: "image/jpeg",
+      } as any);
+    });
+
     try {
-      const token = await getToken();
-      if (!token) {
-        console.error("Token ausente ao iniciar OS");
+      await api.post(`/foto`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30000,
+      });
+      Alert.alert("Sucesso", "Imagens enviadas com sucesso!");
+      setSelectedImages([]);
+    } catch (err: unknown) {
+      const error = err as any;
+      console.error("Erro no upload de imagens:", error.response?.data || error.message);
+      Alert.alert("Erro", "Falha ao enviar imagens.");
+    }
+  };
+
+const refreshOrdemAtual = async () => {
+  if (!ordemAtual?.id) return; 
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    const { data } = await api.get(`/ordemdeservico/tempo/${ordemAtual.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log("🔥 Dados recebidos no refreshOrdemAtual:", data);
+
+    // Atualiza só os campos retornados pelo endpoint de tempo
+    setOrdemAtual(prev => prev ? { ...prev, ...data } : { ...ordem!, ...data });
+  } catch (error) {
+    console.error("Erro ao buscar OS atualizada1:", error);
+  }
+};
+
+
+const handleStart = async () => {
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    await api.patch(
+      `/ordemdeservico/iniciar/${ordemAtual.id}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // 🔁 Atualiza a ordem para pegar o novo status
+    await refreshOrdemAtual();
+
+    // Agora o status estará “EM ANDAMENTO”
+    setIsRunning(true);
+    setIsPaused(false);
+
+  } catch (error) {
+    console.error("Erro ao iniciar OS:", error);
+  }
+};
+
+
+
+useEffect(() => {
+  console.log("DEBUG: useEffect iniciado.");
+
+  if (!ordem) {
+    console.log("DEBUG: Variável 'ordem' é nula ou indefinida. Saindo.");
+    return;
+  }
+  
+  // ✅ PONTO DE DEBUG CRÍTICO: Verificar o ID
+  console.log("DEBUG: ID da Ordem de Serviço (ordem.id):", ordem.id);
+  
+  // Garante que o ID é válido antes de prosseguir
+  if (!ordem.id) {
+    console.log("DEBUG: 'ordem.id' é nulo ou inválido. Saindo.");
+    return;
+  }
+
+  let isMounted = true; // ✅ flag de controle
+
+  const fetchOrdemAtualizada = async () => {
+    try {
+      const storageToken = await AsyncStorage.getItem("@AlltiService");
+      if (!storageToken) {
+        console.log("DEBUG: Token não encontrado no AsyncStorage. Saindo.");
         return;
       }
-      await api.patch(`/ordemdeservico/iniciar/${ordemAtual.id}`, {}, {
+      const { token } = JSON.parse(storageToken);
+      
+      // ✅ PONTO DE DEBUG CRÍTICO: Verificar a URL completa e o Token
+      const urlCompleta = `/ordemdeservico/${ordem.id}`;
+      console.log("DEBUG: URL da Requisição:", urlCompleta);
+      console.log("DEBUG: Token (primeiros 10 caracteres):", token ? token.substring(0, 10) + '...' : 'Token Vazio');
+
+
+      const response = await api.get(urlCompleta, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // atualiza apenas os campos de tempo
-      await refreshOrdemAtual(ordemAtual.id);
-    } catch (error) {
-      console.error("Erro ao iniciar OS:", error);
-      Alert.alert("Erro", "Não foi possível iniciar a OS.");
-    }
-  }, [ordemAtual?.id, getToken, refreshOrdemAtual]);
 
-  // ----- Pausar / concluir (patch) -----
-  const handlePause = useCallback(async () => {
-    if (!ordemAtual?.id) {
-      console.error("Ordem inválida ao pausar:", ordemAtual);
-      return;
-    }
-    try {
-      const token = await getToken();
-      if (!token) return;
-      const payload = { endedAt: new Date().toISOString() };
-      await api.patch(`/ordemdeservico/concluir/${ordemAtual.id}`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      await refreshOrdemAtual(ordemAtual.id);
-    } catch (error) {
-      console.error("Erro ao pausar OS:", error);
-      Alert.alert("Erro", "Não foi possível pausar a OS.");
-    }
-  }, [ordemAtual?.id, getToken, refreshOrdemAtual]);
+      if (isMounted) {
+        setOrdemAtual(response.data);
+        fetchAssinatura(ordem.id);
+        fetchTempo(ordem.id);
+        console.log("DEBUG: Requisição bem-sucedida! Status:", response.status);
+      }
+    } catch (err) {
+      if (isMounted) {
+    // ✅ Solução 1: Asserção de tipo para AxiosError (se tiver o tipo importado)
+    // const error = err as AxiosError;
+    // const axiosErrorStatus = error.response ? error.response.status : 'Sem Status';
+    
+    // ✅ Solução 2: Checagem de tipo (a mais comum e fácil de implementar)
+    const error = err as any; // Simplifica a vida para fins de depuração
+    const axiosErrorStatus = error.response ? error.response.status : 'Sem Status';
+    const axiosErrorMessage = error.response ? error.response.data : 'Sem Dados de Erro';
 
-  // ----- Concluir e fechar (patch) -----
-  const handleCloseAndComplete = useCallback(async () => {
-    if (!ordemAtual?.id) {
-      console.error("Ordem inválida ao concluir:", ordemAtual);
-      return;
+    console.error("ERRO COMPLETO (Catch):", error);
+    console.error("ERRO AO BUSCAR OS ATUALIZADA - Status HTTP:", axiosErrorStatus);
+    console.error("ERRO AO BUSCAR OS ATUALIZADA - Resposta do Servidor:", axiosErrorMessage);
+  }
     }
-    try {
-      const token = await getToken();
-      if (!token) return;
-      await api.patch(`/ordemdeservico/concluir/${ordemAtual.id}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      await refreshOrdemAtual(ordemAtual.id);
-      handleCloseModal();
-    } catch (error) {
-      console.error("Erro ao concluir OS:", error);
-      Alert.alert("Erro", "Não foi possível concluir a OS.");
-    }
-  }, [ordemAtual?.id, getToken, refreshOrdemAtual, handleCloseModal]);
+  };
 
-  // Se ordemAtual ainda não foi carregada, evita crash (render null - mantém UX atual)
-  if (!ordemAtual) return null;
+  fetchOrdemAtualizada();
 
-  const endereco = ordemAtual.user?.cliente?.endereco ?? ordemAtual.instituicaoUnidade?.endereco ?? "";
+  return () => {
+    isMounted = false;
+    console.log("DEBUG: Cleanup function (componente desmontado) executada.");
+  };
+}, [ordem]); // Inclua todas as dependências do useEffect
+
+const handlePause = async () => {
+  if (!ordemAtual?.id) return;
+
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    const payload = { endedAt: new Date().toISOString() };
+
+    const response = await api.patch(
+      `/ordemdeservico/pausar/${ordemAtual.id}`,
+      payload,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // ✅ Atualiza o estado local para refletir pausa
+    setIsRunning(false);
+    setIsPaused(true)
+    await refreshOrdemAtual();
+
+  } catch (error: any) {
+     console.error("Erro detalhado ao pausar OS:", JSON.stringify(error, null, 2));
+    Alert.alert("Erro", "Não foi possível pausar a OS.");
+  }
+};
+
+
+
+const handleResume = async () => {
+  if (!ordemAtual?.id) return;
+
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    const response = await api.patch(`/ordemdeservico/retomar/${ordemAtual.id}`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    console.log("✅ Retomada:", response.data);
+    await refreshOrdemAtual();
+    setIsRunning(true);
+    setIsPaused(false);
+  } catch (err: any) {
+    console.error("Erro ao Retomar OS:", err);
+    const serverMessage = err?.response?.data?.error || err?.response?.data?.message || err.message;
+    Alert.alert("Erro ao retomar", serverMessage ?? "Falha ao retomar a OS.");
+  }
+};
+
+
+  const handleReset = () => {
+    setIsRunning(false);
+    setTime(0);
+  };
+
+ const handleCloseAndComplete = async () => {
+  try {
+    const storageToken = await AsyncStorage.getItem("@AlltiService");
+    if (!storageToken) return;
+    const { token } = JSON.parse(storageToken);
+
+    await api.patch(`/ordemdeservico/concluir/${ordemAtual.id}`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    await refreshOrdemAtual();
+    handleCloseModal();
+  } catch (error) {
+    console.error("Erro ao concluir OS:", error);
+  }
+};
 
   return (
     <>
       <TouchableOpacity activeOpacity={1} style={styles.overlay} onPress={handleCloseModal}>
         <TouchableOpacity activeOpacity={1} style={styles.modalContainer}>
           <ScrollView showsVerticalScrollIndicator>
-            {/* === HEADER === */}
+            
             <View style={styles.header}>
               <Text style={styles.title}>Detalhes da Ordem</Text>
               <TouchableOpacity onPress={atualizarOrdem} style={styles.refreshIcon}>
@@ -444,29 +432,31 @@ console.log(">>> api baseURL:", (api as any).defaults?.baseURL);
               </TouchableOpacity>
             </View>
 
-            {/* Informações adicionais do setor */}
-            {ordemAtual.informacoesSetor && (
-              <View style={{ marginTop: 20 }}>
-                <Text style={styles.label}>Local do Chamado: </Text>
+            
+          {/* Informações adicionais do setor */}
+           {ordemAtual.informacoesSetor && (
+          <View style={{ marginTop: 20 }}>
+          <Text style={styles.label}>Local do Chamado: </Text>
+          
+            {ordemAtual?.informacoesSetor?.instituicaoUnidade?.name ? (
+              <Text>{ordemAtual.informacoesSetor.instituicaoUnidade.name}</Text>
+              ) : ordemAtual?.informacoesSetor?.cliente?.name ? (
+              <Text>{ordemAtual.informacoesSetor.cliente.name}</Text>
+              ) : (
+              <Text>Não informado</Text>
+             )}
+          
+               <Text style={styles.label}>
+              Informações do usuário que solicitou o chamado
+             </Text>
+                            
+               <Text>Setor: {ordemAtual.informacoesSetor.setor.name}</Text>
+               <Text>Usuário: {ordemAtual.informacoesSetor.usuario}</Text>
+               <Text>Ramal: {ordemAtual.informacoesSetor.ramal}</Text>
+              <Text>Andar: {ordemAtual.informacoesSetor.andar}</Text>
+                </View>
+               )}
 
-                {ordemAtual?.informacoesSetor?.instituicaoUnidade?.name ? (
-                  <Text>{ordemAtual.informacoesSetor.instituicaoUnidade.name}</Text>
-                ) : ordemAtual?.informacoesSetor?.cliente?.name ? (
-                  <Text>{ordemAtual.informacoesSetor.cliente.name}</Text>
-                ) : (
-                  <Text>Não informado</Text>
-                )}
-
-                <Text style={styles.label}>Informações do usuário que solicitou o chamado</Text>
-
-                <Text>Setor: {ordemAtual.informacoesSetor.setor.name}</Text>
-                <Text>Usuário: {ordemAtual.informacoesSetor.usuario}</Text>
-                <Text>Ramal: {ordemAtual.informacoesSetor.ramal}</Text>
-                <Text>Andar: {ordemAtual.informacoesSetor.andar}</Text>
-              </View>
-            )}
-
-            {/* === INFORMAÇÕES === */}
             <Text style={styles.label}>Número: {ordemAtual.numeroOS ?? "Não Disponível"}</Text>
             <Text style={styles.label}>Status:</Text>
             <Text>{ordemAtual.statusOrdemdeServico?.name ?? "-"}</Text>
@@ -511,26 +501,45 @@ console.log(">>> api baseURL:", (api as any).defaults?.baseURL);
               </>
             )}
 
-            <View style={styles.timerContainer}>
+            
+              <View style={styles.timerContainer}>
               <Text style={styles.timerText}>Tempo decorrido: {formatTime(time)}</Text>
-              <View style={styles.timerButtons}>
-                {!isRunning ? (
-                  <TouchableOpacity style={[styles.buttonClose, styles.timerBtn]} onPress={handleStart}>
-                    <Text style={styles.textButtonClose}>Iniciar</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity style={[styles.buttonClose, styles.timerBtnPause]} onPress={handlePause}>
-                    <Text style={styles.textButtonClose}>Pausar</Text>
-                  </TouchableOpacity>
-                )}
 
-                <TouchableOpacity style={[styles.buttonClose, styles.timerBtnReset]} onPress={() => { setIsRunning(false); setTime(0); }}>
-                  <Text style={styles.textButtonClose}>Resetar</Text>
+                        <View style={styles.timerButtons}>
+              {/* BOTÃO PRINCIPAL */}
+              {!isRunning && !isPaused && (
+                // ⏯ Timer ainda não começou
+                <TouchableOpacity
+                  style={[styles.buttonClose, styles.timerBtn]}
+                  onPress={handleStart}
+                >
+                  <Text style={styles.textButtonClose}>Iniciar</Text>
                 </TouchableOpacity>
-              </View>
+              )}
+
+              {isRunning && (
+                // ⏸ Timer em andamento
+                <TouchableOpacity
+                  style={[styles.buttonClose, styles.timerBtnPause]}
+                  onPress={handlePause}
+                >
+                  <Text style={styles.textButtonClose}>Pausar</Text>
+                </TouchableOpacity>
+              )}
+              {!isRunning && isPaused && (
+                // ▶ Timer pausado
+                <TouchableOpacity
+                  style={[styles.buttonClose, styles.timerBtnReset]}
+                  onPress={handleResume}
+                >
+                  <Text style={styles.textButtonClose}>Retomar</Text>
+                </TouchableOpacity>
+              )}
+            </View>
             </View>
 
-            {/* === DETALHES === */}
+
+
             <Text style={styles.label}>Tipo de Chamado:</Text>
             <Text>{ordemAtual.tipodeChamado?.name ?? "-"}</Text>
             <Text style={styles.label}>Problema:</Text>
@@ -543,36 +552,37 @@ console.log(">>> api baseURL:", (api as any).defaults?.baseURL);
             <Text>{ordemAtual.diagnostico ?? "-"}</Text>
             <Text style={styles.label}>Solução:</Text>
             <Text>{ordemAtual.solucao ?? "-"}</Text>
+            
+           <Text style={styles.label}>Início da OS:</Text>
+              <Text>
+                {ordemAtual?.startedAt
+                  ? new Date(ordemAtual.startedAt).toLocaleTimeString("pt-BR", {
+                      timeZone: "America/Sao_Paulo",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "-"}
+              </Text>
 
-            <Text style={styles.label}>Início da OS:</Text>
-            <Text>
-              {ordemAtual?.startedAt
-                ? new Date(ordemAtual.startedAt).toLocaleTimeString("pt-BR", {
-                    timeZone: "America/Sao_Paulo",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "-"}
-            </Text>
+              <Text style={styles.label}>Término da OS:</Text>
+              <Text>
+                {ordemAtual?.endedAt
+                  ? new Date(ordemAtual.endedAt).toLocaleTimeString("pt-BR", {
+                      timeZone: "America/Sao_Paulo",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : isRunning
+                  ? "Em andamento..."
+                  : "-"}
+              </Text>
 
-            <Text style={styles.label}>Término da OS:</Text>
-            <Text>
-              {ordemAtual?.endedAt
-                ? new Date(ordemAtual.endedAt).toLocaleTimeString("pt-BR", {
-                    timeZone: "America/Sao_Paulo",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : isRunning
-                ? "Em andamento..."
-                : "-"}
-            </Text>
 
             <Text style={styles.label}>Duração:</Text>
-            <Text>{formatTime(time)}</Text>
+              <Text>{formatTime(time)}</Text>
 
             <Text style={styles.label}>Assinatura:</Text>
-            <Text>Pessoa que Assinou: {ordemAtual.assinante ?? "-"}</Text>
+             <Text>Pessoa que Assinou: {ordemAtual.assinante ?? "-"}</Text>
 
             {/* === ASSINATURA === */}
             {assinatura ? (
@@ -633,8 +643,6 @@ console.log(">>> api baseURL:", (api as any).defaults?.baseURL);
               </View>
             </TouchableOpacity>
 
-            {/* indica loading básico (opcional) */}
-            {isLoading && <Text style={{ marginTop: 10 }}>Carregando informações...</Text>}
           </ScrollView>
         </TouchableOpacity>
       </TouchableOpacity>

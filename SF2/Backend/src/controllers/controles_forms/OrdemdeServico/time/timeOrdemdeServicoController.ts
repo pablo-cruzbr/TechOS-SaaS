@@ -5,52 +5,56 @@ export const timeOrdemDeServicoController = {
   async iniciar(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório" });
-    
+      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
+
       const ordem = await TimeOrdemDeServicoService.iniciarOrdem(id);
       return res.json(ordem);
     } catch (error: any) {
-      console.error("Erro ao iniciar OS:", error);
-      return res.status(500).json({ error: error.message || "Falha ao iniciar a OS" });
+      console.error("Erro ao iniciar OS:", error.message);
+      const status = error.message.includes("não encontrada") ? 404 : 400;
+      return res.status(status).json({ error: error.message });
     }
   },
 
   async concluir(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório" });
+      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
       const ordem = await TimeOrdemDeServicoService.concluirOrdem(id);
       return res.json(ordem);
     } catch (error: any) {
-      console.error("Erro ao concluir OS:", error);
-      return res.status(500).json({ error: error.message || "Falha ao concluir a OS" });
+      console.error("Erro ao concluir OS:", error.message);
+      const status = error.message.includes("não encontrada") ? 404 : 400;
+      return res.status(status).json({ error: error.message });
     }
   },
 
   async pausar(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório" });
+      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
       const ordem = await TimeOrdemDeServicoService.pausarOrdem(id);
       return res.json(ordem);
     } catch (error: any) {
-      console.error("Erro ao pausar OS:", error);
-      return res.status(500).json({ error: error.message || "Falha ao pausar a OS" });
+      console.error("Erro ao pausar OS:", error.message);
+      const status = error.message.includes("não pode ser pausada") ? 400 : 500;
+      return res.status(status).json({ error: error.message });
     }
   },
 
   async retomar(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório" });
+      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
       const ordem = await TimeOrdemDeServicoService.retomarOrdem(id);
       return res.json(ordem);
     } catch (error: any) {
-      console.error("Erro ao retomar OS:", error);
-      return res.status(500).json({ error: error.message || "Falha ao retomar a OS" });
+      console.error("Erro ao retomar OS:", error.message);
+      const status = error.message.includes("não pode ser retomada") ? 400 : 500;
+      return res.status(status).json({ error: error.message });
     }
   },
 
@@ -58,8 +62,7 @@ export const timeOrdemDeServicoController = {
     try {
       const { id } = req.params;
       const { startedAt, endedAt } = req.body;
-
-      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório" });
+      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
       const parsedStartedAt = startedAt ? new Date(startedAt) : undefined;
       const parsedEndedAt = endedAt ? new Date(endedAt) : undefined;
@@ -72,21 +75,21 @@ export const timeOrdemDeServicoController = {
 
       return res.json(ordem);
     } catch (error: any) {
-      console.error("Erro ao atualizar tempo da OS:", error);
-      return res.status(500).json({ error: error.message || "Falha ao atualizar o tempo da OS" });
+      console.error("Erro ao atualizar tempo:", error.message);
+      return res.status(500).json({ error: error.message });
     }
   },
 
   async lerTempo(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório" });
+      if (!id) return res.status(400).json({ error: "ID da ordem é obrigatório." });
 
       const tempo = await TimeOrdemDeServicoService.lerTempo(id);
       return res.json(tempo);
     } catch (error: any) {
-      console.error("Erro ao ler tempo da OS:", error);
-      return res.status(500).json({ error: error.message || "Falha ao ler o tempo da OS" });
+      console.error("Erro ao ler tempo:", error.message);
+      return res.status(500).json({ error: error.message });
     }
   },
 };
