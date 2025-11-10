@@ -302,19 +302,12 @@ const handleStart = async () => {
 
 
 useEffect(() => {
-  console.log("DEBUG: useEffect iniciado.");
 
   if (!ordem) {
-    console.log("DEBUG: Variável 'ordem' é nula ou indefinida. Saindo.");
+   
     return;
-  }
-  
-  // ✅ PONTO DE DEBUG CRÍTICO: Verificar o ID
-  console.log("DEBUG: ID da Ordem de Serviço (ordem.id):", ordem.id);
-  
-  // Garante que o ID é válido antes de prosseguir
+  }  
   if (!ordem.id) {
-    console.log("DEBUG: 'ordem.id' é nulo ou inválido. Saindo.");
     return;
   }
 
@@ -329,12 +322,7 @@ useEffect(() => {
       }
       const { token } = JSON.parse(storageToken);
       
-      // ✅ PONTO DE DEBUG CRÍTICO: Verificar a URL completa e o Token
       const urlCompleta = `/ordemdeservico/${ordem.id}`;
-      console.log("DEBUG: URL da Requisição:", urlCompleta);
-      console.log("DEBUG: Token (primeiros 10 caracteres):", token ? token.substring(0, 10) + '...' : 'Token Vazio');
-
-
       const response = await api.get(urlCompleta, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -343,17 +331,12 @@ useEffect(() => {
         setOrdemAtual(response.data);
         fetchAssinatura(ordem.id);
         fetchTempo(ordem.id);
-        console.log("DEBUG: Requisição bem-sucedida! Status:", response.status);
       }
     } catch (err) {
       if (isMounted) {
-    const error = err as any; // Simplifica a vida para fins de depuração
+    const error = err as any; 
     const axiosErrorStatus = error.response ? error.response.status : 'Sem Status';
     const axiosErrorMessage = error.response ? error.response.data : 'Sem Dados de Erro';
-
-    console.error("ERRO COMPLETO (Catch):", error);
-    console.error("ERRO AO BUSCAR OS ATUALIZADA - Status HTTP:", axiosErrorStatus);
-    console.error("ERRO AO BUSCAR OS ATUALIZADA - Resposta do Servidor:", axiosErrorMessage);
   }
     }
   };
@@ -362,7 +345,6 @@ useEffect(() => {
 
   return () => {
     isMounted = false;
-    console.log("DEBUG: Cleanup function (componente desmontado) executada.");
   };
 }, [ordem]); 
 
@@ -382,16 +364,12 @@ const handlePause = async () => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    // 🔹 Primeiro, atualiza os estados locais para exibir o botão imediatamente
     setIsRunning(false);
     setIsPaused(true);
 
-    // 🔹 Depois atualiza os dados da OS, mas sem sobrescrever o estado local
     await refreshOrdemAtual();
 
-    console.log("⏸️ Ordem pausada com sucesso:", response.data);
   } catch (error: any) {
-    console.error("Erro detalhado ao pausar OS:", JSON.stringify(error, null, 2));
     Alert.alert("Erro", "Não foi possível pausar a OS.");
   }
 };
@@ -411,21 +389,16 @@ const handleResume = async () => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    console.log("✅ OS retomada com sucesso:", response.data);
-
-    // 🟢 Atualiza estados visuais imediatamente
     setIsPaused(false);
     setIsRunning(true);
      setRetomarSuccess(true);
 
     Alert.alert("Ordem retomada", "A contagem de tempo foi retomada com sucesso.");
 
-    // Aguarda um pequeno delay para estabilidade da renderização
     setTimeout(async () => {
       await refreshOrdemAtual();
     }, 500);
   } catch (error: any) {
-    console.error("❌ Erro ao retomar OS:", error.response?.data || error.message);
     Alert.alert("Erro", "Não foi possível retomar a OS.");
   }
 };
