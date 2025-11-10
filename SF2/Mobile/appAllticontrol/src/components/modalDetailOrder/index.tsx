@@ -580,10 +580,6 @@ const handleResume = async () => {
 
 
 </View>
-
-
-
-
             <Text style={styles.label}>Tipo de Chamado:</Text>
             <Text>{ordemAtual.tipodeChamado?.name ?? "-"}</Text>
             <Text style={styles.label}>Problema:</Text>
@@ -620,7 +616,6 @@ const handleResume = async () => {
                   ? "Em andamento..."
                   : "-"}
               </Text>
-
 
             <Text style={styles.label}>Duração:</Text>
               <Text>{formatTime(time)}</Text>
