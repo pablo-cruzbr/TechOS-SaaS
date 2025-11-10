@@ -41,7 +41,9 @@ export function ModalDetailOrder({ ordem, handleCloseModal }: ModalDetailOsProps
   const [ordemAtual, setOrdemAtual] = useState<OrdensDeServico | null>(ordem);
   const [selectedImages, setSelectedImages] = useState<{ uri: string; base64: string }[]>([]);
   const [isRunning, setIsRunning] = useState(false);
-  const [isPaused, setIsPaused] = useState(false)
+  const [isPaused, setIsPaused] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [time, setTime] = useState(0);
   const [assinatura, setAssinatura] = useState<string | null>(null);
 
@@ -51,6 +53,28 @@ const formatTime = (seconds: number) => {
   const s = (seconds % 60).toString().padStart(2, "0");
   return `${h}:${m}:${s}`;
 };
+
+useEffect(() => {
+  let interval: NodeJS.Timeout | null = null;
+
+  if (isRunning && !isPaused) {
+    setLastUpdate(new Date());
+    interval = setInterval(() => {
+      setTime(prev => prev + 1);
+    }, 1000);
+  } else {
+    if (interval) clearInterval(interval);
+  }
+
+  return () => {
+    if (interval) clearInterval(interval);
+  };
+}, [isRunning, isPaused]);
+
+useEffect(() => {
+  if (ordemAtual?.startedAt) setHasStarted(true);
+}, [ordemAtual]);
+
 
   if (!ordemAtual) return null;
 
@@ -225,8 +249,7 @@ const formatTime = (seconds: number) => {
   };
 
 const refreshOrdemAtual = async () => {
-  if (!ordemAtual?.id) return;
-
+  if (!ordemAtual?.id) return; 
   try {
     const storageToken = await AsyncStorage.getItem("@AlltiService");
     if (!storageToken) return;
@@ -238,28 +261,15 @@ const refreshOrdemAtual = async () => {
 
     console.log("🔥 Dados recebidos no refreshOrdemAtual:", data);
 
-    // Atualiza o estado da ordem
-    setOrdemAtual(prev => (prev ? { ...prev, ...data } : { ...ordem!, ...data }));
+    setOrdemAtual(prev => prev ? { ...prev, ...data } : data);
 
-    // 🔹 Atualiza o controle do timer de acordo com o status recebido
-    const statusNome = data?.statusOrdemdeServico?.name || "";
-    if (statusNome === "EM ANDAMENTO") {
-      setIsRunning(true);
-      setIsPaused(false);
-    } else if (statusNome === "PAUSADA") {
-      setIsRunning(false);
-      setIsPaused(true);
-    } else {
-      // Outros status (CONCLUÍDA, CANCELADA, etc.)
-      setIsRunning(false);
-      setIsPaused(false);
-    }
-
-    console.log("🧩 Status atualizado:", statusNome);
+    // 🚫 Não mexemos em isRunning / isPaused aqui
   } catch (error) {
     console.error("Erro ao buscar OS atualizada:", error);
   }
 };
+
+
 
 
 const handleStart = async () => {
@@ -280,6 +290,7 @@ const handleStart = async () => {
     // Agora o status estará “EM ANDAMENTO”
     setIsRunning(true);
     setIsPaused(false);
+     setHasStarted(true);
 
   } catch (error) {
     console.error("Erro ao iniciar OS:", error);
@@ -384,8 +395,6 @@ const handlePause = async () => {
 };
 
 
-
-
 const handleResume = async () => {
   if (!ordemAtual?.id) return;
 
@@ -394,20 +403,32 @@ const handleResume = async () => {
     if (!storageToken) return;
     const { token } = JSON.parse(storageToken);
 
-    const response = await api.patch(`/ordemdeservico/retomar/${ordemAtual.id}`, {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await api.patch(
+      `/ordemdeservico/retomar/${ordemAtual.id}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-    console.log("✅ Retomada:", response.data);
-    await refreshOrdemAtual();
-    setIsRunning(true);
+    console.log("✅ OS retomada com sucesso:", response.data);
+
+    // 🟢 Atualiza estados visuais imediatamente
     setIsPaused(false);
-  } catch (err: any) {
-    console.error("Erro ao Retomar OS:", err);
-    const serverMessage = err?.response?.data?.error || err?.response?.data?.message || err.message;
-    Alert.alert("Erro ao retomar", serverMessage ?? "Falha ao retomar a OS.");
+    setIsRunning(true);
+
+    Alert.alert("Ordem retomada", "A contagem de tempo foi retomada com sucesso.");
+
+    // Aguarda um pequeno delay para estabilidade da renderização
+    setTimeout(async () => {
+      await refreshOrdemAtual();
+    }, 500);
+  } catch (error: any) {
+    console.error("❌ Erro ao retomar OS:", error.response?.data || error.message);
+    Alert.alert("Erro", "Não foi possível retomar a OS.");
   }
 };
+
+
+
 
 
   const handleReset = () => {
@@ -519,40 +540,47 @@ const handleResume = async () => {
 
             
               <View style={styles.timerContainer}>
-              <Text style={styles.timerText}>Tempo decorrido: {formatTime(time)}</Text>
+  <Text style={styles.timerText}>Tempo decorrido: {formatTime(time)}</Text>
 
-                        <View style={styles.timerButtons}>
-              {/* BOTÃO PRINCIPAL */}
-              {!isRunning && !isPaused && (
-                // ⏯ Timer ainda não começou
-                <TouchableOpacity
-                  style={[styles.buttonClose, styles.timerBtn]}
-                  onPress={handleStart}
-                >
-                  <Text style={styles.textButtonClose}>Iniciar</Text>
-                </TouchableOpacity>
-              )}
+  <View style={styles.timerButtons}>
+  {!isRunning && !isPaused && !hasStarted && (
+    <TouchableOpacity
+      style={[styles.buttonClose, styles.timerBtn]}
+      onPress={handleStart}
+    >
+      <Text style={styles.textButtonClose}>Iniciar</Text>
+    </TouchableOpacity>
+  )}
 
-              {isRunning && (
-                // ⏸ Timer em andamento
-                <TouchableOpacity
-                  style={[styles.buttonClose, styles.timerBtnPause]}
-                  onPress={handlePause}
-                >
-                  <Text style={styles.textButtonClose}>Pausar</Text>
-                </TouchableOpacity>
-              )}
-              {!isRunning && isPaused && (
-                // ▶ Timer pausado
-                <TouchableOpacity
-                  style={[styles.buttonClose, styles.timerBtnReset]}
-                  onPress={handleResume}
-                >
-                  <Text style={styles.textButtonClose}>Retomar</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-            </View>
+  {isRunning && (
+    <TouchableOpacity
+      style={[styles.buttonClose, styles.timerBtnPause]}
+      onPress={handlePause}
+    >
+      <Text style={styles.textButtonClose}>Pausar</Text>
+    </TouchableOpacity>
+  )}
+
+  {!isRunning && isPaused && (
+    <TouchableOpacity
+      style={[styles.buttonClose, styles.timerBtnReset]}
+      onPress={async () => {
+        await handleResume();
+
+        setTimeout(() => {
+          setIsRunning(true);
+          setIsPaused(false);
+        }, 300);
+      }}
+    >
+      <Text style={styles.textButtonClose}>Retomar</Text>
+    </TouchableOpacity>
+  )}
+</View>
+
+
+</View>
+
 
 
 
