@@ -40,7 +40,7 @@ export default function TicketsList({ ticketsData }: Props) {
   const [selectedCliente, setSelectedCliente] = useState<string>("");
 
   // Dados das ordens
-  const { total = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, controles = [] } = ticketsData || {};
+  const { total = 0, totalPausada = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, controles = [] } = ticketsData || {};
 
   // Carregar Instituições e Clientes para os selects
   useEffect(() => {
@@ -148,6 +148,7 @@ export default function TicketsList({ ticketsData }: Props) {
           { label: 'OS Aberta', value: totalAberta, status: 'ABERTA' },
           { label: 'OS em Andamento', value: totalEmAndamento, status: 'EM ANDAMENTO' },
           { label: 'OS Concluída', value: totalConcluida, status: 'CONCLUIDA' },
+          { label: 'OS PAUSADA', value: totalPausada, status: 'PAUSADA' },
         ].map((card) => (
           <div
             key={card.label}

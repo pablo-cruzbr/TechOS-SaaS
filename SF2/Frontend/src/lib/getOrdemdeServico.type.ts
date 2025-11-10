@@ -114,4 +114,5 @@ export interface OrdemdeServicoResponseData{
     totalAberta: number;
     totalEmAndamento: number;
     totalConcluida: number;
+    totalPausada: number
 }

@@ -629,6 +629,13 @@ const handleResume = async () => {
               </TouchableOpacity>
             )}
 
+             <TouchableOpacity style={styles.buttonClose} onPress={() => setModalTecnicoOpen(true)}>
+              <View style={styles.buttonContent}>
+                <MaterialIcons name="description" size={20} color="#FFF" />
+                <Text style={styles.textButtonClose}>ADICIONAR DESCRIÇÃO TÉCNICA</Text>
+              </View>
+            </TouchableOpacity>
+
             {/* === IMAGENS === */}
             <TouchableOpacity style={styles.buttonClose} onPress={pickImages}>
               <View style={styles.buttonContent}>
@@ -665,17 +672,17 @@ const handleResume = async () => {
               </>
             )}
 
-            <TouchableOpacity style={styles.buttonClose} onPress={() => setModalTecnicoOpen(true)}>
-              <View style={styles.buttonContent}>
-                <MaterialIcons name="description" size={20} color="#FFF" />
-                <Text style={styles.textButtonClose}>ADICIONAR DESCRIÇÃO TÉCNICA</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.buttonClose, styles.buttonComplete]} onPress={handleCloseAndComplete}>
+            <TouchableOpacity style={[styles.buttonClose, styles.buttonComplete]} 
+            onPress={() => {
+              // 1. Chame a primeira função (fechar e completar)
+              handleCloseAndComplete(); 
+              
+              // 2. Chame a segunda função (upload de imagens)
+              uploadImages();
+            }}>
               <View style={styles.buttonContent}>
                 <MaterialIcons name="check-circle" size={20} color="#FFF" />
-                <Text style={styles.textButtonClose}>CONCLUIR E FECHAR</Text>
+                <Text style={styles.textButtonClose}>ENVIAR IMAGENS, CONCLUIR E FECHAR OS</Text>
               </View>
             </TouchableOpacity>
 
