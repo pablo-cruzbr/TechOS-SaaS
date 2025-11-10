@@ -46,6 +46,8 @@ export function ModalDetailOrder({ ordem, handleCloseModal }: ModalDetailOsProps
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [time, setTime] = useState(0);
   const [assinatura, setAssinatura] = useState<string | null>(null);
+  const [retomarSuccess, setRetomarSuccess] = useState(false);
+
 
 const formatTime = (seconds: number) => {
   const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
@@ -414,6 +416,7 @@ const handleResume = async () => {
     // 🟢 Atualiza estados visuais imediatamente
     setIsPaused(false);
     setIsRunning(true);
+     setRetomarSuccess(true);
 
     Alert.alert("Ordem retomada", "A contagem de tempo foi retomada com sucesso.");
 
@@ -535,9 +538,31 @@ const handleResume = async () => {
               </>
             )}
 
-            
-              <View style={styles.timerContainer}>
-  <Text style={styles.timerText}>Tempo decorrido: {formatTime(time)}</Text>
+
+        <View style={styles.timerContainer}>                
+    <Text style={styles.timerText}>Tempo decorrido teste: {formatTime(time)}</Text>
+
+    {!isRunning && ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "PAUSADA" && (
+    <>
+  <TouchableOpacity
+    style={[styles.buttonClose, styles.timerBtnReset]}
+    onPress={async () => {
+      await handleResume();
+      setIsRunning(true); // já não precisa setIsPaused, só controla isRunning
+    }}
+  >
+      <Text style={styles.textButtonClose}>
+        {retomarSuccess ? "OS Retomada com sucesso!" : "Retomar"}
+      </Text>
+  </TouchableOpacity>
+   {retomarSuccess && (
+      <Text style={styles.timerText}>
+        A OS já está em andamento novamente!!!
+      </Text>
+    )}
+     </>
+)}
+
 
   <View style={styles.timerButtons}>
   {!isRunning && !isPaused && !hasStarted && (
