@@ -428,9 +428,6 @@ const handleResume = async () => {
 };
 
 
-
-
-
   const handleReset = () => {
     setIsRunning(false);
     setTime(0);

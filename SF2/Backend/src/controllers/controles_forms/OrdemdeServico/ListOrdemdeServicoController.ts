@@ -3,7 +3,7 @@ import { ListOrdemdeServicoService } from "../../../services/controles_forms/Ord
 class ListOrdemdeServicoController{
     async handle(req: Request, res: Response){
         const service = new ListOrdemdeServicoService();
-        const {controles, total, totalAberta, totalConcluida, totalEmAndamento} = await service.execute()
+        const {controles, total, totalAberta, totalConcluida, totalEmAndamento, totalPausada} = await service.execute()
         const result = await service.execute();
 
         return res.json({
@@ -12,7 +12,8 @@ class ListOrdemdeServicoController{
             total,
             totalAberta,
             totalEmAndamento,
-            totalConcluida
+            totalConcluida,
+            totalPausada
     });
     }
 }

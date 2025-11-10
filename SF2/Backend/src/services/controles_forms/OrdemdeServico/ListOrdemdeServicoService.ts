@@ -117,6 +117,14 @@ class ListOrdemdeServicoService {
       },
     });
 
+    const totalPausada = await prismaClient.ordemdeServico.count({
+      where: {
+        statusOrdemdeServico: {
+          name: "PAUSADA",
+        },
+      },
+    });
+
     const totalConcluida = await prismaClient.ordemdeServico.count({
       where: {
         statusOrdemdeServico: {
@@ -131,6 +139,7 @@ class ListOrdemdeServicoService {
       totalAberta,
       totalEmAndamento,
       totalConcluida,
+      totalPausada
     };
   }
 }
