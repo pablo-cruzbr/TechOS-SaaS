@@ -90,13 +90,15 @@ Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no pe
 - Experiência de usuário moderna e responsiva  
 
 ---
+## 🐛 Problemas Conhecidos e Soluções (Em Andamento...)
+Corrigindo bugs críticos que afetam o cálculo preciso do tempo das Ordens de Serviço (OS). (Inicio, Pausa e Retomar Ordem de Serviço)
 
 ## 🔜 Próximos Passos / Melhorias Futuras
 - Fazer Deploy na Vercel
 - Criar Funcionalidade de Transformar audio em texto para documentação técnica (biblioteca: Expo Speech)
 - Notificações push no app mobile  
-- Relatórios customizados e gráficos avançados  
-
+- Relatórios customizados e gráficos avançados
+- Criar permissões de logins usando nodeJS (jsonwebtoken (JWT))
 
 
 ---
