@@ -42,7 +42,8 @@ Principais funcionalidades:
 - Cadastrado de Técnicos 
 - Painel administrativo moderno em **Next.js e Saas**  
 - Backend seguro com **Node.js**, **Express**, **PostgreSQL** e **Prisma**  
-- Autenticação JWT e criptografia com bcrypt  
+- Autenticação JWT e criptografia com bilbioteca bcrypt
+- Biblioteca cors para permissão de rotas  
 
 ---
 
