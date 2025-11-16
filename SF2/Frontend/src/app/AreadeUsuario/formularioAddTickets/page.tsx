@@ -87,10 +87,7 @@ export default function FormularioAddTickets() {
   const name = formData.get('name')?.toString().trim();
   const tipodeChamado_id = formData.get('tipodeChamado_id')?.toString().trim();
   const tipodeOrdemdeServico_id = formData.get('tipodeOrdemdeServico_id')?.toString().trim();
-  const descricaodoProblemaouSolicitacao = formData
-    .get('descricaodoProblemaouSolicitacao')
-    ?.toString()
-    .trim();
+  const descricaodoProblemaouSolicitacao = formData.get('descricaodoProblemaouSolicitacao')?.toString().trim();
   const nomedoContatoaserProcuradonoLocal =
     formData.get('nomedoContatoaserProcuradonoLocal')?.toString().trim() || null;
 
@@ -151,6 +148,21 @@ export default function FormularioAddTickets() {
             <div className={styles.inputField}>
               <FaClipboardList className={styles.icon} />
               <input type="text" name="name" placeholder="Nome do Cliente" required />
+            </div>
+
+            <p>Selecione o Tipo de Ordem de Serviço</p>
+            <div className={styles.inputField}>
+              <FaClipboardList className={styles.icon} />
+              <select name="tipodeOrdemdeServico_id" required className={styles.select}>
+                <option value="" disabled hidden>
+                  Selecione o Tipo de Ordem de Servico
+                </option>
+                {tipodeOrdemdeServico.map((tipo) => (
+                  <option key={tipo.id} value={tipo.id}>
+                    {tipo.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <p>Selecione o Tipo de Chamado</p>
