@@ -138,6 +138,15 @@ model TipodeChamado {
   @@map("tipodeChamado")
 }
 
+model TipodeOrdemdeServico {
+  id         String           @id @default(uuid())
+  name       String
+  created_at DateTime?        @default(now())
+  updated_at DateTime?        @default(now())
+  ordens     OrdemdeServico[]
+  @@map("tipodeOrdemdeServico")
+}
+
 model Tecnico {
   id                            String                         @id @default(uuid())
   name                          String
@@ -193,6 +202,11 @@ model OrdemdeServico {
   statusOrdemdeServico              statusOrdemdeServico? @relation(fields: [statusOrdemdeServico_id], references: [id])
   tecnico                           Tecnico?              @relation(fields: [tecnico_id], references: [id])
   tipodeChamado                     TipodeChamado         @relation(fields: [tipodeChamado_id], references: [id])
+
+ tipodeOrdemdeServico_id   String? 
+tipodeOrdemdeServico      TipodeOrdemdeServico? @relation(fields: [tipodeOrdemdeServico_id], references: [id])
+
+
   user                              User                  @relation(fields: [user_id], references: [id])
 
   @@map("Ordem de Serviço v3")
