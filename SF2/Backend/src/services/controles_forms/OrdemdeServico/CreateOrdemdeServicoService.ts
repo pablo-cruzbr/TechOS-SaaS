@@ -9,6 +9,7 @@ interface FormOrdemdeServicoRequest {
   tecnico_id?: string;
   statusOrdemdeServico_id?: string;
   tipodeChamado_id: string;
+  tipodeOrdemdeServico_id: string;
   instituicaoUnidade_id?: string;
   user_id: string;
   equipamento_id: string;
@@ -33,7 +34,7 @@ class CreateOrdemdeServicoService {
     instituicaoUnidade_id,
     user_id,
     equipamento_id,
-
+    tipodeOrdemdeServico_id,
     nameTecnico,
     diagnostico,
     solucao,
@@ -59,6 +60,10 @@ class CreateOrdemdeServicoService {
 
           tipodeChamado: {
             connect: { id: tipodeChamado_id }
+          },
+
+          tipodeOrdemdeServico:{
+            connect: {id: tipodeOrdemdeServico_id}
           },
 
           user: {
@@ -105,6 +110,7 @@ class CreateOrdemdeServicoService {
           cliente: { select: { name: true, endereco: true } },
           tecnico: { select: { name: true } },
           tipodeChamado: { select: { name: true } },
+          tipodeOrdemdeServico: {select:{name: true}},
           instituicaoUnidade: { select: { name: true, endereco: true } },
           statusOrdemdeServico: { select: { name: true } },
           user: { select: { name: true } },
