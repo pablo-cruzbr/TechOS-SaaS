@@ -312,4 +312,4 @@ router.get("/assinatura/:ordemId", isAuthenticated, AssinaturaController.buscar)
 
 //TipodeOrdemdeServico
 router.post("/tipodeordemdeservico", isAuthenticated, new CreatetipodeOrdemdeServicoController().handle)
-router.get('/listtipodeordemdeservico', isAuthenticated, new ListtipodeOrdemdeServicoController().handle)
+router.get('/listtipodeordemdeservico', new ListtipodeOrdemdeServicoController().handle)
