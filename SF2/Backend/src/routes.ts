@@ -103,6 +103,7 @@ import { CreateInformacoesSetorController } from "./controllers/status categoria
 import { ListInformacaoesSetoresController } from "./controllers/status categorias/setor/informacoessetor/ListInformacoesSetorController";
 import { GetOrdemdeServicoByIdController } from "./controllers/controles_forms/OrdemdeServico/ListByIdOrdemdeServicoController";
 import { CreatetipodeOrdemdeServicoController } from "./controllers/status categorias/tipodeOrdemdeServico/CreateTipodeOrdemdeServicoController";
+import { ListtipodeOrdemdeServicoController } from "./controllers/status categorias/tipodeOrdemdeServico/ListTipodeOrdemdeServicoController";
 
 const router = Router();
 //get,post, update, delete
@@ -311,3 +312,4 @@ router.get("/assinatura/:ordemId", isAuthenticated, AssinaturaController.buscar)
 
 //TipodeOrdemdeServico
 router.post("/tipodeordemdeservico", isAuthenticated, new CreatetipodeOrdemdeServicoController().handle)
+router.get('/listtipodeordemdeservico', isAuthenticated, new ListtipodeOrdemdeServicoController().handle)

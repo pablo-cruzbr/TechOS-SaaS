@@ -1,14 +1,14 @@
 import { Response, Request } from "express";
 import { ListtipodeOrdemdeServicoService } from "../../../services/status_categorias/tipodeOrdemdeServico/ListtipodeOrdemdeServicoService";
 
-class ListtipodeChamadoController{
+class ListtipodeOrdemdeServicoController{
     async handle (req: Request, res: Response){
-        const listtipodeChamadoService = new ListtipodeOrdemdeServicoService();
+        const listtipodeOrdemdeServicoService = new ListtipodeOrdemdeServicoService();
 
-        const status = await listtipodeChamadoService.execute();
+        const status = await listtipodeOrdemdeServicoService.execute();
 
         return res.json(status);
     }
 }
 
-export {ListtipodeChamadoController}
+export {ListtipodeOrdemdeServicoController}
