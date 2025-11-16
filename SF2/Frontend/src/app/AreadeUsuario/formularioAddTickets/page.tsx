@@ -16,8 +16,15 @@ interface TipoDeChamado {
   name: string;
 }
 
+
+interface TipoDeOrdemdeServico {
+  id: string;
+  name: string;
+}
+
 export default function FormularioAddTickets() {
   const [tiposDeChamado, setTiposDeChamado] = useState<TipoDeChamado[]>([]);
+  const [tipodeOrdemdeServico, setTipodeOrdemdeServico] = useState<TipoDeOrdemdeServico[]>([])
   const [usuario, setUsuario] = useState<UsuariosProps | null>(null);
   const router = useRouter();
 
@@ -36,6 +43,18 @@ export default function FormularioAddTickets() {
       }
     }
     fetchTiposDeChamado();
+  }, []);
+
+   useEffect(() => {
+    async function fetchTiposDeOrdemdeServico() {
+      try {
+        const response = await api.get('/listtipodeordemdeservico');
+        setTipodeOrdemdeServico(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar tipos de chamado:', error);
+      }
+    }
+    fetchTiposDeOrdemdeServico();
   }, []);
 
   useEffect(() => {
@@ -67,6 +86,7 @@ export default function FormularioAddTickets() {
   const formData = new FormData(event.currentTarget);
   const name = formData.get('name')?.toString().trim();
   const tipodeChamado_id = formData.get('tipodeChamado_id')?.toString().trim();
+  const tipodeOrdemdeServico_id = formData.get('tipodeOrdemdeServico_id')?.toString().trim();
   const descricaodoProblemaouSolicitacao = formData
     .get('descricaodoProblemaouSolicitacao')
     ?.toString()
