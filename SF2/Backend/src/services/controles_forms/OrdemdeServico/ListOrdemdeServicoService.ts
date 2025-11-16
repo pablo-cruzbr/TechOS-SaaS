@@ -87,6 +87,13 @@ class ListOrdemdeServicoService {
             name: true,
           },
         },
+
+        tipodeOrdemdeServico: {
+          select:{
+            id: true,
+            name: true,
+          }
+        },
         user: {
           select: {
             id: true,
