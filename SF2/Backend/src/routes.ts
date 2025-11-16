@@ -102,6 +102,7 @@ import { AssinaturaController } from "./controllers/controles_forms/OrdemdeServi
 import { CreateInformacoesSetorController } from "./controllers/status categorias/setor/informacoessetor/CreateInformacoesSetorController";
 import { ListInformacaoesSetoresController } from "./controllers/status categorias/setor/informacoessetor/ListInformacoesSetorController";
 import { GetOrdemdeServicoByIdController } from "./controllers/controles_forms/OrdemdeServico/ListByIdOrdemdeServicoController";
+import { CreatetipodeOrdemdeServicoController } from "./controllers/status categorias/tipodeOrdemdeServico/CreateTipodeOrdemdeServicoController";
 
 const router = Router();
 //get,post, update, delete
@@ -307,3 +308,6 @@ router.patch("/assinatura/:id", isAuthenticated, AssinaturaController.atualizar)
 
 // GET → buscar assinatura
 router.get("/assinatura/:ordemId", isAuthenticated, AssinaturaController.buscar);
+
+//TipodeOrdemdeServico
+router.post("/tipodeordemdeservico", isAuthenticated, new CreatetipodeOrdemdeServicoController().handle)
