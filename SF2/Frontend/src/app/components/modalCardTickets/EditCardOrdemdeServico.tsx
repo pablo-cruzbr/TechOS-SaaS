@@ -239,7 +239,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
           <option value="">Selecione o Equipamento (opcional)</option>
           {equipamentoList.map((equi) => (
             <option key={equi.id} value={equi.id}>
-             {equi.name}
+             {equi.patrimonio} - {equi.name}
             </option>
           ))}
         </select>
