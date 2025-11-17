@@ -80,35 +80,42 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     });
   }, [ordemdeServico]);
 
-  useEffect(() => {
-    const fetchLists = async () => {
-      try {
-        const token = await getCookieClient();
-        if (!token) return;
+ useEffect(() => {
+  const fetchLists = async () => {
+    try {
+      const token = await getCookieClient();
+      if (!token) return;
 
-        const [tecnicosRes, statusRes, clienteRes, instituicoesRes, equipamentoRes, tipodeOrdemdeServicoRes] = await Promise.all([
-          api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/listequipamento", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/listequipamento"),
-        ]);
+      const [
+        tecnicosRes,
+        statusRes,
+        clienteRes,
+        instituicoesRes,
+        equipamentoRes,
+        tipodeOrdemdeServicoRes
+      ] = await Promise.all([
+        api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
+        api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
+        api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
+        api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
+        api.get("/listequipamento", { headers: { Authorization: `Bearer ${token}` } }),
+        api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
 
-        setTecnicoList(tecnicosRes.data.controles ?? []);
-        setStatusList(statusRes.data ?? []);
-        setClienteList(clienteRes.data.controles ?? []);
-        setInstituicaoList(instituicoesRes.data.instituicoes ?? []);
-        setEquipamentoList(equipamentoRes.data ?? []);
-        setTipodeOrdemdeServicoList(tipodeOrdemdeServicoRes.data ?? [])
+      setTecnicoList(tecnicosRes.data.controles ?? []);
+      setStatusList(statusRes.data ?? []);
+      setClienteList(clienteRes.data.controles ?? []);
+      setInstituicaoList(instituicoesRes.data.instituicoes ?? []);
+      setEquipamentoList(equipamentoRes.data ?? []);
+      setTipodeOrdemdeServicoList(tipodeOrdemdeServicoRes.data ?? [])
 
-      } catch (error) {
-        console.error("Erro ao buscar listas:", error);
-      }
-    };
+    } catch (error) {
+      console.error("Erro ao buscar listas:", error);
+    }
+  };
 
-    fetchLists();
-  }, []);
+  fetchLists();
+}, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -232,7 +239,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
           <option value="">Selecione o Equipamento (opcional)</option>
           {equipamentoList.map((equi) => (
             <option key={equi.id} value={equi.id}>
-              {equi.name}
+             {equi.name}
             </option>
           ))}
         </select>
