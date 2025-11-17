@@ -25,6 +25,7 @@ export interface OrdemdeServicoProps {
   descricaodoProblemaouSolicitacao: string;
   nomedoContatoaserProcuradonoLocal?: string;
   tipodeChamado_id: string;
+  tipodeOrdemdeServico_id: string;
   cliente_id?: string;
   tecnico_id?: string;
   statusOrdemdeServico_id?: string;
@@ -74,6 +75,10 @@ export interface OrdemdeServicoProps {
   };
 
   tipodeChamado: {
+    id: string;
+    name: string;
+  };
+  tipodeOrdemdeServico: {
     id: string;
     name: string;
   };

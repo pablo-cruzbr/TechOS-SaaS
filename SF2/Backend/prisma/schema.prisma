@@ -204,7 +204,7 @@ model OrdemdeServico {
   tipodeChamado                     TipodeChamado         @relation(fields: [tipodeChamado_id], references: [id])
 
  tipodeOrdemdeServico_id   String? 
-tipodeOrdemdeServico      TipodeOrdemdeServico? @relation(fields: [tipodeOrdemdeServico_id], references: [id])
+ tipodeOrdemdeServico      TipodeOrdemdeServico? @relation(fields: [tipodeOrdemdeServico_id], references: [id])
 
 
   user                              User                  @relation(fields: [user_id], references: [id])
