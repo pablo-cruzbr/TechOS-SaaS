@@ -78,6 +78,7 @@ export interface OrdemdeServicoProps {
     id: string;
     name: string;
   };
+  
   tipodeOrdemdeServico: {
     id: string;
     name: string;
