@@ -41,6 +41,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
   const [instituicaoList, setInstituicaoList] = useState<Instituicoes[]>([]);
   const [clienteList, setClienteList] = useState<Cliente[]>([]);
   const [equipamentoList, setEquipamentoList] = useState<Equipamento[]>([]);
+  const [tipodeordemdeservico, setTipodeOrdemdeServico] = useState<TipodeOrdemdeServico[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
