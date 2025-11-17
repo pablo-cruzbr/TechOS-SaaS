@@ -16,7 +16,6 @@ interface TipoDeChamado {
   name: string;
 }
 
-
 interface TipoDeOrdemdeServico {
   id: string;
   name: string;
