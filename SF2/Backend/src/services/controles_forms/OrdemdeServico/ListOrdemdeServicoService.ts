@@ -140,13 +140,36 @@ class ListOrdemdeServicoService {
       },
     });
 
+    
+    const totalTicket = await prismaClient.ordemdeServico.count({
+      where: {
+        tipodeOrdemdeServico: { 
+          is: {
+            name: "TICKET",
+          },
+        },
+      },
+    });
+
+     const totalOrdemdeServico = await prismaClient.ordemdeServico.count({
+      where: {
+        tipodeOrdemdeServico: { 
+          is: {
+            name: "ORDEM DE SERVICO",
+          },
+        },
+      },
+    });
+
     return {
       controles,
       total,
       totalAberta,
       totalEmAndamento,
       totalConcluida,
-      totalPausada
+      totalPausada,
+      totalTicket,
+      totalOrdemdeServico
     };
   }
 }
