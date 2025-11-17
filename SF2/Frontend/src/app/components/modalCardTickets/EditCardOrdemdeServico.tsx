@@ -20,6 +20,7 @@ type FormState = {
   instituicaoUnidade_id: string;
   cliente_id: string;
   equipamento_id: string;
+  tipodeOrdemdeServico_id: string;
 };
 type TipodeOrdemdeServico = { id: string; name: string };
 type Props = {
@@ -34,14 +35,15 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
     statusOrdemdeServico_id: "",
     instituicaoUnidade_id: "",
     cliente_id: "",
-    equipamento_id: ""
+    equipamento_id: "",
+    tipodeOrdemdeServico_id: "",
   });
   const [statusList, setStatusList] = useState<Status[]>([]);
   const [tecnicoList, setTecnicoList] = useState<Tecnicos[]>([]);
   const [instituicaoList, setInstituicaoList] = useState<Instituicoes[]>([]);
   const [clienteList, setClienteList] = useState<Cliente[]>([]);
   const [equipamentoList, setEquipamentoList] = useState<Equipamento[]>([]);
-  const [tipodeordemdeservico, setTipodeOrdemdeServico] = useState<TipodeOrdemdeServico[]>([]);
+  const [tipodeordemdeservicoList, setTipodeOrdemdeServicoList] = useState<TipodeOrdemdeServico[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -63,13 +65,18 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
       (ordemdeServico as any)?.equipamentoId ??
       "";
 
+    const tipodeordemdeservicoId = 
+    (ordemdeServico as any)?.tipodeordemdeservico?.id ??
+    (ordemdeServico as any)?.tipodeordemdeservicoId ?? "";
+
 
     setForm({
       tecnico_id: (ordemdeServico as any)?.tecnico?.id ?? "",
       statusOrdemdeServico_id: (ordemdeServico as any)?.statusOrdemdeServico?.id ?? "",
       instituicaoUnidade_id: instituicaoId?.toString() ?? "",
       cliente_id: clienteId?.toString() ?? "",
-      equipamento_id: equipamentoId?.toString() ?? ""
+      equipamento_id: equipamentoId?.toString() ?? "",
+      tipodeOrdemdeServico_id: tipodeordemdeservicoId?.toString() ?? ""
     });
   }, [ordemdeServico]);
 
@@ -79,7 +86,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         const token = await getCookieClient();
         if (!token) return;
 
-        const [tecnicosRes, statusRes, clienteRes, instituicoesRes, equipamentoRes] = await Promise.all([
+        const [tecnicosRes, statusRes, clienteRes, instituicoesRes, equipamentoRes, tipodeOrdemdeServicoRes] = await Promise.all([
           api.get("/listtecnico", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/liststatusordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
@@ -92,7 +99,9 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         setStatusList(statusRes.data ?? []);
         setClienteList(clienteRes.data.controles ?? []);
         setInstituicaoList(instituicoesRes.data.instituicoes ?? []);
-        setEquipamentoList(equipamentoRes.data ?? [])
+        setEquipamentoList(equipamentoRes.data ?? []);
+        setTipodeOrdemdeServicoList(tipodeOrdemdeServicoRes.data ?? [])
+
       } catch (error) {
         console.error("Erro ao buscar listas:", error);
       }
@@ -118,6 +127,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
       cliente_id: form.cliente_id || null, // envia null se não selecionar
       instituicaoUnidade_id: form.instituicaoUnidade_id || null, // envia null se não selecionar
       equipamento_id: form.equipamento_id || null,
+      tipodeOrdemdeServico_id: form.tipodeOrdemdeServico_id || null,
     };
 
     console.log("Payload enviado:", payload);
@@ -154,6 +164,19 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
         <HiOutlinePencilSquare className={styles.icon} />
         {ordemdeServico ? "Editar Ordem de Serviço" : "Nova Ordem de Serviço"}
       </h3>
+
+        <label>
+        <p>Tipo de Ordem de Serviço</p>
+        <select name="tipodeOrdemdeServico_id" value={form.tipodeOrdemdeServico_id} onChange={handleChange} className={styles.input}>
+          <option value="">Selecione o Tipo de Ordem de Serviço</option>
+          {tipodeordemdeservicoList.map((tipodeOrdemdeServico) => (
+            <option key={tipodeOrdemdeServico.id} value={tipodeOrdemdeServico.id}>
+              {tipodeOrdemdeServico.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
 
       <label>
         <p>Técnico</p>
