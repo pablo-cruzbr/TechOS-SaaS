@@ -16,6 +16,7 @@ type UpdateOrdemdeServicoRequest = {
   tecnico_id?: string;
   statusOrdemdeServico_id?: string;
   tipodeChamado_id?: string;
+  tipodeOrdemdeServico_id: string;
   informacoesSetor_id?: string;
   instituicaoUnidade_id?: string;
   cliente_id?: string; // agora opcional
@@ -44,6 +45,7 @@ class UpdateOrdemdeServicoService {
         statusOrdemdeServico_id,
         equipamento_id,
         tipodeChamado_id,
+        tipodeOrdemdeServico_id,
         informacoesSetor_id,
         instituicaoUnidade_id,
         cliente_id,
@@ -93,6 +95,7 @@ class UpdateOrdemdeServicoService {
           ...(tecnico_id && { tecnico: { connect: { id: tecnico_id } } }),
           ...(statusOrdemdeServico_id && { statusOrdemdeServico: { connect: { id: statusOrdemdeServico_id } } }),
           ...(tipodeChamado_id && { tipodeChamado: { connect: { id: tipodeChamado_id } } }),
+          ...(tipodeOrdemdeServico_id && {tipodeOrdemdeServico: {connect: {id: tipodeOrdemdeServico_id} } }),
           ...(informacoesSetor_id && { informacoesSetor: { connect: { id: informacoesSetor_id } } }),
          instituicaoUnidade: instituicaoUnidade_id
           ? { connect: { id: instituicaoUnidade_id } }
@@ -109,6 +112,7 @@ class UpdateOrdemdeServicoService {
           assinante: true,
           descricaodoProblemaouSolicitacao: true,
           tipodeChamado: { select: { id: true, name: true } },
+          tipodeOrdemdeServico: {select: {id: true, name: true}},
           statusOrdemdeServico: { select: { id: true, name: true } },
           informacoesSetor: {
             select: {
