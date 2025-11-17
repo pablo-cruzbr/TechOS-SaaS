@@ -21,7 +21,7 @@ type FormState = {
   cliente_id: string;
   equipamento_id: string;
 };
-
+type TipodeOrdemdeServico = { id: string; name: string };
 type Props = {
   ordemdeServico?: OrdemdeServicoProps;
   onClose: () => void;
@@ -84,6 +84,7 @@ export default function EditCardOrdemdeServico({ ordemdeServico, onClose }: Prop
           api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listequipamento", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/listequipamento"),
         ]);
 
         setTecnicoList(tecnicosRes.data.controles ?? []);
