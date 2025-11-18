@@ -139,18 +139,7 @@ export default function TicketsList({ ticketsData }: Props) {
       </div>
 
       <div className={styles.headerClient}>
-        <h1 className={styles.titleClient}>Tickets Cadastrados</h1>
         <div className={styles.actions}>
-            <div className={styles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Pesquisar por número da OS..."
-                value={searchOS}
-                onChange={(e) => setSearchOS(e.target.value)}
-                className={styles.searchInput}
-              />
-                      
-         
         <select value={selectedInstituicao} onChange={(e) => setSelectedInstituicao(e.target.value)} className={styles.select}>
           <option value="">Todas Instituições</option>
           {instituicoes.map(inst => (
@@ -176,12 +165,9 @@ export default function TicketsList({ ticketsData }: Props) {
               <option key={tipo.id} value={tipo.id}>{tipo.name}</option>
             ))}
         </select>
-      </div>
-          <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
-           <button className={styles.button} onClick={handleAddCardTecnico}>Novo Registro</button> 
+      </div> 
         </div>
-      </div>
-
+      
       {/* Cards de Status */}
       <div className={styles.cardsContainer}>
         {[
