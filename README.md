@@ -92,6 +92,7 @@ Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no pe
 ---
 ## 🐛 Problemas Conhecidos e Soluções (Concluído e Resolvido !)
 Corrigindo bugs críticos que afetam o cálculo preciso do tempo das Ordens de Serviço (OS). (Inicio, Pausa e Retomar Ordem de Serviço)
+Solução: Foi feito uma Renderização Condicional para solução do problema 
 
 ## 🔜 Próximos Passos / Melhorias Futuras
 - Fazer Deploy na Vercel
