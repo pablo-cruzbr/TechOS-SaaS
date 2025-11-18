@@ -26,6 +26,11 @@ interface Cliente {
   name: string;
 }
 
+interface TipodeOrdemdeServico {
+  id: string;
+  name: string;
+}
+
 export default function TicketsList({ ticketsData }: Props) {
   const router = useRouter();
   const { openModal } = useGlobalModal();
@@ -37,22 +42,26 @@ export default function TicketsList({ ticketsData }: Props) {
   const [instituicoes, setInstituicoes] = useState<Instituicao[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [selectedInstituicao, setSelectedInstituicao] = useState<string>("");
+  const [tiposOrdem, setTiposOrdem] = useState<TipodeOrdemdeServico[]>([]);
+  const [selectedTipoOrdem, setSelectedTipoOrdem] = useState<string>("");
   const [selectedCliente, setSelectedCliente] = useState<string>("");
 
   // Dados das ordens
-  const { total = 0, totalPausada = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, controles = [] } = ticketsData || {};
+  const { total = 0, totalPausada = 0, totalAberta = 0, totalEmAndamento = 0, totalConcluida = 0, totalOrdemdeServico = 0, totalTicket = 0, controles = [] } = ticketsData || {};
 
   // Carregar Instituições e Clientes para os selects
   useEffect(() => {
     const fetchFilters = async () => {
       try {
         const token = await getCookieClient();
-        const [instRes, cliRes] = await Promise.all([
+        const [instRes, cliRes, tipoRes] = await Promise.all([
           api.get("/listinstuicao", { headers: { Authorization: `Bearer ${token}` } }),
           api.get("/listcliente", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/listtipodeordemdeservico", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
         setInstituicoes(instRes.data.instituicoes ?? []);
         setClientes(cliRes.data.controles ?? []);
+        setTiposOrdem(tipoRes.data ?? []);
       } catch (error) {
         console.error("Erro ao carregar filtros:", error);
       }
@@ -78,6 +87,7 @@ export default function TicketsList({ ticketsData }: Props) {
     setSearchOS("");
     setSelectedInstituicao("");
     setSelectedCliente("");
+    setSelectedTipoOrdem("");
   };
 
   // Função para deletar uma OS
@@ -99,11 +109,12 @@ export default function TicketsList({ ticketsData }: Props) {
   const matchStatus = selectedStatus ? ticket.statusOrdemdeServico?.name === selectedStatus : true;
   const matchOS = searchOS ? ticket.numeroOS?.toString().includes(searchOS) : true;
   const matchInstituicao = selectedInstituicao ? ticket.instituicaoUnidade?.id === selectedInstituicao : true;
+  const matchTipodeOrdemdeServico = selectedTipoOrdem ? ticket.tipodeOrdemdeServico?.id === selectedTipoOrdem : true;
   const matchCliente = selectedCliente 
     ? (ticket.cliente?.id === selectedCliente || ticket.user?.cliente?.id === selectedCliente)
     : true;
 
-  return matchStatus && matchOS && matchInstituicao && matchCliente;
+  return matchStatus && matchOS && matchInstituicao && matchCliente && matchTipodeOrdemdeServico;
 });
 
 
@@ -113,8 +124,7 @@ export default function TicketsList({ ticketsData }: Props) {
       <div className={styles.headerClient}>
         <h1 className={styles.titleClient}>Tickets Cadastrados</h1>
         <div className={styles.actions}>
-                      
-          <div className={styles.searchContainer}>
+            <div className={styles.searchContainer}>
               <input
                 type="text"
                 placeholder="Pesquisar por número da OS..."
@@ -122,7 +132,25 @@ export default function TicketsList({ ticketsData }: Props) {
                 onChange={(e) => setSearchOS(e.target.value)}
                 className={styles.searchInput}
               />
+      </div>
+          <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
+           <button className={styles.button} onClick={handleAddCardTecnico}>Novo Registro</button> 
+        </div>
+      </div>
 
+      <div className={styles.headerClient}>
+        <h1 className={styles.titleClient}>Tickets Cadastrados</h1>
+        <div className={styles.actions}>
+            <div className={styles.searchContainer}>
+              <input
+                type="text"
+                placeholder="Pesquisar por número da OS..."
+                value={searchOS}
+                onChange={(e) => setSearchOS(e.target.value)}
+                className={styles.searchInput}
+              />
+                      
+         
         <select value={selectedInstituicao} onChange={(e) => setSelectedInstituicao(e.target.value)} className={styles.select}>
           <option value="">Todas Instituições</option>
           {instituicoes.map(inst => (
@@ -136,11 +164,24 @@ export default function TicketsList({ ticketsData }: Props) {
             <option key={cli.id} value={cli.id}>{cli.name}</option>
           ))}
         </select>
+
+         <select 
+            value={selectedTipoOrdem} 
+            onChange={(e) => setSelectedTipoOrdem(e.target.value)} 
+            className={styles.select}
+          >
+            <option value="">Tipo de Ordem de Serviço</option>
+
+            {tiposOrdem.map(tipo => (
+              <option key={tipo.id} value={tipo.id}>{tipo.name}</option>
+            ))}
+        </select>
       </div>
           <LuRefreshCcw onClick={handleRefresh} className={styles.refresh} />
            <button className={styles.button} onClick={handleAddCardTecnico}>Novo Registro</button> 
         </div>
       </div>
+
       {/* Cards de Status */}
       <div className={styles.cardsContainer}>
         {[
@@ -149,6 +190,9 @@ export default function TicketsList({ ticketsData }: Props) {
           { label: 'OS em Andamento', value: totalEmAndamento, status: 'EM ANDAMENTO' },
           { label: 'OS Concluída', value: totalConcluida, status: 'CONCLUIDA' },
           { label: 'OS PAUSADA', value: totalPausada, status: 'PAUSADA' },
+
+          { label: 'TICKET', value: totalTicket, status: 'TICKET' },
+          { label: 'ORDEM DE SERVICO', value: totalOrdemdeServico, status: 'ORDEM DE SERVICO' },
         ].map((card) => (
           <div
             key={card.label}

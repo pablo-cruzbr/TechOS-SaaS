@@ -120,5 +120,8 @@ export interface OrdemdeServicoResponseData{
     totalAberta: number;
     totalEmAndamento: number;
     totalConcluida: number;
-    totalPausada: number
+    totalPausada: number;
+    totalTicket: number;
+    totalOrdemdeServico: number
+
 }
