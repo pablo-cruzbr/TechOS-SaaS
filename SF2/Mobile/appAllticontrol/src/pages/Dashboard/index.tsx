@@ -52,7 +52,7 @@ export type OrdensDeServico = {
     cliente: {id: string; name: string; endereco: string } | null;
     setor: { name: string } | null;
   };
-  tipodeChamado: { id: string; name: string };
+  tipodeOrdemdeServico: { id: string; name: string } | null;
   cliente: { id: string; name: string; endereco: string, cnpj: string | null } | null;
   tecnico: { id: string; name: string } | null;
   instituicaoUnidade: { id: string; name: string; endereco: string } | null;
@@ -61,6 +61,7 @@ export type OrdensDeServico = {
 
 type Instituicao = { id: string; name: string };
 type Cliente = { id: string; name: string };
+type TipodeOrdem = {id: string; name: string};
 
 export default function Dashboard() {
   const navigation = useNavigation();
@@ -77,6 +78,8 @@ export default function Dashboard() {
   const [modalOsDetailVisible, setModalOsVisible] = useState(false);
   const [selectedOrdem, setSelectedOrdem] = useState<OrdensDeServico | null>(null);
   const [loading, setLoading] = useState(false);
+  const [tiposOrdem, setTiposOrdem] = useState<TipodeOrdem[]>([]);
+  const [tipoOrdemFilter, setTipoOrdemFilter] = useState<string>("");
 
   const statusList = [
     { id: "all", name: "TODOS" },
@@ -102,6 +105,7 @@ export default function Dashboard() {
 
       const ordens = response.data.result.controles || [];
       setOrdensDeServico(ordens);
+       console.log(JSON.stringify(ordensDeServico[0], null, 2));
       setFilteredOrdens(ordens);
     } catch (error) {
       console.error("Erro ao carregar ordens de serviço:", error);
@@ -132,6 +136,17 @@ export default function Dashboard() {
       });
       const cliList = cliResponse.data.controles || [];
       setClientes(cliList.map((cli: any) => ({ id: cli.id, name: cli.name })));
+
+       // Tipos de Ordem de Serviço
+    const tipoResponse = await api.get("/listtipodeordemdeservico", {
+      headers: { },
+    });
+    const tipoList = tipoResponse.data.tipos || [];
+
+    setTiposOrdem(
+      tipoList.map((tipo: any) => ({ id: tipo.id, name: tipo.name }))
+    );
+
     } catch (error) {
       console.error("Erro ao carregar filtros:", error);
     }
@@ -171,8 +186,15 @@ export default function Dashboard() {
       );
     }
 
+    if (tipoOrdemFilter) {
+      result = result.filter(
+        (os) => os.tipodeOrdemdeServico?.id === tipoOrdemFilter
+      );
+    }
+
+
     setFilteredOrdens(result);
-  }, [search, statusFilter, instituicaoFilter, clienteFilter, ordensDeServico]);
+  }, [search, statusFilter, instituicaoFilter, clienteFilter, ordensDeServico, tipoOrdemFilter]);
 
  
   useEffect(() => {
@@ -233,6 +255,18 @@ export default function Dashboard() {
             <Picker.Item key={cli.id} label={cli.name} value={cli.id} />
           ))}
         </Picker>
+
+          <Picker
+          selectedValue={tipoOrdemFilter}
+          style={styles.picker}
+          onValueChange={(value) => setTipoOrdemFilter(value)}
+        >
+          <Picker.Item label="Todos Tipos de OS" value="" />
+          {tiposOrdem.map((tipo) => (
+            <Picker.Item key={tipo.id} label={tipo.name} value={tipo.id} />
+          ))}
+        </Picker>
+
       </View>
 
      
