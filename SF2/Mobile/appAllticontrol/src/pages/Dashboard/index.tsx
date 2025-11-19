@@ -232,42 +232,38 @@ export default function Dashboard() {
       />
 
     
-                  <Picker
-                    selectedValue={tipoOrdemFilter}
-                     style={styles.picker}
-                     onValueChange={(value) => setTipoOrdemFilter(value)}
-                   >
-                     <Picker.Item label="Todos Tipos de OS" value="" />
-                     {tiposOrdem.map((tipo) => (
-                       <Picker.Item key={tipo.id} label={tipo.name} value={tipo.id} />
-                     ))}
-                   </Picker>
-     
-                     <Picker
-                       selectedValue={instituicaoFilter}
-                       style={styles.picker}
-                       onValueChange={(value) => setInstituicaoFilter(value)}
-                     >
-                       <Picker.Item label="Todas Instituições" value="" />
-                       {instituicoes.map((inst) => (
-                         <Picker.Item key={inst.id} label={inst.name} value={inst.id} />
-                       ))}
-                     </Picker>
-             
-                     <Picker
-                       selectedValue={clienteFilter}
-                       style={styles.picker}
-                       onValueChange={(value) => setClienteFilter(value)}
-                     >
-                       <Picker.Item label="Todos Clientes" value="" />
-                       {clientes.map((cli) => (
-                         <Picker.Item key={cli.id} label={cli.name} value={cli.id} />
-                       ))}
-                     </Picker>
-             
+  <Picker
+    selectedValue={tipoOrdemFilter}
+      style={styles.picker}
+      onValueChange={(value) => setTipoOrdemFilter(value)}
+    >
+      <Picker.Item label="Todos Tipos de OS" value="" />
+      {tiposOrdem.map((tipo) => (
+        <Picker.Item key={tipo.id} label={tipo.name} value={tipo.id} />
+      ))}
+    </Picker>
 
-                    
+      <Picker
+        selectedValue={instituicaoFilter}
+        style={styles.picker}
+        onValueChange={(value) => setInstituicaoFilter(value)}
+      >
+        <Picker.Item label="Todas Instituições" value="" />
+        {instituicoes.map((inst) => (
+          <Picker.Item key={inst.id} label={inst.name} value={inst.id} />
+        ))}
+      </Picker>
 
+      <Picker
+        selectedValue={clienteFilter}
+        style={styles.picker}
+        onValueChange={(value) => setClienteFilter(value)}
+      >
+        <Picker.Item label="Todos Clientes" value="" />
+        {clientes.map((cli) => (
+          <Picker.Item key={cli.id} label={cli.name} value={cli.id} />
+        ))}
+      </Picker>
      
       <View style={styles.statusRow}>
         {statusList.map((status) => {
