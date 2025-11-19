@@ -105,7 +105,6 @@ export default function Dashboard() {
 
       const ordens = response.data.result.controles || [];
       setOrdensDeServico(ordens);
-       console.log(JSON.stringify(ordensDeServico[0], null, 2));
       setFilteredOrdens(ordens);
     } catch (error) {
       console.error("Erro ao carregar ordens de serviço:", error);
