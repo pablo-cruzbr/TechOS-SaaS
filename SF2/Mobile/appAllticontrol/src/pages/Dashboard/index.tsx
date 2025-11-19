@@ -137,8 +137,6 @@ export default function Dashboard() {
       const cliList = cliResponse.data.controles || [];
       setClientes(cliList.map((cli: any) => ({ id: cli.id, name: cli.name })));
 
-       // Tipos de Ordem de Serviço
-    // Tipos de Ordem de Serviço
       const tipoResponse = await api.get("/listtipodeordemdeservico", {
         headers: {},
       });
