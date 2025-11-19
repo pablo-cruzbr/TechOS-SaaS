@@ -138,14 +138,16 @@ export default function Dashboard() {
       setClientes(cliList.map((cli: any) => ({ id: cli.id, name: cli.name })));
 
        // Tipos de Ordem de Serviço
-    const tipoResponse = await api.get("/listtipodeordemdeservico", {
-      headers: { },
-    });
-    const tipoList = tipoResponse.data.tipos || [];
+    // Tipos de Ordem de Serviço
+      const tipoResponse = await api.get("/listtipodeordemdeservico", {
+        headers: {},
+      });
 
-    setTiposOrdem(
-      tipoList.map((tipo: any) => ({ id: tipo.id, name: tipo.name }))
-    );
+      const tipoList = tipoResponse.data || [];
+
+      setTiposOrdem(
+        tipoList.map((tipo: any) => ({ id: tipo.id, name: tipo.name }))
+      );
 
     } catch (error) {
       console.error("Erro ao carregar filtros:", error);
