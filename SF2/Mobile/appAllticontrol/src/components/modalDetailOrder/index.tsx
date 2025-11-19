@@ -286,7 +286,6 @@ const handleStart = async () => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    // 🔁 Atualiza a ordem para pegar o novo status
     await refreshOrdemAtual();
 
     // Agora o status estará “EM ANDAMENTO”
@@ -428,90 +427,88 @@ const handleResume = async () => {
 
   return (
     <>
-      <TouchableOpacity activeOpacity={1} style={styles.overlay} onPress={handleCloseModal}>
-        <TouchableOpacity activeOpacity={1} style={styles.modalContainer}>
-          <ScrollView showsVerticalScrollIndicator>
-            
-            <View style={styles.header}>
-              <Text style={styles.title}>Detalhes da Ordem</Text>
-              <TouchableOpacity onPress={atualizarOrdem} style={styles.refreshIcon}>
-                <MaterialIcons name="refresh" size={24} color="#0F1431" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleCloseModal} style={styles.closeIcon}>
-                <MaterialIcons name="close" size={24} color="#0F1431" />
-              </TouchableOpacity>
+  <TouchableOpacity activeOpacity={1} style={styles.overlay} onPress={handleCloseModal}>
+    <TouchableOpacity activeOpacity={1} style={styles.modalContainer}>
+      <ScrollView showsVerticalScrollIndicator>
+        
+        <View style={styles.header}>
+          <Text style={styles.title}>Detalhes da Ordem</Text>
+          <TouchableOpacity onPress={atualizarOrdem} style={styles.refreshIcon}>
+            <MaterialIcons name="refresh" size={24} color="#0F1431" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleCloseModal} style={styles.closeIcon}>
+            <MaterialIcons name="close" size={24} color="#0F1431" />
+          </TouchableOpacity>
+        </View>
+
+        
+      {/* Informações adicionais do setor */}
+        {ordemAtual.informacoesSetor && (
+      <View style={{ marginTop: 20 }}>
+      <Text style={styles.label}>Local do Chamado: </Text>
+      
+        {ordemAtual?.informacoesSetor?.instituicaoUnidade?.name ? (
+          <Text>{ordemAtual.informacoesSetor.instituicaoUnidade.name}</Text>
+          ) : ordemAtual?.informacoesSetor?.cliente?.name ? (
+          <Text>{ordemAtual.informacoesSetor.cliente.name}</Text>
+          ) : (
+          <Text>Não informado</Text>
+          )}
+      
+            <Text style={styles.label}>
+          Informações do usuário que solicitou o chamado
+          </Text>
+                        
+            <Text>Setor: {ordemAtual.informacoesSetor.setor.name}</Text>
+            <Text>Usuário: {ordemAtual.informacoesSetor.usuario}</Text>
+            <Text>Ramal: {ordemAtual.informacoesSetor.ramal}</Text>
+          <Text>Andar: {ordemAtual.informacoesSetor.andar}</Text>
             </View>
-
-            
-          {/* Informações adicionais do setor */}
-           {ordemAtual.informacoesSetor && (
-          <View style={{ marginTop: 20 }}>
-          <Text style={styles.label}>Local do Chamado: </Text>
-          
-            {ordemAtual?.informacoesSetor?.instituicaoUnidade?.name ? (
-              <Text>{ordemAtual.informacoesSetor.instituicaoUnidade.name}</Text>
-              ) : ordemAtual?.informacoesSetor?.cliente?.name ? (
-              <Text>{ordemAtual.informacoesSetor.cliente.name}</Text>
-              ) : (
-              <Text>Não informado</Text>
-             )}
-          
-               <Text style={styles.label}>
-              Informações do usuário que solicitou o chamado
-             </Text>
-                            
-               <Text>Setor: {ordemAtual.informacoesSetor.setor.name}</Text>
-               <Text>Usuário: {ordemAtual.informacoesSetor.usuario}</Text>
-               <Text>Ramal: {ordemAtual.informacoesSetor.ramal}</Text>
-              <Text>Andar: {ordemAtual.informacoesSetor.andar}</Text>
-                </View>
-               )}
-
-            <Text style={styles.label}>Número: {ordemAtual.numeroOS ?? "Não Disponível"}</Text>
-            <Text style={styles.label}>Status:</Text>
-            <Text>{ordemAtual.statusOrdemdeServico?.name ?? "-"}</Text>
-            <Text style={styles.label}>Quem abriu a OS:</Text>
-            <Text>{ordemAtual.name}</Text>
-
-            {ordemAtual.user?.cliente ? (
-              <>
-                <Text style={styles.label}>Empresa:</Text>
-                <Text>{ordemAtual.user.cliente.name}</Text>
-                <Text style={styles.label}>Endereço:</Text>
-                <Text>{ordemAtual.user.cliente.endereco}</Text>
-              </>
-            ) : ordemAtual.instituicaoUnidade ? (
-              <>
-                <Text style={styles.label}>Instituição:</Text>
-                <Text>{ordemAtual.instituicaoUnidade.name}</Text>
-                <Text style={styles.label}>Endereço:</Text>
-                <Text>{ordemAtual.instituicaoUnidade.endereco}</Text>
-              </>
-            ) : (
-              <>
-                <Text style={styles.label}>Endereço:</Text>
-                <Text>-</Text>
-              </>
             )}
 
-            {endereco && (
-              <>
-                <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirWaze(endereco)}>
-                  <View style={styles.buttonContent}>
-                    <MaterialIcons name="navigation" size={20} color="#FFF" />
-                    <Text style={styles.textButtonClose}>ABRIR NO WAZE</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirGoogleMaps(endereco)}>
-                  <View style={styles.buttonContent}>
-                    <MaterialIcons name="map" size={20} color="#FFF" />
-                    <Text style={styles.textButtonClose}>ABRIR NO GOOGLE MAPS</Text>
-                  </View>
-                </TouchableOpacity>
-              </>
-            )}
+        <Text style={styles.label}>Número: {ordemAtual.numeroOS ?? "Não Disponível"}</Text>
+        <Text style={styles.label}>Status:</Text>
+        <Text>{ordemAtual.statusOrdemdeServico?.name ?? "-"}</Text>
+        <Text style={styles.label}>Quem abriu a OS:</Text>
+        <Text>{ordemAtual.name}</Text>
 
+        {ordemAtual.user?.cliente ? (
+          <>
+            <Text style={styles.label}>Empresa:</Text>
+            <Text>{ordemAtual.user.cliente.name}</Text>
+            <Text style={styles.label}>Endereço:</Text>
+            <Text>{ordemAtual.user.cliente.endereco}</Text>
+          </>
+        ) : ordemAtual.instituicaoUnidade ? (
+          <>
+            <Text style={styles.label}>Instituição:</Text>
+            <Text>{ordemAtual.instituicaoUnidade.name}</Text>
+            <Text style={styles.label}>Endereço:</Text>
+            <Text>{ordemAtual.instituicaoUnidade.endereco}</Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.label}>Endereço:</Text>
+            <Text>-</Text>
+          </>
+        )}
 
+        {endereco && (
+          <>
+            <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirWaze(endereco)}>
+              <View style={styles.buttonContent}>
+                <MaterialIcons name="navigation" size={20} color="#FFF" />
+                <Text style={styles.textButtonClose}>ABRIR NO WAZE</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.buttonClose, styles.buttonNavigation]} onPress={() => abrirGoogleMaps(endereco)}>
+              <View style={styles.buttonContent}>
+                <MaterialIcons name="map" size={20} color="#FFF" />
+                <Text style={styles.textButtonClose}>ABRIR NO GOOGLE MAPS</Text>
+              </View>
+            </TouchableOpacity>
+          </>
+        )}
         <View style={styles.timerContainer}>                
     <Text style={styles.timerText}>Tempo decorrido teste: {formatTime(time)}</Text>
 
