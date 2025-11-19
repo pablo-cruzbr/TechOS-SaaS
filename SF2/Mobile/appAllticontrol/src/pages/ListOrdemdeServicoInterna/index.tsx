@@ -137,19 +137,19 @@ export default function ListOrdemdeServicoInterna() {
             tipoList.map((tipo: any) => ({ id: tipo.id, name: tipo.name }))
           );
 
-            // Instituições
-                const instResponse = await api.get("/listinstuicao", {
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                const instList = instResponse.data.instituicoes || [];
-                setInstituicoes(instList.map((inst: any) => ({ id: inst.id, name: inst.name })));
-          
-                // Clientes
-                const cliResponse = await api.get("/listcliente", {
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                const cliList = cliResponse.data.controles || [];
-                setClientes(cliList.map((cli: any) => ({ id: cli.id, name: cli.name })));
+          // Instituições
+          const instResponse = await api.get("/listinstuicao", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const instList = instResponse.data.instituicoes || [];
+          setInstituicoes(instList.map((inst: any) => ({ id: inst.id, name: inst.name })));
+    
+          // Clientes
+          const cliResponse = await api.get("/listcliente", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const cliList = cliResponse.data.controles || [];
+          setClientes(cliList.map((cli: any) => ({ id: cli.id, name: cli.name })));
           
 
         }catch (error) {
