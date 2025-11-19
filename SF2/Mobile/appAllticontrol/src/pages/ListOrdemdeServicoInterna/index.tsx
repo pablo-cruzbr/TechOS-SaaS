@@ -15,6 +15,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { AuthContext } from "../../contexts/AuthContext";
 import { api } from "../../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Picker } from "@react-native-picker/picker";
 import { ModalDetailTicketInterno } from "../../components/modalDetailOrderTicketsInterno";
 import { ModalFormTecnicoTickets } from "../../components/modalFormTecnicoTickets";
 import { useNavigation } from "@react-navigation/native";
@@ -49,15 +50,20 @@ export type OrdensDeServico = {
     id: string;
     name: string;
     instituicaoUnidade: { name: string; endereco: string } | null;
-    cliente: { name: string; endereco: string } | null;
+    cliente: {id: string; name: string; endereco: string } | null;
     setor: { name: string } | null;
   };
   tipodeChamado: { id: string; name: string };
+   tipodeOrdemdeServico: { id: string; name: string } | null;
   cliente: { id: string; name: string; endereco: string | null } | null;
   tecnico: { id: string; name: string } | null;
   instituicaoUnidade: { id: string; name: string; endereco: string } | null;
   statusOrdemdeServico: { id: string; name: string } | null;
 };
+
+type TipodeOrdem = {id: string; name: string};
+type Instituicao = { id: string; name: string };
+type Cliente = { id: string; name: string };
 
 export default function ListOrdemdeServicoInterna() {
   const navigation = useNavigation();
@@ -67,6 +73,12 @@ export default function ListOrdemdeServicoInterna() {
   const [filteredOrdens, setFilteredOrdens] = useState<OrdensDeServico[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [tiposOrdem, setTiposOrdem] = useState<TipodeOrdem[]>([]);
+  const [tipoOrdemFilter, setTipoOrdemFilter] = useState<string>("");
+  const [instituicoes, setInstituicoes] = useState<Instituicao[]>([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [instituicaoFilter, setInstituicaoFilter] = useState<string>("");
+  const [clienteFilter, setClienteFilter] = useState<string>("");
 
   // estados de modais
   const [modalDetailVisible, setModalDetailVisible] = useState(false);
@@ -106,7 +118,94 @@ export default function ListOrdemdeServicoInterna() {
       setLoading(false);
     }
   };
+  
+   const loadFilters = async () => {
+    try{
+      const storageToken = await AsyncStorage.getItem("@AlltiService");
+         if (!storageToken) return;
+      
+        const { token } = JSON.parse(storageToken);
+            if (!token) return;
+      
+      const tipoResponse = await api.get("/listtipodeordemdeservico", {
+            headers: {},
+          });
+    
+          const tipoList = tipoResponse.data || [];
+    
+          setTiposOrdem(
+            tipoList.map((tipo: any) => ({ id: tipo.id, name: tipo.name }))
+          );
 
+            // Instituições
+                const instResponse = await api.get("/listinstuicao", {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                const instList = instResponse.data.instituicoes || [];
+                setInstituicoes(instList.map((inst: any) => ({ id: inst.id, name: inst.name })));
+          
+                // Clientes
+                const cliResponse = await api.get("/listcliente", {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                const cliList = cliResponse.data.controles || [];
+                setClientes(cliList.map((cli: any) => ({ id: cli.id, name: cli.name })));
+          
+
+        }catch (error) {
+      console.error("Erro ao carregar filtros:", error);
+    }
+   } 
+
+     // Filtragem
+     useEffect(() => {
+       let result = [...ordensDeServico];
+   
+       // Pesquisa
+       if (search.trim()) {
+         const lower = search.toLowerCase();
+         result = result.filter(
+           (os) =>
+             os.numeroOS?.toString().includes(lower) ||
+             os.instituicaoUnidade?.name?.toLowerCase().includes(lower) ||
+             os.user?.cliente?.name?.toLowerCase().includes(lower)
+         );
+       }
+
+        
+        if (instituicaoFilter) {
+          result = result.filter(
+            (os) => os.instituicaoUnidade?.id === instituicaoFilter
+          );
+        }
+
+      
+        if (clienteFilter) {
+          result = result.filter(
+            (os) => os.user?.cliente?.id === clienteFilter || os.cliente?.id === clienteFilter
+          );
+        }
+      
+     
+       if (statusFilter && statusFilter !== "TODOS") {
+         result = result.filter((os) => os.statusOrdemdeServico?.name === statusFilter);
+       }
+   
+       if (tipoOrdemFilter) {
+         result = result.filter(
+           (os) => os.tipodeOrdemdeServico?.id === tipoOrdemFilter
+         );
+       }
+   
+   
+       setFilteredOrdens(result);
+     }, [search, statusFilter, ordensDeServico, tipoOrdemFilter, instituicaoFilter, clienteFilter]);
+   
+    
+     useEffect(() => {
+       loadOrdens();
+       loadFilters();
+     }, []);
   // Filtro
   useEffect(() => {
     let result = [...ordensDeServico];
@@ -196,6 +295,40 @@ export default function ListOrdemdeServicoInterna() {
             </TouchableOpacity>
           );
         })}
+
+          <Picker
+                selectedValue={tipoOrdemFilter}
+                style={styles.picker}
+                onValueChange={(value) => setTipoOrdemFilter(value)}
+              >
+                <Picker.Item label="Todos Tipos de OS" value="" />
+                {tiposOrdem.map((tipo) => (
+                  <Picker.Item key={tipo.id} label={tipo.name} value={tipo.id} />
+                ))}
+              </Picker>
+
+                <Picker
+                  selectedValue={instituicaoFilter}
+                  style={styles.picker}
+                  onValueChange={(value) => setInstituicaoFilter(value)}
+                >
+                  <Picker.Item label="Todas Instituições" value="" />
+                  {instituicoes.map((inst) => (
+                    <Picker.Item key={inst.id} label={inst.name} value={inst.id} />
+                  ))}
+                </Picker>
+        
+                <Picker
+                  selectedValue={clienteFilter}
+                  style={styles.picker}
+                  onValueChange={(value) => setClienteFilter(value)}
+                >
+                  <Picker.Item label="Todos Clientes" value="" />
+                  {clientes.map((cli) => (
+                    <Picker.Item key={cli.id} label={cli.name} value={cli.id} />
+                  ))}
+                </Picker>
+        
       </View>
 
       <TouchableOpacity
@@ -212,8 +345,10 @@ export default function ListOrdemdeServicoInterna() {
         activeOpacity={0.7}
       >
         <AntDesign name="form" size={30} color="#fff" />
+
       </TouchableOpacity>
 
+       
       {/* Lista */}
       <FlatList
         data={filteredOrdens}
@@ -226,6 +361,7 @@ export default function ListOrdemdeServicoInterna() {
               setModalDetailVisible(true);
             }}
           >
+
             <View style={styles.cardInfo}>
               <Text style={styles.cardTitle}>
                 Número da OS: {item.numeroOS || "Não Disponível"}
@@ -379,4 +515,12 @@ const styles = StyleSheet.create({
     elevation: 6,
     zIndex: 99,
   },
+
+  picker: {
+  height: 60,
+  width: "100%",
+  backgroundColor: "#fff",
+  borderRadius: 8,
+  marginBottom: 10,
+},
 });
