@@ -90,7 +90,7 @@ Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no pe
 - Experiência de usuário moderna e responsiva  
 
 ---
-## 🐛 Problemas Conhecidos e Soluções (Concluído e Resolvido !)
+## Problemas Conhecidos e Soluções (Concluído e Resolvido !)
 Corrigindo bugs críticos que afetam o cálculo preciso do tempo das Ordens de Serviço (OS). (Inicio, Pausa e Retomar Ordem de Serviço)
 Solução: Foi feito uma Renderização Condicional para solução do problema 
 
