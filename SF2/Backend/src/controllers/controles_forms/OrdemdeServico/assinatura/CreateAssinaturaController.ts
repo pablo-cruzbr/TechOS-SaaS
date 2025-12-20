@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CreatedAssinaturaService } from "../../../../services/controles_forms/OrdemdeServico/assinatura/CreatedassinaturaService";
+import { CreatedAssinaturaService } from "../../../../services/controles_forms/OrdemdeServico/assinatura/CreatedAssinaturaService"; 
 
 export const CreateAssinaturaController = {
   async atualizarAssinatura(req: Request, res: Response) {

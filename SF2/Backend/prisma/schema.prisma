@@ -124,6 +124,7 @@ model statusOrdemdeServico {
   created_at     DateTime?        @default(now())
   updated_at     DateTime?        @default(now())
   ordemdeservico OrdemdeServico[]
+  formstecnico FormTecnico[]
 
   @@map("statusOrdemdeServico")
 }
@@ -209,7 +210,30 @@ model OrdemdeServico {
 
   user                              User                  @relation(fields: [user_id], references: [id])
 
+    formtecnico FormTecnico?
+
   @@map("Ordem de Serviço v3")
+}
+
+model FormTecnico {
+  id          String @id @default(uuid())
+  name        String
+  diagnostico String
+  solucao     String
+  assinatura  String
+
+  // Relacionamento com Status
+  status_id               String
+  // Relacionamento com Status
+  statusOrdemdeServico_id String
+  statusOrdemdeServico    statusOrdemdeServico @relation(fields: [statusOrdemdeServico_id], references: [id])
+
+  // Relacionamento com Ordem de Serviço
+  ordemDeServico_id String         @unique
+  ordemDeServico    OrdemdeServico @relation(fields: [ordemDeServico_id], references: [id])
+
+  created_at DateTime? @default(now())
+  update_at  DateTime? @default(now())
 }
 
 

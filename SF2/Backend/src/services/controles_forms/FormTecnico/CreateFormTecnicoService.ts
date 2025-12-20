@@ -51,6 +51,7 @@ class CreateDocumentacaoTecnicaService{
 
             }
         })
+        return formTec;
     }
 }
 
