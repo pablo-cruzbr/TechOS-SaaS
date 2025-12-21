@@ -148,8 +148,8 @@ router.get('/listinstuicao', new ListInstituicaoUnidadeController().handle)
 router.delete('/deleteinstituicao', isAuthenticated, new RemoveInstituicaoUnidadeController().handle)
 
 // tipodeInstituicaoUnidade
-router.post ('/tipodeinstituicaounidade', isAuthenticated, new CreatetipodeInstituicaoUnidadeController().handle)
-router.get ('/listtipodeinstituicaounidade', isAuthenticated, new ListtipoInsituicaoUnidadeController().handle)
+router.post ('/tipodeinstituicaounidade', new CreatetipodeInstituicaoUnidadeController().handle)
+router.get ('/listtipodeinstituicaounidade', new ListtipoInsituicaoUnidadeController().handle)
 
 //4 - Tipo de Solicitação (Solicitação, Chamado Tecnico)
 router.post('/tipodechamado', isAuthenticated, new CreatetipodeChamadoController().handle)
