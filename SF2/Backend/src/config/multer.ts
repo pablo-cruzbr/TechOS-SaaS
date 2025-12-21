@@ -1,25 +1,19 @@
 import crypto from 'crypto'
 import multer from 'multer';
 
-import {extname, resolve} from 'path'
-
 export default {
-    upload(folder: string) {
-        return{
-            storage: multer.diskStorage({
-                //Destino para onde vai as fotos salvas
-                //dirname é o diretório
-                destination: resolve(__dirname, '..','..', folder),
-
-                 //Nunca se repetir nomes iguais as fotos
-                filename: (request, file, callback) => {
+    upload() { 
+        return {
+            storage: multer.memoryStorage(), 
+            limits: {
+                fileSize: 5 * 1024 * 1024, // Limite de 5MB
+            },
+            
+            filename: (request: any, file: any, callback: any) => {
                 const fileHash = crypto.randomBytes(16).toString("hex");
-                const fileName = `${fileHash}-${file.originalname}`
-
-                    return callback(null, fileName)
- 
-                }
-            }) 
+                const fileName = `${fileHash}-${file.originalname}`;
+                return callback(null, fileName);
+            }
         }
     }
 }
