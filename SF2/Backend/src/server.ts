@@ -12,6 +12,14 @@ const app = express();
 
 app.use(express.json());
 
+app.get("/hello", (req, res) => {
+  return res.json({
+    status: "online",
+    message: "Servidor TechOS funcionando com sucesso!",
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use(cors({
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE'],
