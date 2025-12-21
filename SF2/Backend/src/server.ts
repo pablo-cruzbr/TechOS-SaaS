@@ -1,16 +1,14 @@
-// server.ts atualizado
-
 import express from "express";
 import type { Request, Response, NextFunction } from "express"; 
 import 'express-async-errors';
-
 import cors from 'cors'; 
 import path from 'path'; 
 import { router } from "./routes"; 
-
 const app = express();
 
 app.use(express.json());
+
+app.use(cors()); 
 
 app.get("/hello", (req, res) => {
   return res.json({
@@ -20,13 +18,17 @@ app.get("/hello", (req, res) => {
   });
 });
 
-app.use(cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(router); 
 
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof Error) {
+    return res.status(400).json({ error: err.message });
+  }
+  return res.status(500).json({ status: 'error', message: 'Internal server error.' });
+});
+
+export default app;
 
 app.listen(3334, () => {
-    console.log('Servidor API TechOS Online na porta 3334!');
+  console.log('Servidor API TechOS Online na porta 3334!');
 });
