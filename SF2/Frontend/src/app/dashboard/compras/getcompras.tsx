@@ -1,7 +1,8 @@
 import { api } from "@/services/api";
 import { ComprasProps } from "@/lib/getCompras.type";
 import { getCookieServer } from "@/lib/cookieServer";
-import {ModalBuy} from "../../components/modalCardCompras/index"
+import { ModalCompras } from "@/app/components/modalCardCompras";
+
 export async function getServerSideProps() {
   try {
     const token = await getCookieServer();
@@ -32,7 +33,7 @@ export default function ComprasPage({ compras }: { compras: ComprasProps[] }) {
       <h1>Lista de Compras</h1>
       <pre>{JSON.stringify(compras, null, 2)}</pre>
    
-    <ModalBuy/>
+    <ModalCompras data={compras}/>
     </div>
 );
   
