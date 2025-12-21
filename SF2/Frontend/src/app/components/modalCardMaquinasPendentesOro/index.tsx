@@ -33,7 +33,7 @@ export function ModalMaquinasPendentesOro({ data }: ModalMaquinasPendentesOroPro
   if (modalType !== "maquinasPendentesOro" || !isOpen || !maquinasOro) return null;
 
   return (
-    <div className={styles.dialogContainer} {...({ open: true } as any)}>
+    <dialog className={styles.dialogContainer} open={true}>
       <section className={styles.dialogContent}>
         <article className={styles.container}>
           <button onClick={closeModal} className={styles.dialogBack}>
@@ -110,6 +110,6 @@ export function ModalMaquinasPendentesOro({ data }: ModalMaquinasPendentesOroPro
           )}
         </article>
       </section>
-    </div>
+    </dialog>
   );
 }

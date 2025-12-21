@@ -34,7 +34,7 @@ export function ModalDocumentacaoTecnica({ data }: ModalDocumentacaoTecnicaProps
   if (modalType !== 'documentacaoTecnica' || !isOpen || !documentacaoTecnica) return null;
 
   return (
-    <dialog className={styles.dialogContainer} open>
+   <dialog className={styles.dialogContainer} open={true}>
       <section className={styles.dialogContent}>
         <article className={styles.container}>
           <button onClick={closeModal} className={styles.dialogBack}>
