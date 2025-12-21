@@ -108,7 +108,9 @@ import { ListtipodeOrdemdeServicoController } from "./controllers/status categor
 const router = Router();
 //get,post, update, delete
 
-const upload = multer(uploadConfig.upload("./tmp"));
+//const upload = multer(uploadConfig.upload("./tmp"));
+
+const upload = multer(uploadConfig.upload());
 
 //1  - ROTAS DE LOGIN DE USUÁRIO --
 // 1.1 - Criar/Cadastrar um usuário
