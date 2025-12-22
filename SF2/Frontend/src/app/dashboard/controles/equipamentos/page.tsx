@@ -3,6 +3,7 @@ import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import EquipamentoList from './EquipamentoList';
 import { EquipamentoProps } from '@/lib/getEquipamento.type';
+export const dynamic = 'force-dynamic';
 async function getEquipamento(): Promise<EquipamentoProps[]> {
   try {
     const token = await getCookieServer();

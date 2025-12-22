@@ -2,7 +2,7 @@ import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import AssistenciaTecnicaWrapper from './AssistenciaTecnicaWrapper';
 import { AssistenciaTecnicaResponse } from '@/lib/getAssistenciaTecnica.type';
-
+export const dynamic = 'force-dynamic';
 async function getAssistenciaTecnica(): Promise<AssistenciaTecnicaResponse> {
   try {
     const token = await getCookieServer();

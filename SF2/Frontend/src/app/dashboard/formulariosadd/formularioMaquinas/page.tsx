@@ -5,7 +5,7 @@ import styles from './FormularioMaquinas.module.scss';
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { api } from '@/services/api';
 import { getCookieClient } from '@/lib/cookieClient';
-
+export const dynamic = 'force-dynamic';
 interface ComprasProps {
   id: string;
   name: string;

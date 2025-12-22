@@ -5,7 +5,7 @@ import styles from './FormularioEstabilizador.module.scss';
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { api } from '@/services/api';
 import { getCookieClient } from '@/lib/cookieClient';
-
+export const dynamic = 'force-dynamic';
 interface EstabilizadorProps {
   id: string;
   name: string;

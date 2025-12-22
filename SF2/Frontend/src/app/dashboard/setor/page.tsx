@@ -2,7 +2,7 @@ import { getCookieServer } from "@/lib/cookieServer";
 import { api } from "@/services/api";
 import { SetoresProps } from "@/lib/getSetores.type";
 import SetoresList from "./setoresList";
-
+export const dynamic = 'force-dynamic';
 async function getSetores(): Promise<SetoresProps[]> {
   try {
     const token = await getCookieServer();

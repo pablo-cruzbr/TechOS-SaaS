@@ -2,7 +2,7 @@ import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import ClienteMunicipalList from './ClienteMunicipalList';
 import { ClientesMunicipaisProps, ClienteMunicipaisResponse } from '@/lib/getClientesMunicipais.type';
-
+export const dynamic = 'force-dynamic';
 async function getClientes(): Promise<ClienteMunicipaisResponse> {
   try {
     const token = await getCookieServer();

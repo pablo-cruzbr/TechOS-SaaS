@@ -6,7 +6,7 @@ import styles from './FormularioLaudoTecnico.module.scss';
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { api } from '@/services/api';
 import { getCookieClient } from '@/lib/cookieClient';
-
+export const dynamic = 'force-dynamic';
 interface ItemProps {
   id: string;
   name: string;

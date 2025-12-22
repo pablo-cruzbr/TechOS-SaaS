@@ -3,6 +3,7 @@ import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import LaboratorioList from './LaboratorioList';
 import { LaboratorioResponse } from '@/lib/getLaboratorio.type';
+export const dynamic = 'force-dynamic';
 async function getLaboratorio(): Promise<LaboratorioResponse> {
   try {
     const token = await getCookieServer();

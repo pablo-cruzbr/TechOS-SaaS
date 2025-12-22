@@ -2,7 +2,7 @@ import { getCookieServer } from "@/lib/cookieServer";
 import { api } from "@/services/api";
 import DocumentacaoTecnicaList from "./DocumentacaoTecnicaList";
 import { DocumentacaoTecnicaProps } from "@/lib/getDocumentacaoTecnica.type";
-
+export const dynamic = 'force-dynamic';
 async function getDocumentacaoTecnica():
 Promise<DocumentacaoTecnicaProps[]>{
     try{

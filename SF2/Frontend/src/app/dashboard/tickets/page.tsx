@@ -2,7 +2,7 @@ import { getCookieServer } from "@/lib/cookieServer";
 import { api } from "@/services/api";
 import TicketsList from "./TicketsList";
 import { OrdemdeServicoProps, OrdemdeServicoResponseData } from "@/lib/getOrdemdeServico.type";
-
+export const dynamic = 'force-dynamic';
 async function getTickets(): Promise<OrdemdeServicoResponseData> {
   try {
     const token = await getCookieServer();

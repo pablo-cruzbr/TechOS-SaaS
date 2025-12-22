@@ -7,7 +7,7 @@ import logo from "../../assets/Logo9.svg";
 import { api } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
+export const dynamic = 'force-dynamic';
 interface InstituicaoUnidadeProps {
   id: string;
   name: string;

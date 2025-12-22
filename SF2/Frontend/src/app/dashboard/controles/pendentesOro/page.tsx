@@ -2,7 +2,8 @@
 import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import { MaquinasPendentesOroProps, MaquinasPendentesLabPropsResponse } from '@/lib/getMaquinasPendentesOro.type';
-import PendentesOroList from '../pendentesOro/PendentesOroList'
+import PendentesOroList from '../pendentesOro/PendentesOroList';
+export const dynamic = 'force-dynamic';
 
 async function getMaquinasPendentesOro(): Promise<MaquinasPendentesLabPropsResponse> {
   try {

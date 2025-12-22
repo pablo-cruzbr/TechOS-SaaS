@@ -3,6 +3,7 @@ import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import PendentesLaboratorioList from './PendenteslaboratorioList';
 import { MaquinasPendentesLabProps, MaquinasPendentesLabResponse } from '@/lib/getMaquinasPendentesLab.type';
+export const dynamic = 'force-dynamic';
 async function getMaquinasPendentesLab(): Promise<MaquinasPendentesLabResponse> {
   try {
     const token = await getCookieServer();

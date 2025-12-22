@@ -3,7 +3,7 @@ import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import EstabilizadoresList from './EstabilizadoresList';
 import { EstabilizadoresResponse } from '@/lib/getEstabilizadores.type';
-
+export const dynamic = 'force-dynamic';
 async function getEstabilizadores(): Promise<EstabilizadoresResponse> {
   try {
     const token = await getCookieServer();

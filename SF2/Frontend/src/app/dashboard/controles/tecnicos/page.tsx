@@ -4,7 +4,7 @@ import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import { TecnicosProps, TecnicoPropsResponse } from '@/lib/getTecnicos.type';
 import TecnicoList from './TecnicoList';
-
+export const dynamic = 'force-dynamic';
 async function getTecnico(): Promise<TecnicoPropsResponse> {
   try {
     const token = await getCookieServer();

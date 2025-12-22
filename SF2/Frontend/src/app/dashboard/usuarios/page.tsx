@@ -4,7 +4,7 @@ import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import UsuarioList from './UsuarioList';
 import { UsuariosPropsResponse } from '@/lib/getUsuario.type';
-
+export const dynamic = 'force-dynamic';
 async function getUsuarios(): Promise<UsuariosPropsResponse> {
   try {
     const token = await getCookieServer();

@@ -2,7 +2,7 @@ import { getCookieServer } from '@/lib/cookieServer';
 import { api } from '@/services/api';
 import ComprasList from './ComprasList';
 import { ComprasResponse } from '@/lib/getCompras.type';
-
+export const dynamic = 'force-dynamic';
 async function getCompras(): Promise<ComprasResponse | null> {
   try {
     const token = await getCookieServer();
