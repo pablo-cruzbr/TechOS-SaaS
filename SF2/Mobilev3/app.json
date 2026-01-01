@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "appAllticontrol",
-    "slug": "appAllticontrol",
+    "name": "Mobilev3",
+    "slug": "Mobilev3",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -19,17 +19,14 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true,
-      "package": "com.pablocruzbr.appAllticontroly"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "extra": {
-      "eas": {
-        "projectId": "523ac5b3-d3be-4730-925a-ba4f73e32ae5"
-      }
-    }
+    "plugins": [
+      "expo-asset",
+      "expo-font"
+    ]
   }
 }
