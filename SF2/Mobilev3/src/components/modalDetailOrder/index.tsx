@@ -261,7 +261,7 @@ const uploadImages = async () => {
         timeout: 30000, // 30 segundos por foto é suficiente
       });
 
-      console.log(`Foto ${i + 1} de ${selectedImages.length} enviada com sucesso.`);
+      //console.log(`Foto ${i + 1} de ${selectedImages.length} enviada com sucesso.`);
     }
 
     Alert.alert("Sucesso", "Todas as imagens foram enviadas com alta qualidade!");
