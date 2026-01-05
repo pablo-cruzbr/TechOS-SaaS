@@ -5,20 +5,18 @@ import { UploadedFile } from "express-fileupload";
 
 export class fotoController {
   async handle(req: Request, res: Response) {
-    console.log("BODY:", req.body);
-    console.log("FILES:", req.files);
     try {
       const { ordemdeServico_id } = req.body;
 
       const debugInfo = {
-        receivedHeaders: req.headers["content-type"], // Verifica se o multipart chegou certo
-  hasFiles: !!req.files,
-  fileKeys: req.files ? Object.keys(req.files) : [], // Mostra os nomes dos campos de arquivo detectados
-  bodyKeys: Object.keys(req.body), // Mostra os nomes dos campos de texto (como o ID da OS)
-  bodyValues: req.body
-      };
+        receivedHeaders: req.headers["content-type"], 
+        hasFiles: !!req.files,
+        fileKeys: req.files ? Object.keys(req.files) : [], 
+        detectados
+        bodyKeys: Object.keys(req.body), 
+        bodyValues: req.body
+        };
 
-      // 2. VERIFICAÇÃO DE ARQUIVOS
       if (!req.files || !("file" in req.files)) {
         console.log("-> Erro de diagnóstico:", debugInfo);
         return res.status(400).json({ 
@@ -34,8 +32,6 @@ export class fotoController {
         return res.status(400).json({ error: "ID da ordem de serviço é obrigatório." });
       }
 
-      console.log(`-> ID da Ordem de Serviço: ${ordemdeServico_id}`);
-
       const uploaded = req.files["file"];
       const files = Array.isArray(uploaded)
         ? (uploaded as unknown as UploadedFile[])
@@ -46,13 +42,11 @@ export class fotoController {
       for (const file of files) {
         console.log(`-> Iniciando upload: ${file.name}`);
 
-        // Upload para o Cloudinary usando o path temporário
         const uploadResult: UploadApiResponse = await cloudinary.uploader.upload(
           file.tempFilePath,
           { folder: "ordens_servico" }
         );
 
-        // Registro no Banco de Dados
         const foto = await prismaClient.fotoOrdemServico.create({
           data: {
             url: uploadResult.secure_url,
@@ -62,8 +56,6 @@ export class fotoController {
 
         fotos.push(foto);
       }
-
-      console.log("-> Todos os uploads concluídos.");
       return res.json(fotos);
 
     } catch (error: any) {
