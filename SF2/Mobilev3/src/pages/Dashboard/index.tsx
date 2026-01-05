@@ -53,6 +53,7 @@ export type OrdensDeServico = {
     setor: { name: string } | null;
   };
   tipodeOrdemdeServico: { id: string; name: string } | null;
+  tipodeChamado: {id: string; name: string | null};
   cliente: { id: string; name: string; endereco: string, cnpj: string | null } | null;
   tecnico: { id: string; name: string } | null;
   instituicaoUnidade: { id: string; name: string; endereco: string } | null;

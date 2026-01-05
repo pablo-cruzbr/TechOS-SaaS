@@ -9,6 +9,7 @@ import {
   Linking,
   Image,
   Alert,
+  Platform
 } from "react-native";
 import { OrdensDeServico } from "../../pages/Dashboard";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -17,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "../../services/api";
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from "expo-image-picker";
+
 
 interface ModalDetailOsProps {
   ordem: OrdensDeServico | null;
@@ -223,51 +225,59 @@ useEffect(() => {
 
   const removeImage = (index: number) => setSelectedImages(selectedImages.filter((_, i) => i !== index));
 
-  const uploadImages = async () => {
-  if (selectedImages.length === 0) return Alert.alert("Atenção", "Selecione pelo menos uma imagem.");
+const uploadImages = async () => {
+  if (selectedImages.length === 0) {
+    return Alert.alert("Atenção", "Selecione pelo menos uma imagem.");
+  }
 
-  const formData = new FormData();
-  formData.append("ordemdeServico_id", ordemAtual.id);
+  // Opcional: Adicione um estado de Loading aqui para travar a tela
+  // setLoading(true);
 
   try {
-    // Usamos um loop for...of para poder usar o await no redimensionamento
+    // Loop para processar e enviar CADA imagem individualmente
     for (let i = 0; i < selectedImages.length; i++) {
-      const img = selectedImages[i];
+      const img = selectedImages[i]; // Aqui a variável 'img' é definida corretamente
 
-      // REDIMENSIONAMENTO: Reduz para 1080px de largura e qualidade 70%
-      // Isso transforma uma foto de 10MB em uma de ~500KB
+      // 1. Redimensionamento de Alta Qualidade (1920px = Full HD)
       const manipResult = await ImageManipulator.manipulateAsync(
         img.uri,
-        [{ resize: { width: 1080 } }], 
-        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+        [{ resize: { width: 1920 } }], // Qualidade excelente para detalhes técnicos
+        { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG } // 80% de qualidade é o ponto ideal
       );
 
+      // 2. Criamos um FormData NOVO para cada foto
+      // Isso garante que cada envio seja leve e independente
+      const formData = new FormData();
+      formData.append("ordemdeServico_id", ordemAtual.id);
       formData.append("file", {
-        uri: manipResult.uri,
+        uri: Platform.OS === 'android' ? manipResult.uri : manipResult.uri.replace('file://', ''),
         name: `foto_${i}_${Date.now()}.jpg`,
         type: "image/jpeg",
       } as any);
-    }
-    await api.post(`/foto`, formData, {
-      headers: { 
-        "Content-Type": "multipart/form-data" 
-       
-      },
-      timeout: 60000,
-    });
 
-    Alert.alert("Sucesso", "Imagens enviadas com sucesso!");
+      // 3. Envio imediato desta foto específica
+      await api.post(`/foto`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30000, // 30 segundos por foto é suficiente
+      });
+
+      console.log(`Foto ${i + 1} de ${selectedImages.length} enviada com sucesso.`);
+    }
+
+    Alert.alert("Sucesso", "Todas as imagens foram enviadas com alta qualidade!");
     setSelectedImages([]);
 
   } catch (err: any) {
     console.error("Erro no upload:", err.response?.data || err.message);
     
-    // Dica para debugar Vercel:
-    if (err.message.includes("413") || err.message.includes("Forbidden")) {
-      Alert.alert("Erro", "As imagens são muito pesadas para o servidor. Tente enviar menos fotos por vez.");
+    const errorData = err.response?.data;
+    if (errorData?.error) {
+      Alert.alert("Erro no Servidor", errorData.error);
     } else {
-      Alert.alert("Erro", "Falha ao enviar imagens.");
+      Alert.alert("Erro", "Falha ao enviar uma ou mais imagens.");
     }
+  } finally {
+    // setLoading(false);
   }
 };
 
