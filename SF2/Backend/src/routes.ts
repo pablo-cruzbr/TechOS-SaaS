@@ -269,7 +269,8 @@ router.patch(
 );
 const fotoControllerInstance = new fotoController();
 router.get('/foto/:id', fotoControllerInstance.listByOrdem);
-router.post('/foto', new fotoController().handle)
+//router.post('/foto', upload.array('files'),  new fotoController().handle)
+router.post('/foto', new fotoController().handle);
 router.delete('/foto/:id', new fotoController().delete);
 
 //STATUS ESTABILIZADORES

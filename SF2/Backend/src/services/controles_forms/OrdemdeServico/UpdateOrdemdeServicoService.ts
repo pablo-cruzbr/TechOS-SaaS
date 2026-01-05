@@ -63,17 +63,13 @@ class UpdateOrdemdeServicoService {
       let bannerassinatura: string | undefined;
 
       if ((req.files as any)?.file) {
-        const file = (req.files as any).file as UploadedFile;
-        const result: UploadApiResponse = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream({ folder: "ordens" }, (error, result) => {
-              if (error) return reject(error);
-              resolve(result as UploadApiResponse);
-            })
-            .end(file.data);
-        });
-        bannerassinatura = result.secure_url;
-      }
+  const file = (req.files as any).file as UploadedFile;
+  const result: UploadApiResponse = await cloudinary.uploader.upload(file.tempFilePath, {
+    folder: "ordens",
+  });
+
+  bannerassinatura = result.secure_url;
+}
 
       const updatedRecord = await prismaClient.ordemdeServico.update({
         where: { id },

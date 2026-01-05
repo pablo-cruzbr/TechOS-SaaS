@@ -15,6 +15,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { ModalDetailOrderFormTecnico } from "../modalDetailOrderFormTecnico";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "../../services/api";
+import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from "expo-image-picker";
 
 interface ModalDetailOsProps {
@@ -223,32 +224,52 @@ useEffect(() => {
   const removeImage = (index: number) => setSelectedImages(selectedImages.filter((_, i) => i !== index));
 
   const uploadImages = async () => {
-    if (selectedImages.length === 0) return Alert.alert("Atenção", "Selecione pelo menos uma imagem.");
+  if (selectedImages.length === 0) return Alert.alert("Atenção", "Selecione pelo menos uma imagem.");
 
-    const formData = new FormData();
-    formData.append("ordemdeServico_id", ordemAtual.id);
+  const formData = new FormData();
+  formData.append("ordemdeServico_id", ordemAtual.id);
 
-    selectedImages.forEach((img, index) => {
+  try {
+    // Usamos um loop for...of para poder usar o await no redimensionamento
+    for (let i = 0; i < selectedImages.length; i++) {
+      const img = selectedImages[i];
+
+      // REDIMENSIONAMENTO: Reduz para 1080px de largura e qualidade 70%
+      // Isso transforma uma foto de 10MB em uma de ~500KB
+      const manipResult = await ImageManipulator.manipulateAsync(
+        img.uri,
+        [{ resize: { width: 1080 } }], 
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      );
+
       formData.append("file", {
-        uri: img.uri,
-        name: `ordem_${ordemAtual.id}_${index}.jpg`,
+        uri: manipResult.uri,
+        name: `foto_${i}_${Date.now()}.jpg`,
         type: "image/jpeg",
       } as any);
+    }
+    await api.post(`/foto`, formData, {
+      headers: { 
+        "Content-Type": "multipart/form-data" 
+       
+      },
+      timeout: 60000,
     });
 
-    try {
-      await api.post(`/foto`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        timeout: 30000,
-      });
-      Alert.alert("Sucesso", "Imagens enviadas com sucesso!");
-      setSelectedImages([]);
-    } catch (err: unknown) {
-      const error = err as any;
-      console.error("Erro no upload de imagens:", error.response?.data || error.message);
+    Alert.alert("Sucesso", "Imagens enviadas com sucesso!");
+    setSelectedImages([]);
+
+  } catch (err: any) {
+    console.error("Erro no upload:", err.response?.data || err.message);
+    
+    // Dica para debugar Vercel:
+    if (err.message.includes("413") || err.message.includes("Forbidden")) {
+      Alert.alert("Erro", "As imagens são muito pesadas para o servidor. Tente enviar menos fotos por vez.");
+    } else {
       Alert.alert("Erro", "Falha ao enviar imagens.");
     }
-  };
+  }
+};
 
 const refreshOrdemAtual = async () => {
   if (!ordemAtual?.id) return; 

@@ -5,21 +5,38 @@ import { UploadedFile } from "express-fileupload";
 
 export class fotoController {
   async handle(req: Request, res: Response) {
-    console.log("-> Requisição recebida em /foto");
+    console.log("BODY:", req.body);
+    console.log("FILES:", req.files);
     try {
-      console.log("-> Verificando o corpo da requisição e os arquivos...");
       const { ordemdeServico_id } = req.body;
 
+      const debugInfo = {
+        receivedHeaders: req.headers["content-type"], // Verifica se o multipart chegou certo
+  hasFiles: !!req.files,
+  fileKeys: req.files ? Object.keys(req.files) : [], // Mostra os nomes dos campos de arquivo detectados
+  bodyKeys: Object.keys(req.body), // Mostra os nomes dos campos de texto (como o ID da OS)
+  bodyValues: req.body
+      };
+
+      // 2. VERIFICAÇÃO DE ARQUIVOS
       if (!req.files || !("file" in req.files)) {
-        console.log("-> Erro: Arquivo não enviado ou 'file' não encontrado em req.files.");
-        return res.status(400).json({ error: "Arquivo não enviado." });
+        console.log("-> Erro de diagnóstico:", debugInfo);
+        return res.status(400).json({ 
+          error: "Arquivo não enviado ou campo 'file' ausente.",
+          diagnostico: {
+            orientacao: "Certifique-se de que o campo no Insomnia se chama exatamente 'file' e é do tipo File.",
+            dadosRecebidos: debugInfo
+          }
+        });
+      }
+
+      if (!ordemdeServico_id) {
+        return res.status(400).json({ error: "ID da ordem de serviço é obrigatório." });
       }
 
       console.log(`-> ID da Ordem de Serviço: ${ordemdeServico_id}`);
-      console.log("-> Arquivo(s) encontrado(s) em req.files.");
 
       const uploaded = req.files["file"];
-
       const files = Array.isArray(uploaded)
         ? (uploaded as unknown as UploadedFile[])
         : [uploaded as UploadedFile];
@@ -27,29 +44,28 @@ export class fotoController {
       const fotos = [];
 
       for (const file of files) {
-        console.log(`-> Iniciando upload do arquivo: ${file.name} para o Cloudinary...`);
-        console.log(`-> Caminho temporário do arquivo: ${file.tempFilePath}`);
+        console.log(`-> Iniciando upload: ${file.name}`);
 
+        // Upload para o Cloudinary usando o path temporário
         const uploadResult: UploadApiResponse = await cloudinary.uploader.upload(
           file.tempFilePath,
           { folder: "ordens_servico" }
         );
 
-        console.log("-> Upload para o Cloudinary concluído. URL segura:", uploadResult.secure_url);
-        
+        // Registro no Banco de Dados
         const foto = await prismaClient.fotoOrdemServico.create({
           data: {
             url: uploadResult.secure_url,
-            ordemdeServico_id,
+            ordemdeServico_id: ordemdeServico_id, // Agora a variável existe!
           },
         });
 
-        console.log("-> Registro no banco de dados criado com sucesso.");
         fotos.push(foto);
       }
 
-      console.log("-> Todos os uploads e registros concluídos. Retornando resposta.");
+      console.log("-> Todos os uploads concluídos.");
       return res.json(fotos);
+
     } catch (error: any) {
       console.error("-> Erro durante a requisição:", error);
       return res.status(400).json({ error: error.message });
@@ -59,24 +75,19 @@ export class fotoController {
   async listByOrdem(req: Request, res: Response) {
     try {
       const { id } = req.params;
-
       const fotos = await prismaClient.fotoOrdemServico.findMany({
         where: { ordemdeServico_id: id },
         orderBy: { created_at: "desc" },
       });
-
       return res.json(fotos);
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
   }
 
-  // NOVO MÉTODO -> deletar foto
   async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
-
-      // Buscar a foto no banco
       const foto = await prismaClient.fotoOrdemServico.findUnique({
         where: { id },
       });
@@ -85,22 +96,18 @@ export class fotoController {
         return res.status(404).json({ error: "Foto não encontrada." });
       }
 
-      // Extrair public_id do Cloudinary (pega o final da URL sem extensão)
       const urlParts = foto.url.split("/");
       const fileName = urlParts[urlParts.length - 1];
       const publicId = "ordens_servico/" + fileName.split(".")[0];
 
-      // Deletar do Cloudinary
       await cloudinary.uploader.destroy(publicId);
 
-      // Deletar do banco
       await prismaClient.fotoOrdemServico.delete({
         where: { id },
       });
 
       return res.json({ message: "Foto deletada com sucesso." });
     } catch (error: any) {
-      console.error("-> Erro ao deletar foto:", error);
       return res.status(400).json({ error: error.message });
     }
   }

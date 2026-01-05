@@ -3,12 +3,22 @@ import type { Request, Response, NextFunction } from "express";
 import 'express-async-errors';
 import cors from 'cors'; 
 import path from 'path'; 
+import fileUpload from 'express-fileupload'; // 1. Importe aqui
 import { router } from "./routes"; 
+
 const app = express();
 
 app.use(express.json());
-
 app.use(cors()); 
+
+app.use(fileUpload({
+  useTempFiles: true,
+  tempFileDir: '/tmp/',
+  createParentPath: true,
+  parseNested: true, // Importante para lidar com múltiplos 'file' no FormData
+  limits: { fileSize: 50 * 1024 * 1024 }, 
+  debug: true // Mude para true se precisar ver logs detalhados do upload no console
+}));
 
 app.get("/hello", (req, res) => {
   return res.json({
@@ -27,8 +37,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   return res.status(500).json({ status: 'error', message: 'Internal server error.' });
 });
 
-export default app;
-
 app.listen(3334, () => {
   console.log('Servidor API TechOS Online na porta 3334!');
 });
+
+export default app;
