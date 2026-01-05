@@ -14,3 +14,7 @@ Thumbs.db
 # Se você tiver pastas de assets muito grandes que não usa
 ios/
 android/
+
+../Backend/
+../Frontend/
+../Mobile/
