@@ -83,7 +83,7 @@ useEffect(() => {
 
   if (!ordemAtual) return null;
 
-  const endereco = ordemAtual.user?.cliente?.endereco ?? ordemAtual.instituicaoUnidade?.endereco ?? "";
+  const endereco = ordemAtual.cliente?.endereco ?? ordemAtual.instituicaoUnidade?.endereco ?? "";
 
   const abrirWaze = (endereco: string) => {
     const url = `https://waze.com/ul?q=${encodeURIComponent(endereco)}`;

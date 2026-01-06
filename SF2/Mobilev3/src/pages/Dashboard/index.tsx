@@ -312,10 +312,10 @@ export default function Dashboard() {
                 Status da OS: {item.statusOrdemdeServico?.name || "N/A"}
               </Text>
 
-              {item.user.cliente && (
+              {item.cliente && (
                 <>
-                  <Text style={styles.cardSubtitle}>Empresa: {item.user.cliente.name}</Text>
-                  <Text style={styles.cardSubtitle}>Endereço: {item.user.cliente.endereco}</Text>
+                  <Text style={styles.cardSubtitle}>Empresa: {item.cliente.name}</Text>
+                  <Text style={styles.cardSubtitle}>Endereço: {item.cliente.endereco}</Text>
                 </>
               )}
 
