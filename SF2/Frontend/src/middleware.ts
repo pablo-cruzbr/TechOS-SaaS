@@ -1,64 +1,53 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getCookieServer } from "./lib/cookieServer";
-import { redirect } from "next/dist/server/api-utils";
+import { NextRequest, NextResponse } from "next/server";
 import { api } from "./services/api";
-export async function middleware(req: NextRequest){
-        // 1- PEGAR A URL DA PAGINA 
-        // nextUrl devolve o patchName:  /dashboard/signup
-        
-        const {pathname} = req.nextUrl
-        
-        //2 - PRIMEIRA VALIDAÇÃO DE URL 
-        // Se o patchname for igual o nosso barra eu vou deixar renderizar
-        if( pathname.startsWith("/_next") || pathname === "/"){
-            return NextResponse.next();
-        }
-        
-        // 3 - PEGAR O TOKEN DO USUÁRIO
-       const token = await getCookieServer();
-       //console.log(token);
 
-       //4 - BLOQUEIO DE ACESSO CASO NÃO TENHA TOKEN
-       // Se o pathname cameçar com /dashboard não tiver o token, vamos redirecionar para a pagina /. Com o redirect.
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-       if(pathname.startsWith("/dashboard")){
-        if(!token){
-            return NextResponse.redirect(new URL("/", req.url))
-        }
+  if (pathname.startsWith("/_next") || pathname === "/" || pathname.includes(".")) {
+    return NextResponse.next();
+  }
 
-         //6 - Varialvel isValid + Condicional + Function para VALIDADE TOKEN
-        const isValid = await validateToken(token)
-        if(!isValid){
-            return NextResponse.redirect(new URL("/", req.url))
-        }
+  const token = req.cookies.get("session")?.value;
 
-       }
-       return NextResponse.next();
-       
-        // 5 - Validar o Token Função: validateToken.
-        // Dentro do seu middleware.ts
+  if (pathname.startsWith("/dashboard")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
 
-        async function validateToken(token: string) {
-        if (!token) return false;
-        
-        try {
-            const response = await api.get("/users/detail", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-            });
+    const isValid = await validateToken(token);
+    
+    if (!isValid) {
+      const response = NextResponse.redirect(new URL("/", req.url));
+      response.cookies.delete("session");
+      return response;
+    }
+  }
 
-            console.log("DADOS VINDO DO BACKEND:", response.data);
-
-            // VALIDAÇÃO EXTRA: No Web, só deixamos passar se for Admin
-            if (response.data.isAdmin !== true) {
-            console.log("Usuário logado, mas não é ADMIN. Bloqueando...");
-            return false;
-            }
-
-            return true;
-        } catch (err) {
-            return false;
-        }
-        }
+  return NextResponse.next();
 }
+
+async function validateToken(token: string) {
+  try {
+    const response = await api.get("/users/detail", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.data.isAdmin !== true) {
+      console.log("ACESSO NEGADO: Usuário não é ADMIN");
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.log("ERRO NA VALIDAÇÃO DO TOKEN:", err);
+    return false;
+  }
+}
+
+// Configuração do Matcher para performance
+export const config = {
+  matcher: ["/dashboard/:path*", "/"],
+};
