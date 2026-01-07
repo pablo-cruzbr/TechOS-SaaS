@@ -12,7 +12,6 @@ export class fotoController {
         receivedHeaders: req.headers["content-type"], 
         hasFiles: !!req.files,
         fileKeys: req.files ? Object.keys(req.files) : [], 
-        detectados
         bodyKeys: Object.keys(req.body), 
         bodyValues: req.body
         };
