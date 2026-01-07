@@ -1,6 +1,7 @@
 import prismaClient from "../../prisma";
 import { compare } from "bcryptjs";
 import {sign} from 'jsonwebtoken'
+import { isAdmin } from "../../Middleware/isAdmin";
 
 interface AuthRequest {
     email: string;
@@ -44,7 +45,8 @@ class AuthUserService{
             id: user.id,
             name: user.name,
             email: user.email,
-            token: token
+            token: token,
+            isAdmin: user.isAdmin
         } 
     }
 }
