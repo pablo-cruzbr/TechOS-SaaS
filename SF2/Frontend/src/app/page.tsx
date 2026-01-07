@@ -1,110 +1,116 @@
 import Image from "next/image";
 import styles from '../../src/app/page.module.scss';
 import logoImg from "../../public/Logo8.svg";
-import Link from "next/link";
 import { cookies } from "next/headers";
 import { api } from "@/services/api";
 import { redirect } from "next/navigation";
 
-export default function Home() {
-  // Função de login
- async function handleLogin(formData: FormData) {
-     "use server";
- 
-     const email = formData.get("email");
-     const password = formData.get("password");
- 
-     if (!email || !password || email.toString().trim() === "" || password.toString().trim() === "") {
-       console.log("Campos vazios ou inválidos.");
-       return;
-     }
- 
-     try {
-       const response = await api.post("/session", {
-         email,
-         password,
-       });
-       
-       if(!response.data.token){
-         return;
-       }
- 
-       console.log(response.data);
- 
-       //Cria um tempo estimado para o cookie expirar
-     const expressTime = 60 * 60 * 24 * 30 * 1000;
-     //Função assincrona
-     const cookieStore = await cookies();
-     cookieStore.set("session", response.data.token,{
-     //Tempo que queremos que o cookie expire
-       maxAge: expressTime,
-       path:"/",
-       httpOnly: false,
-     //Só habilitar em produção pois ainda estamos em localhost
-     secure: process.env.NODE_ENV === "production"
-       })
-       
- 
-     } catch (err) {
-       console.log("Erro ao fazer login:", err);
-      //ADICIONAR UM AVISO DE ERRO NA TELA
-       return;
-     } 
-       redirect("/dashboard/ticketscount");
-   }
+interface PageProps {
+  searchParams: Promise<{ error?: string }>;
+}
+
+interface AuthResponse {
+  token: string;
+  name: string;
+  email: string;
+  isAdmin: boolean;
+}
+
+export default async function Home({ searchParams }: PageProps) {
+  // Aguarda os parâmetros da URL
+  const { error } = await searchParams;
+
+  async function handleLogin(formData: FormData) {
+    "use server";
+    
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    if (!email || !password) return;
+
+    let shouldRedirect = false;
+
+    try {
+      const response = await api.post("/session", { 
+        email: email.toString(), 
+        password: password.toString() 
+      });
+
+      // Validação de Admin
+      if (response.data.isAdmin !== true) {
+        redirect("/?error=no_admin");
+      }
+
+      // Se passou, cria o cookie
+      const cookieStore = await cookies();
+      cookieStore.set("session", response.data.token, {
+        maxAge: 60 * 60 * 24 * 30,
+        path: "/",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production"
+      });
+
+      shouldRedirect = true;
+
+    } catch (err: any) {
+      // Importante: deixa o redirect do Next funcionar
+      if (err.message === 'NEXT_REDIRECT') throw err;
+      
+      console.log("Erro login:", err.response?.data || err.message);
+      redirect("/?error=credentials");
+    }
+
+    if (shouldRedirect) {
+      redirect("/dashboard/ticketscount");
+    }
+  }
+
+  // Define a mensagem de erro baseada no parâmetro da URL
+  const errorMsg = error === "no_admin" 
+    ? "Acesso negado: Somente administradores." 
+    : error === "credentials" 
+    ? "E-mail ou senha incorretos." 
+    : null;
 
   return (
     <div className={styles.container}>
-      {/* Logo centralizada acima do card */}
-     
-
       <div className={styles.conteiner}>
         <section className={styles.login}>
-
-           <Image
-        src={logoImg}
-        alt="Logo SF2"
-        width={200}
-        height={100}
-        className={styles.logo}
-      />
-
+          <Image 
+            src={logoImg} 
+            alt="Logo SF2" 
+            width={200} 
+            height={100} 
+            priority 
+            className={styles.logo}
+          />
+          
           <h1>Faça seu Login</h1>
 
+          {/* Exibe o erro se ele existir */}
+          {errorMsg && (
+            <p style={{ color: '#FF3F4B', marginBottom: '15px', fontWeight: 'bold', textAlign: 'center' }}>
+              {errorMsg}
+            </p>
+          )}
+
           <form action={handleLogin}>
-            <input
-              type="email"
-              name="email"
-              placeholder="Digite seu email"
-              required
-              className={styles.input}
+            <input 
+              type="email" 
+              name="email" 
+              placeholder="Digite seu email" 
+              required 
+              className={styles.input} 
             />
-
-            <input
-              type="password"
-              name="password"
-              placeholder="Digite sua senha"
-              required
-              className={styles.input}
+            <input 
+              type="password" 
+              name="password" 
+              placeholder="Digite sua senha" 
+              required 
+              className={styles.input} 
             />
-
             <button type="submit">Acessar</button>
           </form>
-
-          {/* Links de cadastro / dashboard (comentados por enquanto) */}
-          {/*
-          <Link href="/signup_empresa" className={styles.text}>
-            Não possui uma conta? Cadastre uma empresa
-          </Link>
-
-          <Link href="/signup_instituicao" className={styles.text}>
-            Não possui uma conta? Cadastre uma instituição
-          </Link>
-
-          <Link href="/dashboard/ticketscount" className={styles.text}>
-            Dashboard
-          </Link>
-          */}
         </section>
       </div>
     </div>

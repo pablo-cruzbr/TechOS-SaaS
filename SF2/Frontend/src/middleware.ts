@@ -36,20 +36,27 @@ export async function middleware(req: NextRequest){
        return NextResponse.next();
        
         // 5 - Validar o Token Função: validateToken.
-        async function validateToken(token: string){
-        if(!token) return false;
-        //Requisição para Buscar os dados do usuário 
-        // api.get me, Bearer token. 
+        // Dentro do seu middleware.ts
+
+        async function validateToken(token: string) {
+        if (!token) return false;
+        
         try {
-         await api.get("/users/detail",{
-             headers:{
-                 Authorization: `Bearer ${token}`
-             }
-         })
-         return true;
-        }catch(err){
-         console.log(err);
-         return false;
-    }
-}
+            const response = await api.get("/users/detail", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+            });
+
+            // VALIDAÇÃO EXTRA: No Web, só deixamos passar se for Admin
+            if (response.data.isAdmin !== true) {
+            console.log("Usuário logado, mas não é ADMIN. Bloqueando...");
+            return false;
+            }
+
+            return true;
+        } catch (err) {
+            return false;
+        }
+        }
 }
