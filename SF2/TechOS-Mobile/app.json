@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Mobilev3",
-    "slug": "Mobilev3",
+    "name": "TechOS-Mobile",
+    "slug": "TechOS-Mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,7 +20,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.pablocruzbr.Mobilev3"
+      "package": "com.pablocruz.techosmobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,11 +28,6 @@
     "plugins": [
       "expo-asset",
       "expo-font"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "aca3567f-ff09-4087-9397-afd79c29e51c"
-      }
-    }
+    ]
   }
 }
