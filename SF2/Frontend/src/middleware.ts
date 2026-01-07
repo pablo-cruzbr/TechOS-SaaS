@@ -48,6 +48,8 @@ export async function middleware(req: NextRequest){
             }
             });
 
+            console.log("DADOS VINDO DO BACKEND:", response.data);
+
             // VALIDAÇÃO EXTRA: No Web, só deixamos passar se for Admin
             if (response.data.isAdmin !== true) {
             console.log("Usuário logado, mas não é ADMIN. Bloqueando...");
