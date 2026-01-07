@@ -24,11 +24,6 @@ export default function Home() {
          email,
          password,
        });
-
-       if (response.data.isAdmin !== true) {
-        console.log('Acessi negado: Este painel é apenas para administradores.');
-        return;
-       }
        
        if(!response.data.token){
          return;
