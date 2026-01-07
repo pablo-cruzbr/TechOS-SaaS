@@ -85,7 +85,7 @@ export default async function Home({ searchParams }: PageProps) {
             className={styles.logo}
           />
           
-          <h1>Faça seu Login</h1>
+          <h1>Login Admin</h1>
 
           {/* Exibe o erro se ele existir */}
           {errorMsg && (
