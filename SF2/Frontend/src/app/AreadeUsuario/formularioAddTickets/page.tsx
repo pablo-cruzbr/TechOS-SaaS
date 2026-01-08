@@ -105,9 +105,8 @@ export default function FormularioAddTickets() {
     const decoded = jwtDecode<JwtPayload>(token);
     const user_id = decoded.sub;
 
-    const numeroOS = gerarNumeroOS(); // Número da OS
+    const numeroOS = gerarNumeroOS(); 
 
-    // 🔹 Payload seguro para o backend
     const payload: any = {
       numeroOS,
       name,
@@ -223,7 +222,7 @@ export default function FormularioAddTickets() {
                     <strong>Nome:</strong> {usuario.name}
                   </p>
                   <p>
-                    <strong>Setor:</strong> {usuario.setor?.name}
+                    <strong>Setor:</strong> {usuario.setor?.name || "Setor não informado"}
                   </p>
 
                   {usuario.cliente?.name && usuario.cliente?.endereco && (
