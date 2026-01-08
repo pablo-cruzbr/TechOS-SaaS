@@ -30,19 +30,26 @@ export async function middleware(req: NextRequest){
     return NextResponse.next();
     
     // FUNÇÃO PARA VALIDAR TOKEN
-    async function validateToken(token: string) {
-        if (!token) return false;
-        
-        try {
-            await api.get("/users/detail", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+  async function validateToken(token: string) {
+    if (!token) return false;
+    
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/detail`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            cache: 'no-store' 
+        });
 
-            return true;
-        } catch (err) {
-            return false;
-        }
+        if (!res.ok) return false;
+
+        const data = await res.json();
+
+        return !!data?.isAdmin; 
+
+    } catch (err) {
+        console.error("Erro na validação do Middleware:", err);
+        return false;
     }
+}
 }
