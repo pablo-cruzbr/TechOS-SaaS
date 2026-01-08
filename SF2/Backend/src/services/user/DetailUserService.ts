@@ -14,6 +14,7 @@ class DetailUserService {
         id: true,
         name: true,
         email: true,
+        isAdmin: true,
         setor: {
           select: {
             id: true,
