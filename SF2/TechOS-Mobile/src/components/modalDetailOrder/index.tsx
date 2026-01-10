@@ -112,7 +112,7 @@ useEffect(() => {
     }
   };
 
- const fetchTempo = async (ordemId: string) => {
+const fetchTempo = async (ordemId: string) => {
   try {
     const storageToken = await AsyncStorage.getItem("@AlltiService");
     if (!storageToken) return;
@@ -123,47 +123,38 @@ useEffect(() => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    const { duracao, startedAt, endedAt } = response.data;
+    const { startedAt, endedAt } = response.data;
 
-    if (startedAt) {
-      // Converte o horário UTC para horário de Brasília (UTC-3)
-      const offsetMs = -3 * 60 * 60 * 1000;
-      const startedAtDate = new Date(new Date(startedAt).getTime() + offsetMs);
-      const endedAtDate = endedAt ? new Date(new Date(endedAt).getTime() + offsetMs) : null;
+    if (!startedAt) return;
 
-      // Calcula duração
-      let diff = 0;
-      if (endedAtDate) {
-        diff = Math.floor((endedAtDate.getTime() - startedAtDate.getTime()) / 1000);
-      } else {
-        diff = Math.floor((Date.now() + offsetMs - startedAtDate.getTime()) / 1000);
-      }
+    const startedAtDate = new Date(startedAt);
+    const endedAtDate = endedAt ? new Date(endedAt) : null;
 
-      setTime(diff > 0 ? diff : 0);
-      setIsRunning(!endedAtDate);
+    const diffSeconds = endedAtDate
+      ? Math.floor((endedAtDate.getTime() - startedAtDate.getTime()) / 1000)
+      : Math.floor((Date.now() - startedAtDate.getTime()) / 1000);
 
-      // Atualiza ordemAtual com os horários corrigidos para exibição
-      setOrdemAtual((prev) =>
-        prev
-          ? {
-              ...prev,
-              startedAt: startedAtDate.toISOString(),
-              endedAt: endedAtDate ? endedAtDate.toISOString() : null,
-            }
-          : prev
-      );
-    }
+    setTime(diffSeconds > 0 ? diffSeconds : 0);
+    setIsRunning(!endedAtDate);
+
+    setOrdemAtual((prev) =>
+      prev
+        ? {
+            ...prev,
+            startedAt,
+            endedAt,
+          }
+        : prev
+    );
   } catch (error) {
     console.error("Erro ao buscar tempo da OS:", error);
   }
 };
 
-
-
     useEffect(() => {
     if (ordemAtual?.id) {
       fetchAssinatura(ordemAtual.id);
-      fetchTempo(ordemAtual.id); // chama a requisição GET do tempo
+      fetchTempo(ordemAtual.id); 
     }
   }, [ordemAtual]);
 
@@ -230,23 +221,17 @@ const uploadImages = async () => {
     return Alert.alert("Atenção", "Selecione pelo menos uma imagem.");
   }
 
-  // Opcional: Adicione um estado de Loading aqui para travar a tela
-  // setLoading(true);
-
   try {
     // Loop para processar e enviar CADA imagem individualmente
     for (let i = 0; i < selectedImages.length; i++) {
-      const img = selectedImages[i]; // Aqui a variável 'img' é definida corretamente
+      const img = selectedImages[i]; 
 
-      // 1. Redimensionamento de Alta Qualidade (1920px = Full HD)
       const manipResult = await ImageManipulator.manipulateAsync(
         img.uri,
-        [{ resize: { width: 1920 } }], // Qualidade excelente para detalhes técnicos
-        { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG } // 80% de qualidade é o ponto ideal
+        [{ resize: { width: 1920 } }], 
+        { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG } 
       );
 
-      // 2. Criamos um FormData NOVO para cada foto
-      // Isso garante que cada envio seja leve e independente
       const formData = new FormData();
       formData.append("ordemdeServico_id", ordemAtual.id);
       formData.append("file", {
@@ -255,10 +240,9 @@ const uploadImages = async () => {
         type: "image/jpeg",
       } as any);
 
-      // 3. Envio imediato desta foto específica
       await api.post(`/foto`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 30000, // 30 segundos por foto é suficiente
+        timeout: 30000,
       });
 
       //console.log(`Foto ${i + 1} de ${selectedImages.length} enviada com sucesso.`);
@@ -296,7 +280,6 @@ const refreshOrdemAtual = async () => {
 
     setOrdemAtual(prev => prev ? { ...prev, ...data } : data);
 
-    // 🚫 Não mexemos em isRunning / isPaused aqui
   } catch (error) {
     console.error("Erro ao buscar OS atualizada:", error);
   }
@@ -319,7 +302,6 @@ const handleStart = async () => {
 
     await refreshOrdemAtual();
 
-    // Agora o status estará “EM ANDAMENTO”
     setIsRunning(true);
     setIsPaused(false);
      setHasStarted(true);
