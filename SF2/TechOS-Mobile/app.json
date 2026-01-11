@@ -2,7 +2,7 @@
   "expo": {
     "name": "TechOS-Mobile",
     "slug": "TechOS-Mobile",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -33,6 +33,12 @@
       "eas": {
         "projectId": "e0eb7498-f119-4c00-9b29-43fcbd08d9a1"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e0eb7498-f119-4c00-9b29-43fcbd08d9a1"
     }
   }
 }
