@@ -47,7 +47,7 @@ export default function TicketsList({ ticketsData }: Props) {
 
   function handleAddCardTecnico() {
     console.log("Redirecionando para adicionar novo técnico");
-    router.push('/AreadeUsuario');
+    router.push('/AreadeUsuario/formularioAddTickets');
   }
 
   function handleListTickets(){
