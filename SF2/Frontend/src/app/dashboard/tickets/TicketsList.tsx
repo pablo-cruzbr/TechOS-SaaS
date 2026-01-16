@@ -76,7 +76,7 @@ export default function TicketsList({ ticketsData }: Props) {
 
   // Função para criar nova OS
   const handleAddCardTecnico = () => {
-    router.push('/AreadeUsuario');
+    router.push('/AreadeUsuario/formularioAddTickets');
   };
 
   // Função para atualizar lista e limpar filtros
