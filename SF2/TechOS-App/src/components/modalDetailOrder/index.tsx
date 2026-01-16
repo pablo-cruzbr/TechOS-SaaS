@@ -440,6 +440,8 @@ const handleResume = async () => {
   }
 };
 
+const isDisabled = selectedImages.length === 0;
+
   return (
     <>
    <TouchableOpacity
@@ -686,19 +688,35 @@ const handleResume = async () => {
               </>
             )}
 
-            <TouchableOpacity style={[styles.buttonClose, styles.buttonComplete]} 
-            onPress={() => {
-              // 1. Chame a primeira função (fechar e completar)
-              handleCloseAndComplete(); 
-              
-              // 2. Chame a segunda função (upload de imagens)
-              uploadImages();
-            }}>
+            <TouchableOpacity
+              style={[
+                styles.buttonClose,
+                styles.buttonComplete,
+                isDisabled && styles.buttonDisabled,
+              ]}
+              disabled={isDisabled}
+              onPress={() => {
+                handleCloseAndComplete();
+                uploadImages();
+              }}
+            >
               <View style={styles.buttonContent}>
-                <MaterialIcons name="check-circle" size={20} color="#FFF" />
-                <Text style={styles.textButtonClose}>ENVIAR IMAGENS, CONCLUIR E FECHAR OS</Text>
+                <MaterialIcons
+                  name="check-circle"
+                  size={20}
+                  color={isDisabled ? "#DDD" : "#FFF"}
+                />
+                <Text
+                  style={[
+                    styles.textButtonClose,
+                    isDisabled && styles.textDisabled,
+                  ]}
+                >
+                  ENVIAR IMAGENS, CONCLUIR E FECHAR OS
+                </Text>
               </View>
             </TouchableOpacity>
+
 
           </ScrollComIndicador>
         </View>
@@ -775,6 +793,15 @@ const styles = StyleSheet.create({
   buttonNavigation: {
     backgroundColor: "#3859F3",
   },
+
+  buttonDisabled: {
+  backgroundColor: "#9CA3AF", 
+  opacity: 0.6,
+},
+
+textDisabled: {
+  color: "#E5E7EB",
+},
 
   timerContainer: {
     marginVertical: 15,
