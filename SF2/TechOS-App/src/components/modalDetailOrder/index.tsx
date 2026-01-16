@@ -11,6 +11,7 @@ import {
   Alert,
   Platform
 } from "react-native";
+import { ScrollComIndicador } from "../ScrollComIndicador";
 import { OrdensDeServico } from "../../pages/Dashboard";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ModalDetailOrderFormTecnico } from "../modalDetailOrderFormTecnico";
@@ -442,7 +443,7 @@ const handleResume = async () => {
     <>
   <TouchableOpacity activeOpacity={1} style={styles.overlay} onPress={handleCloseModal}>
     <TouchableOpacity activeOpacity={1} style={styles.modalContainer}>
-      <ScrollView showsVerticalScrollIndicator>
+      <ScrollComIndicador>
         
         <View style={styles.header}>
           <Text style={styles.title}>Detalhes da Ordem</Text>
@@ -527,61 +528,61 @@ const handleResume = async () => {
 
     {!isRunning && ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "PAUSADA" && (
     <>
-  <TouchableOpacity
-    style={[styles.buttonClose, styles.timerBtnReset]}
-    onPress={async () => {
-      await handleResume();
-      setIsRunning(true); // já não precisa setIsPaused, só controla isRunning
-    }}
-  >
-      <Text style={styles.textButtonClose}>
-        {retomarSuccess ? "OS Retomada com sucesso!" : "Retomar"}
-      </Text>
-  </TouchableOpacity>
-   {retomarSuccess && (
-      <Text style={styles.timerText}>
-        A OS já está em andamento novamente!!!
-      </Text>
-    )}
-     </>
-)}
-
-
-  <View style={styles.timerButtons}>
-  {!isRunning && !isPaused && !hasStarted && (
-    <TouchableOpacity
-      style={[styles.buttonClose, styles.timerBtn]}
-      onPress={handleStart}
-    >
-      <Text style={styles.textButtonClose}>Iniciar</Text>
-    </TouchableOpacity>
-  )}
-
-  {isRunning && (
-    <TouchableOpacity
-      style={[styles.buttonClose, styles.timerBtnPause]}
-      onPress={handlePause}
-    >
-      <Text style={styles.textButtonClose}>Pausar</Text>
-    </TouchableOpacity>
-  )}
-
-  {!isRunning && isPaused && (
     <TouchableOpacity
       style={[styles.buttonClose, styles.timerBtnReset]}
       onPress={async () => {
         await handleResume();
-
-        setTimeout(() => {
-          setIsRunning(true);
-          setIsPaused(false);
-        }, 300);
+        setIsRunning(true); // já não precisa setIsPaused, só controla isRunning
       }}
-    >
-      <Text style={styles.textButtonClose}>Retomar</Text>
-    </TouchableOpacity>
-  )}
-</View>
+      >
+      <Text style={styles.textButtonClose}>
+        {retomarSuccess ? "OS Retomada com sucesso!" : "Retomar"}
+      </Text>
+      </TouchableOpacity>
+      {retomarSuccess && (
+          <Text style={styles.timerText}>
+            A OS já está em andamento novamente!!!
+          </Text>
+        )}
+        </>
+    )}
+
+
+    <View style={styles.timerButtons}>
+    {!isRunning && !isPaused && !hasStarted && (
+      <TouchableOpacity
+        style={[styles.buttonClose, styles.timerBtn]}
+        onPress={handleStart}
+      >
+        <Text style={styles.textButtonClose}>Iniciar</Text>
+      </TouchableOpacity>
+    )}
+
+    {isRunning && (
+      <TouchableOpacity
+        style={[styles.buttonClose, styles.timerBtnPause]}
+        onPress={handlePause}
+      >
+        <Text style={styles.textButtonClose}>Pausar</Text>
+      </TouchableOpacity>
+    )}
+
+      {!isRunning && isPaused && (
+        <TouchableOpacity
+          style={[styles.buttonClose, styles.timerBtnReset]}
+          onPress={async () => {
+            await handleResume();
+
+            setTimeout(() => {
+              setIsRunning(true);
+              setIsPaused(false);
+            }, 300);
+          }}
+        >
+          <Text style={styles.textButtonClose}>Retomar</Text>
+        </TouchableOpacity>
+      )}
+    </View>
 
 
 </View>
@@ -694,7 +695,7 @@ const handleResume = async () => {
               </View>
             </TouchableOpacity>
 
-          </ScrollView>
+          </ScrollComIndicador>
         </TouchableOpacity>
       </TouchableOpacity>
 

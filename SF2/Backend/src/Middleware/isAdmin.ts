@@ -10,7 +10,7 @@ export async function isAdmin(req: Request, res: Response, next: NextFunction) {
     });
 
     if(!user?.isAdmin) {
-        return res.status(403).json({error: "Acesso restrito a administrtatores."})
+        return res.status(403).json({error: "Acesso restrito apenas administradores."})
     }
     return next();
 }
