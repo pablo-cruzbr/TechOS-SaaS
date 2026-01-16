@@ -250,7 +250,9 @@ const uploadImages = async () => {
       //console.log(`Foto ${i + 1} de ${selectedImages.length} enviada com sucesso.`);
     }
 
-    Alert.alert("Sucesso", "Todas as imagens foram enviadas com alta qualidade!");
+    Alert.alert( 
+      "Operação concluída",
+      "A ordem de serviço foi finalizada com sucesso e todos os dados foram registrados corretamente.");
     setSelectedImages([]);
 
   } catch (err: any) {
@@ -641,7 +643,7 @@ const isDisabled = selectedImages.length === 0;
               <Image source={{ uri: assinatura }} style={{ width: 300, height: 230, marginTop: 5, borderWidth: 1, borderColor: "#000" }} />
             ) : (
               <TouchableOpacity style={styles.buttonClose} onPress={() => Alert.alert("Assinatura", "Implementar captura de assinatura aqui")}>
-                <Text style={styles.textButtonClose}>ADICIONAR ASSINATURA</Text>
+                
               </TouchableOpacity>
             )}
 
