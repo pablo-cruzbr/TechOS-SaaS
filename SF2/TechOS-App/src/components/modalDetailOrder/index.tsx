@@ -9,7 +9,8 @@ import {
   Linking,
   Image,
   Alert,
-  Platform
+  Platform,
+  Modal
 } from "react-native";
 import { ScrollComIndicador } from "../ScrollComIndicador";
 import { OrdensDeServico } from "../../pages/Dashboard";
@@ -441,12 +442,16 @@ const handleResume = async () => {
 
   return (
     <>
-  <TouchableOpacity activeOpacity={1} style={styles.overlay} onPress={handleCloseModal}>
-    <TouchableOpacity activeOpacity={1} style={styles.modalContainer}>
+   <TouchableOpacity
+    activeOpacity={1}
+    style={styles.overlay}
+    onPress={handleCloseModal}
+  />
+    <View style={styles.modalContainer}>
       <ScrollComIndicador>
         
         <View style={styles.header}>
-          <Text style={styles.title}>Detalhes da Ordem</Text>
+          <Text style={styles.title}>Detalhes da Ordemm</Text>
           <TouchableOpacity onPress={atualizarOrdem} style={styles.refreshIcon}>
             <MaterialIcons name="refresh" size={24} color="#0F1431" />
           </TouchableOpacity>
@@ -696,12 +701,11 @@ const handleResume = async () => {
             </TouchableOpacity>
 
           </ScrollComIndicador>
-        </TouchableOpacity>
-      </TouchableOpacity>
+        </View>
 
-      {modalTecnicoOpen && (
-        <ModalDetailOrderFormTecnico ordemId={ordemAtual.id} handleCloseModal={() => setModalTecnicoOpen(false)} />
-      )}
+        {modalTecnicoOpen && (
+          <ModalDetailOrderFormTecnico ordemId={ordemAtual.id} handleCloseModal={() => setModalTecnicoOpen(false)} />
+        )}
     </>
   );
 }
@@ -715,12 +719,13 @@ const styles = StyleSheet.create({
   },
 
   modalContainer: {
-    width: WIDTH - 15,
-    maxHeight: HEIGHT - 100,
-    backgroundColor: "#FFF",
-    borderRadius: 8,
-    padding: 20,
-  },
+  width: WIDTH - 0,
+  maxHeight: HEIGHT * 0.95 ,
+  backgroundColor: "#FFF",
+  borderRadius: 8,
+  padding: 15,
+},
+
 
   header: {
     flexDirection: "row",

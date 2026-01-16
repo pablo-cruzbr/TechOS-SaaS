@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
   scrollBar: {
     position: "absolute",
     right: 6,
-    top: 12,
+    top: 0,
     bottom: 12,
     width: 10,
     alignItems: "center",
@@ -20,6 +20,7 @@ export const styles = StyleSheet.create({
     width: 10,
     height: 42,
     borderRadius: 21,
+    margin: 40,
     backgroundColor: "#2563EB", 
     opacity: 0.85,
     elevation: 3, 

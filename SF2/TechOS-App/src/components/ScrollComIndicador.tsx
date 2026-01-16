@@ -5,7 +5,7 @@ import { styles } from "./styles";
 export const ScrollComIndicador = ({ children }) => {
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const CONTAINER_HEIGHT = 500;
+  const CONTAINER_HEIGHT = 700;
   const INDICATOR_HEIGHT = 40;
 
   const translateY = scrollY.interpolate({
