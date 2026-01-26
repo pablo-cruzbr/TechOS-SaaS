@@ -455,7 +455,7 @@ const isDisabled = selectedImages.length === 0;
       <ScrollComIndicador>
         
         <View style={styles.header}>
-          <Text style={styles.title}>Detalhes da Ordemm</Text>
+          <Text style={styles.title}>Detalhes da Ordem</Text>
           <TouchableOpacity onPress={atualizarOrdem} style={styles.refreshIcon}>
             <MaterialIcons name="refresh" size={24} color="#0F1431" />
           </TouchableOpacity>
