@@ -287,9 +287,6 @@ const refreshOrdemAtual = async () => {
   }
 };
 
-
-
-
 const handleStart = async () => {
   try {
     const storageToken = await AsyncStorage.getItem("@AlltiService");
