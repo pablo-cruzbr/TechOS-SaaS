@@ -649,7 +649,6 @@ const isDisabled = selectedImages.length === 0;
               </View>
             </TouchableOpacity>
 
-            {/* === IMAGENS === */}
             <TouchableOpacity style={styles.buttonClose} onPress={pickImages}>
               <View style={styles.buttonContent}>
                 <MaterialIcons name="photo-library" size={20} color="#FFF" />
