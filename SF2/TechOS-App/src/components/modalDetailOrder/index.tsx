@@ -536,7 +536,7 @@ const isDisabled = selectedImages.length === 0;
       style={[styles.buttonClose, styles.timerBtnReset]}
       onPress={async () => {
         await handleResume();
-        setIsRunning(true); // já não precisa setIsPaused, só controla isRunning
+        setIsRunning(true); 
       }}
       >
       <Text style={styles.textButtonClose}>
