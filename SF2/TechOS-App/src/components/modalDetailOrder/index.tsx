@@ -276,13 +276,11 @@ const refreshOrdemAtual = async () => {
     if (!storageToken) return;
     const { token } = JSON.parse(storageToken);
 
-    const { data } = await api.get(`/ordemdeservico/tempo/${ordemAtual.id}`, {
+    const { data } = await api.get(`/ordemdeservico/${ordemAtual.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    console.log("🔥 Dados recebidos no refreshOrdemAtual:", data);
-
-    setOrdemAtual(prev => prev ? { ...prev, ...data } : data);
+    setOrdemAtual(data); 
 
   } catch (error) {
     console.error("Erro ao buscar OS atualizada:", error);
