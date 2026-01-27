@@ -25,6 +25,8 @@ export default function FormularioAddTickets() {
   const [tiposDeChamado, setTiposDeChamado] = useState<TipoDeChamado[]>([]);
   const [tipodeOrdemdeServico, setTipodeOrdemdeServico] = useState<TipoDeOrdemdeServico[]>([])
   const [usuario, setUsuario] = useState<UsuariosProps | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   // Função para gerar número de OS de 5 dígitos
@@ -82,6 +84,8 @@ export default function FormularioAddTickets() {
  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
 
+  if (loading) return;
+
   const formData = new FormData(event.currentTarget);
   const name = formData.get('name')?.toString().trim();
   const tipodeChamado_id = formData.get('tipodeChamado_id')?.toString().trim();
@@ -95,16 +99,18 @@ export default function FormularioAddTickets() {
     return;
   }
 
+  setLoading(true);
+
   try {
     const token = await getCookieClient();
     if (!token) {
       alert('Token de autenticação não encontrado. Faça login novamente.');
+      setLoading(false);
       return;
     }
 
     const decoded = jwtDecode<JwtPayload>(token);
     const user_id = decoded.sub;
-
     const numeroOS = gerarNumeroOS(); 
 
     const payload: any = {
@@ -116,12 +122,9 @@ export default function FormularioAddTickets() {
       user_id,
     };
 
-    // Só adiciona se tiver valor
     if (usuario?.cliente?.id) payload.cliente_id = usuario.cliente.id;
     if (usuario?.instituicaoUnidade?.id) payload.instituicaoUnidade_id = usuario.instituicaoUnidade.id;
     if (usuario?.tecnico?.id) payload.tecnico_id = usuario.tecnico.id;
-
-    console.log('Dados que serão enviados para a API:', payload);
 
     await api.post('/ordemdeservico', payload, {
       headers: { Authorization: `Bearer ${token}` },
@@ -131,6 +134,7 @@ export default function FormularioAddTickets() {
   } catch (err) {
     console.error('Erro ao enviar ordem de serviço:', err);
     alert('Erro ao enviar. Verifique os campos e tente novamente.');
+    setLoading(false);
   }
 }
 
