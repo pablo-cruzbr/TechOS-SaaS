@@ -675,12 +675,7 @@ const isDisabled = selectedImages.length === 0;
                     </View>
                   ))}
                 </View>
-                <TouchableOpacity style={styles.buttonClose} onPress={uploadImages}>
-                  <View style={styles.buttonContent}>
-                    <MaterialIcons name="cloud-upload" size={20} color="#FFF" />
-                    <Text style={styles.textButtonClose}>ENVIAR TODAS</Text>
-                  </View>
-                </TouchableOpacity>
+              
               </>
             )}
 
