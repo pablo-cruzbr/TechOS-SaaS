@@ -218,6 +218,19 @@ const fetchTempo = async (ordemId: string) => {
 
   const removeImage = (index: number) => setSelectedImages(selectedImages.filter((_, i) => i !== index));
 
+  const isJaConcluida = ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "CONCLUIDA" || 
+                      ordemAtual?.statusOrdemdeServico?.name?.trim().toUpperCase() === "CONCLUIDA";
+
+  const handleFinalizarEEnviar = async () => {
+  await uploadImages();
+
+  if (!isJaConcluida) {
+    await handleCloseAndComplete();
+  } else {
+    Alert.alert("Sucesso", "Novas imagens enviadas para esta OS já concluída.");
+  }
+};
+
 const uploadImages = async () => {
   if (selectedImages.length === 0) {
     return Alert.alert("Atenção", "Selecione pelo menos uma imagem.");
@@ -679,34 +692,34 @@ const isDisabled = selectedImages.length === 0;
               </>
             )}
 
-            <TouchableOpacity
+           <TouchableOpacity
+          style={[
+            styles.buttonClose,
+            isJaConcluida ? { backgroundColor: '#555' } : styles.buttonComplete, 
+            isDisabled && styles.buttonDisabled,
+          ]}
+          disabled={isDisabled}
+          onPress={handleFinalizarEEnviar}
+        >
+          <View style={styles.buttonContent}>
+            <MaterialIcons
+              name={isJaConcluida ? "cloud-upload" : "check-circle"} 
+              size={20}
+              color={isDisabled ? "#DDD" : "#FFF"}
+            />
+            <Text
               style={[
-                styles.buttonClose,
-                styles.buttonComplete,
-                isDisabled && styles.buttonDisabled,
+                styles.textButtonClose,
+                isDisabled && styles.textDisabled,
               ]}
-              disabled={isDisabled}
-              onPress={() => {
-                handleCloseAndComplete();
-                uploadImages();
-              }}
             >
-              <View style={styles.buttonContent}>
-                <MaterialIcons
-                  name="check-circle"
-                  size={20}
-                  color={isDisabled ? "#DDD" : "#FFF"}
-                />
-                <Text
-                  style={[
-                    styles.textButtonClose,
-                    isDisabled && styles.textDisabled,
-                  ]}
-                >
-                  ENVIAR IMAGENS, CONCLUIR E FECHAR OS
-                </Text>
-              </View>
-            </TouchableOpacity>
+              {isJaConcluida 
+                ? "ENVIAR MAIS IMAGENS" 
+                : "ENVIAR IMAGENS E CONCLUIR OS"
+              }
+            </Text>
+          </View>
+        </TouchableOpacity>
 
 
           </ScrollComIndicador>
