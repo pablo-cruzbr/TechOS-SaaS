@@ -282,15 +282,18 @@ textarea {
 }
 
 .usuarioBox {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 5px 5px;
+ background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px; 
   border-radius: 20px;
   margin-top: 5px;
   width: 100%;
   max-width: 400px;
-  text-align: left;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-
+  
+  height: auto; 
+  overflow: visible; 
+  display: flex;
+  flex-direction: column;
+  
   h3 {
     font-size: 1.4rem;
     color: #fff;
