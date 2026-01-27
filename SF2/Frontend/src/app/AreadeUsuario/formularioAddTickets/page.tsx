@@ -138,7 +138,6 @@ export default function FormularioAddTickets() {
   }
 }
 
-
   return (
     <div className={styles.container}>
       <div className={styles.formsContainer}>
