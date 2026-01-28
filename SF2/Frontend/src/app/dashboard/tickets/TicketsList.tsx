@@ -206,10 +206,10 @@ export default function TicketsList({ ticketsData }: Props) {
               <p className={`${styles.field} ${styles.data}`}>
                 Data: {ticket.created_at ? new Date(ticket.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : ""}
               </p>
-              <FaRegTrashAlt
+              {/*<FaRegTrashAlt
                 onClick={(e) => { e.stopPropagation(); handleDeleteCardTecnico(ticket.id); }}
                 className={styles.iconTrash}
-              />
+              />*/}
             </div>
           </div>
         ))}
