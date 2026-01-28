@@ -145,6 +145,28 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
               )}
             </div>
 
+           <p className={styles.sectionTitle}>Dados de Localização</p>
+              <div className={styles.infoItem}>
+               <div className={styles.infoItem}>
+                  <label>Local de Abertura</label>
+                  {OrdemdeServico.instituicaoUnidade ? (
+                    <>
+                      <span>{OrdemdeServico.instituicaoUnidade.name}</span>
+                      <p>Endereço: </p>
+                      <span>{OrdemdeServico.instituicaoUnidade.endereco ?? "Endereço não disponível"}</span>
+                    </>
+                  ) : OrdemdeServico.cliente ? (
+                    <>
+                      <span>{OrdemdeServico.cliente.name}</span>
+                      <p>Endereço: </p>
+                      <span>{OrdemdeServico.cliente.endereco ?? "Endereço não disponível"}</span>
+                    </>
+                  ) : (
+                    <span>Localização não Informada</span>
+                  )}
+                </div>
+              </div>
+
             {/* DADOS DA SOLICITAÇÃO */}
             <p className={styles.sectionTitle}>Dados da Solicitação</p>
             <div className={styles.infoGrid}>
