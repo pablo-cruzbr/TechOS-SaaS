@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './ticketsLit.module.scss';
 import { FaRegTrashAlt } from "react-icons/fa";
+import { IoDocumentTextOutline } from "react-icons/io5";
 import { LuRefreshCcw } from "react-icons/lu";
 import { OrdemdeServicoResponseData, OrdemdeServicoProps } from '@/lib/getOrdemdeServico.type';
 import { getCookieClient } from '@/lib/cookieClient';
@@ -206,10 +207,10 @@ export default function TicketsList({ ticketsData }: Props) {
               <p className={`${styles.field} ${styles.data}`}>
                 Data: {ticket.created_at ? new Date(ticket.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : ""}
               </p>
-              {/*<FaRegTrashAlt
-                onClick={(e) => { e.stopPropagation(); handleDeleteCardTecnico(ticket.id); }}
+              <IoDocumentTextOutline
+                onClick={(e) => { e.stopPropagation();}}
                 className={styles.iconTrash}
-              />*/}
+              />
             </div>
           </div>
         ))}
