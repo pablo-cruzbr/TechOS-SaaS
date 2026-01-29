@@ -12,6 +12,7 @@ import { FaComputer } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { useGlobalModal } from "@/provider/GlobalModalProvider";
 import { OrdemdeServicoProps } from "@/lib/getOrdemdeServico.type";
+import { UsuariosProps } from '@/lib/getUsuario.type';
 import EditCardOrdemdeServico from "./EditCardOrdemdeServico";
 import ViewCardFoto from "./ViewCardFoto";
 import DetailTecnico from "./DetailTecnico";
@@ -24,6 +25,7 @@ interface ModalOrdemdeServicoProps {
 export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
   const { closeModal, modalData, modalType, isOpen } = useGlobalModal();
   const OrdemdeServico: OrdemdeServicoProps | undefined = modalData?.[0] || modalData;
+  const [usuario, setUsuario] = useState<UsuariosProps | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isFotos, setIsFotos] = useState(false);
   const [isDetailTecnico, setDetailTecnico] = useState(false);
@@ -106,60 +108,29 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
 
               <div className={styles.infoItem}>
                 <label>Quem abriu a OS:</label>
-                <span>{OrdemdeServico.user.name}</span>
+               
               </div>
 
-              {OrdemdeServico.user?.setor?.name && (
-                <div className={styles.infoItem}>
-                  <label>Setor/Departamento:</label>
-                  <span>{OrdemdeServico.user.setor.name}</span>
-                </div>
-              )}
+             
+             
 
-              {OrdemdeServico.user?.instituicaoUnidade?.name && (
-                <div className={styles.infoItem}>
-                  <label>Instituição:</label>
-                  <span>{OrdemdeServico.user.instituicaoUnidade.name}</span>
-                </div>
-              )}
-
-              {OrdemdeServico.user?.instituicaoUnidade?.endereco && (
-                <div className={styles.infoItem}>
-                  <label>Endereço da Instituição:</label>
-                  <span>{OrdemdeServico.user.instituicaoUnidade.endereco}</span>
-                </div>
-              )}
-
-              {OrdemdeServico.user?.cliente?.name && (
-                <div className={styles.infoItem}>
-                  <label>Empresa:</label>
-                  <span>{OrdemdeServico.user.cliente.name}</span>
-                </div>
-              )}
-
-              {OrdemdeServico.user?.cliente?.endereco && (
-                <div className={styles.infoItem}>
-                 
-                  <span>{OrdemdeServico.user.cliente.endereco}</span>
-                </div>
-              )}
             </div>
 
            <p className={styles.sectionTitle}>Dados de Localização</p>
               <div className={styles.infoItem}>
                <div className={styles.infoItem}>
                   <label>Local de Abertura do Chamado feito pelo Usuário</label>
-                  {OrdemdeServico.user.instituicaoUnidade ? (
+                  {OrdemdeServico.user?.instituicaoUnidade ? (
                     <>
-                    <span>{OrdemdeServico.user.instituicaoUnidade?.name}</span>
+                    <span>{OrdemdeServico?.user?.instituicaoUnidade?.name}</span>
                     
-                    <span>{OrdemdeServico.user.instituicaoUnidade?.endereco ?? "Endereço da Instituição não disponível"}</span>
+                    <span>{OrdemdeServico?.user?.instituicaoUnidade?.endereco ?? "Endereço da Instituição não disponível"}</span>
                     </>
-                  ) : OrdemdeServico.user.cliente ? (
+                  ) : OrdemdeServico?.user?.cliente ? (
                     <>
-                      <span> {OrdemdeServico.user.cliente.name}</span>
+                      <span> {OrdemdeServico?.user?.cliente?.name}</span>
                       <p>Endereço</p>
-                      <span>{OrdemdeServico.user.cliente.endereco ?? "Endereço da empresa não disponível"}</span>
+                      <span>{OrdemdeServico?.user?.cliente?.endereco ?? "Endereço da empresa não disponível"}</span>
                     </>
                   ) : (
                     <span>Localização do usuário que abriu a OS não Informada</span>  

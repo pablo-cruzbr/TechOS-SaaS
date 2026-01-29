@@ -99,6 +99,21 @@ class ListOrdemdeServicoService {
             id: true,
             name: true,
             email: true,
+
+            instituicaoUnidade: {
+              select: {
+                id: true,
+                name: true,
+                endereco: true,
+              }
+            },
+            cliente: {
+              select: {
+                id: true,
+                name: true,
+                endereco: true,
+              }
+            },
           },
         },
       },
