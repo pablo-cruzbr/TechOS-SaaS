@@ -202,9 +202,13 @@ export default function FormularioAddTickets() {
               />
             </div>
 
-            <button type="submit" className={`${styles.btn} ${styles.solid}`}>
-              Enviar Ordem
-            </button>
+           <button 
+            type="submit" 
+            className={`${styles.btn} ${styles.solid}`} 
+            disabled={loading} 
+          >
+            {loading ? "Enviando..." : "Enviar Ordem"} 
+          </button>
           </form>
         </div>
       </div>
