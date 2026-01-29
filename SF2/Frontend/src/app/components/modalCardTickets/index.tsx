@@ -129,14 +129,14 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
                   ) : OrdemdeServico?.user?.cliente ? (
                     <>
                       <span> {OrdemdeServico?.user?.cliente?.name}</span>
-                      <p>Endereço</p>
+                      <label>Endereço de quem abriu o chamado</label>
                       <span>{OrdemdeServico?.user?.cliente?.endereco ?? "Endereço da empresa não disponível"}</span>
                     </>
                   ) : (
                     <span>Localização do usuário que abriu a OS não Informada</span>  
                   )}
 
-                <label>Local de Abertura do Chamado feito pelo Gestor de Chamados:</label>
+                <label>Local do chamado definido pelo gestor de chamados:</label>
                   {OrdemdeServico.instituicaoUnidade ? (
                     <>
                       <span>{OrdemdeServico.instituicaoUnidade.name}</span>
