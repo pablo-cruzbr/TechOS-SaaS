@@ -90,7 +90,7 @@ export interface OrdemdeServicoProps {
     endereco?: string;
   };
 
-  usuario: {
+  user: {
     id: string;
     name: string;
     email: string;
