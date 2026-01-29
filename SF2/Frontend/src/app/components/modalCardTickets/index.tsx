@@ -139,7 +139,7 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
 
               {OrdemdeServico.user?.cliente?.endereco && (
                 <div className={styles.infoItem}>
-                  <label>Endereço:</label>
+                 
                   <span>{OrdemdeServico.user.cliente.endereco}</span>
                 </div>
               )}
@@ -148,17 +148,34 @@ export function ModalOrdemdeServico({ data }: ModalOrdemdeServicoProps) {
            <p className={styles.sectionTitle}>Dados de Localização</p>
               <div className={styles.infoItem}>
                <div className={styles.infoItem}>
-                  <label>Local de Abertura</label>
+                  <label>Local de Abertura do Chamado feito pelo Usuário</label>
+                  {OrdemdeServico.user.instituicaoUnidade ? (
+                    <>
+                    <span>{OrdemdeServico.user.instituicaoUnidade?.name}</span>
+                    
+                    <span>{OrdemdeServico.user.instituicaoUnidade?.endereco ?? "Endereço da Instituição não disponível"}</span>
+                    </>
+                  ) : OrdemdeServico.user.cliente ? (
+                    <>
+                      <span> {OrdemdeServico.user.cliente.name}</span>
+                      <p>Endereço</p>
+                      <span>{OrdemdeServico.user.cliente.endereco ?? "Endereço da empresa não disponível"}</span>
+                    </>
+                  ) : (
+                    <span>Localização do usuário que abriu a OS não Informada</span>  
+                  )}
+
+                <label>Local de Abertura do Chamado feito pelo Gestor de Chamados:</label>
                   {OrdemdeServico.instituicaoUnidade ? (
                     <>
                       <span>{OrdemdeServico.instituicaoUnidade.name}</span>
-                      <p>Endereço: </p>
+                    
                       <span>{OrdemdeServico.instituicaoUnidade.endereco ?? "Endereço não disponível"}</span>
                     </>
                   ) : OrdemdeServico.cliente ? (
                     <>
                       <span>{OrdemdeServico.cliente.name}</span>
-                      <p>Endereço: </p>
+                      <label>Endereço:</label>
                       <span>{OrdemdeServico.cliente.endereco ?? "Endereço não disponível"}</span>
                     </>
                   ) : (
