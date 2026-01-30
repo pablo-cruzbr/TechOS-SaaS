@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import 'express-async-errors';
 import cors from 'cors'; 
 import path from 'path'; 
-import fileUpload from 'express-fileupload'; // 1. Importe aqui
+import fileUpload from 'express-fileupload'; 
 import { router } from "./routes"; 
 
 const app = express();
@@ -15,9 +15,9 @@ app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: '/tmp/',
   createParentPath: true,
-  parseNested: true, // Importante para lidar com múltiplos 'file' no FormData
+  parseNested: true, 
   limits: { fileSize: 50 * 1024 * 1024 }, 
-  debug: true // Mude para true se precisar ver logs detalhados do upload no console
+  debug: true 
 }));
 
 app.get("/hello", (req, res) => {
