@@ -100,6 +100,8 @@ Solução: Foi feito uma Renderização Condicional para solução do problema
 - Notificações push no app mobile  
 - Relatórios customizados e gráficos avançados
 - Criar permissões de logins usando nodeJS (jsonwebtoken (JWT))
+- Implementar validação com Zod ou Joi nas rotas da API (Maturidade/Segurança).
+
 
 
 ---
