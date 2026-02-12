@@ -64,8 +64,8 @@ Principais funcionalidades:
 - Formulário de atendimento  
 - Upload e envio de imagens (biblioteca expo-image-picker)  - (Armazenamento em nuvem - Cloudinary)
 - Assinatura Digital (react-native-signature-canvas)
-- Conclusão de ordens
-
+- Conclusão de Ordens de Serviço
+  
 ---
 
 ## 🛠 Tecnologias Utilizadas
