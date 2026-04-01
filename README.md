@@ -112,11 +112,16 @@ Principais funcionalidades:
 
 ## 💡 Motivação
 
-Além de eu ser Técnico de Helpdesk Nível 2, este projeto foi criado com no período de 4 meses com o intuito de ajudar a empresa a qual o eu trabalho atualmente chamada AlltiService que force serviços de informática, demonstrando **habilidades em Programação Fullstack**, integrando sistemas Web e Mobile, com foco em:  
-- Automação e eficiência  
-- Segurança e autenticação  
-- Escalabilidade e organização de dados  
-- Experiência de usuário moderna e responsiva  
+Empresas de informática no Brasil enfrentam um problema silencioso: sistemas de 
+gestão desatualizados que fragmentam o atendimento técnico em múltiplas telas, 
+dificultam o controle de ativos e travam o fluxo de trabalho dos técnicos de campo.
+
+O resultado é atendimento lento, retrabalho constante e gestores sem visibilidade 
+real do que acontece na operação.
+
+O AlltiControl foi construído para resolver exatamente isso: unificar a operação 
+em uma interface mobile-first para técnicos e um painel web para gestores, 
+eliminando o atrito do processo e devolvendo tempo para quem trabalha na ponta.
 
 ---
 ## Problemas Conhecidos e Soluções (Concluído e Resolvido !)
