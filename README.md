@@ -8,6 +8,41 @@
   <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white" /></a>
   <a href="https://reactnative.dev/"><img src="https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=white" /></a>
 </p>
+## 🚀 Sobre o Projeto
+
+> Sistema SaaS fullstack Web + Mobile em produção em 15+ órgãos públicos municipais.
+
+## 🚨 O Problema
+
+Empresas de informática gerenciavam chamados em sistemas legados com navegação 
+fragmentada de 5 a 6 telas por atendimento. O processo era lento, gerava retrabalho 
+dos técnicos de campo e dificultava o controle dos gestores.
+
+## ✅ A Solução
+
+O TechOS unificou todo o fluxo em 2 telas com interface mobile-first para 
+técnicos e painel web para gestores, substituindo o sistema anterior (ALVO) por 
+uma experiência integrada e intuitiva.
+
+## 📊 Impacto Real
+
+| Métrica | Antes | Depois |
+|---|---|---|
+| Telas por atendimento | 5-6 telas | 2 telas |
+| Etapas de preenchimento | 100% | Redução de 83% |
+| Órgãos públicos atendidos | 0 | 15+ municípios |
+| Tempo de desenvolvimento | — | 6 meses (jun-dez/2025) |
+
+## 🏗️ Contexto
+
+Desenvolvido paralelamente à atuação como técnico de helpdesk N2, o projeto 
+foi validado com técnicos de campo em cada feature, apresentado à gestão com 
+protótipo funcional de 3 módulos-chave e aprovado para produção — resultando 
+em promoção a Desenvolvedor Fullstack.
+
+Atualmente em implantação em prefeituras, escolas e postos de saúde.
+
+Ele foi projetado para **facilitar a rotina operacional**, organizar atendimentos e melhorar a comunicação entre técnicos e clientes.  
 
 <img width="1280" height="800" alt="5" src="https://github.com/user-attachments/assets/2a391f74-2da2-4bd9-94e6-3dc382919e3e" />
 ---
@@ -22,12 +57,6 @@
 
 <img width="1280" height="800" alt="8" src="https://github.com/user-attachments/assets/2c65e271-6da0-4d9f-8c9e-28d120429567" />
 ---
-
-## 🚀 Sobre o Projeto
-
-O **Tech OS** é um sistema completo para gestão de **Ordens de Serviço (OS)** e tickets internos, desenvolvido para empresas de informática que oferecem serviços de **hardware, helpdesk, telecom e gestão de máquinas**.  
-
-Ele foi projetado para **facilitar a rotina operacional**, organizar atendimentos e melhorar a comunicação entre técnicos e clientes.  
 
 Principais funcionalidades:  
 - Registro completo de OS e tickets internos
